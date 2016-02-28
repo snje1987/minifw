@@ -72,10 +72,8 @@ class Config{
     protected static function _load_config(){
         $cfg = [];
         require_once __DIR__ . '/defaults.php';
-        self::$_data = $cfg;
-        $cfg = [];
         require_once WEB_ROOT . '/config.php';
-        self::$_data = array_replace_recursive(self::$_data, $cfg);
+        self::$_data = $cfg;
     }
 
 }
