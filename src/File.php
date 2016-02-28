@@ -273,4 +273,31 @@ class File{
         }
     }
 
+    /**
+     * 列出指定目录的内容
+     *
+     * @param string $path 要检测的目录
+     * @return array 目录中的文件列表
+     */
+    public static function ls($path){
+        if(substr($path, -1) !== '/'){
+            $path .= '/';
+        }
+        $res = [];
+        if (is_dir($path)) {
+            if ($dh = opendir($path)) {
+                while (($file = readdir($dh)) !== false) {
+                    if($file === '.' || $file === '..'){
+                        continue;
+                    }
+                    $res[] = [
+                        'name' => $file,
+                        'dir' => is_dir($path . $file),
+                    ];
+                }
+                closedir($dh);
+            }
+        }
+        return $res;
+    }
 }
