@@ -137,6 +137,48 @@ abstract class Table{
     }
 
     /**
+     * 使用Ajax方式调用指定方法
+     *
+     * @param mixed $post 方法的参数
+     * @param string $call 调用的方法
+     */
+    public static function common_call($post, $call){
+        try{
+            $ret = call_user_func($call, $post);
+            if(is_array($ret)){
+                $res = [
+                    'succeed' => true,
+                    'returl' => urldecode($post['returl']),
+                ];
+                if(isset($ret['returl'])){
+                    $res['returl'] = $ret['returl'];
+                }
+                if(isset($ret['msg'])){
+                    $res['msg'] = $ret['msg'];
+                }
+                die(Json::encode($res));
+            }
+            elseif($ret == true){
+                die(Json::encode([
+                    'succeed' => true,
+                    'returl' => urldecode($post['returl']),
+                ]));
+            }
+            else{
+                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
+            }
+        }catch(Minifw\Exception $e){
+            die(Json::encode(['succeed' => false, 'msg' => $e->getMessage()]));
+        }catch(\Exception $e){
+            if(DEBUG){
+                throw $e;
+            }else{
+                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
+            }
+        }
+    }
+
+    /**
      * 根据条件计算数据的条数
      *
      * @param array $condition 计算的条件
