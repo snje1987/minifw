@@ -129,6 +129,10 @@ class Tpl{
                     '/\<{inc (\S*?) (\S*?)\s*}\>/',
                     '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"' . $theme . '"); ?>', $str);
 
+            $str = preg_replace(
+                    '/\<{inc (\S*?) (\S*?) (\S*?)\s*}\>/',
+                    '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"$3"); ?>', $str);
+
             $str = preg_replace('/\<{ (.*?)}\>/', '<?php echo ($1); ?>', $str);
             $str = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){ ?>', $str);
             $str = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){ ?>', $str);
