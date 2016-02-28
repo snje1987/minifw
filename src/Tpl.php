@@ -46,7 +46,9 @@ class Tpl{
      * @param string $args 页面参数
      * @param string $theme 模板的主题
      */
-    public static function display($tpl, $args, $theme){
+    public static function display($tpl, $args, $theme = ''){
+        $theme = ($theme == '' ? Minifw\Config::get('main','theme') : $theme);
+
         self::$theme_path = Minifw\Config::get('path', 'theme');
         self::$res_path = Minifw\Config::get('path', 'theme_res');
         self::$compiled_path = Minifw\Config::get('path', 'compiled');
