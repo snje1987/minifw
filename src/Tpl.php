@@ -63,6 +63,9 @@ class Tpl{
             }
             catch(\Exception $ex){
                 ob_end_clean();
+                if(DEBUG){
+                    throw $ex;
+                }
                 return false;
             }
             ob_end_flush();
@@ -110,19 +113,6 @@ class Tpl{
             $str = preg_replace('/\s{2,}/i', ' ', $str);
 
             /* 处理模板中的处理逻辑语句——开始 */
-
-            $str = preg_replace(
-                    '/\<{call ([_\\\a-zA-Z0-9]*) ([_a-zA-Z0-9]*)\s*}\>/',
-                    '<?php $1::api_$2([]); ?>', $str);
-
-            $str = preg_replace(
-                    '/\<{call ([_\\\a-zA-Z0-9]*) ([_a-zA-Z0-9]*) (\S*?)\s*}\>/',
-                    '<?php $1::api_$2($3); ?>', $str);
-
-            $str = preg_replace(
-                    '/\<{call ([_\\\a-zA-Z0-9]*) ([_a-zA-Z0-9]*) (\S*?) (\S*?)\s*}\>/',
-                    '<?php $4 = $1::api_$2($3); ?>', $str);
-
             $str = preg_replace(
                     '/\<{inc (\S*?)\s*}\>/',
                     '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",[],"' . $theme . '"); ?>', $str);
@@ -153,7 +143,7 @@ class Tpl{
                     '<?php foreach($1 as $2 => $3){ ?>', $str);
 
             $str = preg_replace('/\<{\/foreach}\>/', '<?php } ?>', $str);
-            $str = preg_replace('/\<{p (.*?)}\>/', '<?php $1 ?>', $str);
+            $str = preg_replace('/\<{(\S.*?)}\>/', '<?php $1; ?>', $str);
             $str = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $str);
             /* 处理模板中的处理逻辑语句——完成 */
 
