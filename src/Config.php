@@ -72,7 +72,7 @@ class Config{
     protected static function _load_config(){
         $cfg = [];
         require_once __DIR__ . '/defaults.php';
-        require_once WEB_ROOT . '/config.php';
+        require_once WEB_ROOT . CFG_FILE;
         self::$_data = $cfg;
     }
 
