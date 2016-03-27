@@ -39,12 +39,31 @@ abstract class Table{
     /**
      * @var string 数据表的名称
      */
-    public $_tbname = '';
+    const TBNAME = '';
+
+    protected static $_instance = [];
 
     /**
      * @var Minifw\DB 数据库的实例
      */
     protected $_db;
+
+    /**
+     * 获取数据表实例
+     *
+     * @param array args 实例参数
+     * @return static 数据表实例
+     */
+    public static function get($args = []){
+        $id = '';
+        if(!empty($args)){
+            $id = strval($args['id']);
+        }
+        if(!isset(self::$_instance[$id])){
+            self::$_instance[$id] = new static($args);
+        }
+        return self::$_instance[$id];
+    }
 
     /**
      * 启用事务处理，执行指定的方法
@@ -137,55 +156,13 @@ abstract class Table{
     }
 
     /**
-     * 使用Ajax方式调用指定方法
-     *
-     * @param mixed $post 方法的参数
-     * @param string $call 调用的方法
-     */
-    public static function common_call($post, $call){
-        try{
-            $ret = call_user_func($call, $post);
-            if(is_array($ret)){
-                $res = [
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ];
-                if(isset($ret['returl'])){
-                    $res['returl'] = $ret['returl'];
-                }
-                if(isset($ret['msg'])){
-                    $res['msg'] = $ret['msg'];
-                }
-                die(Json::encode($res));
-            }
-            elseif($ret == true){
-                die(Json::encode([
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ]));
-            }
-            else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }catch(Minifw\Exception $e){
-            die(Json::encode(['succeed' => false, 'msg' => $e->getMessage()]));
-        }catch(\Exception $e){
-            if(DEBUG){
-                throw $e;
-            }else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }
-    }
-
-    /**
      * 根据条件计算数据的条数
      *
      * @param array $condition 计算的条件
      * @return int 数据的数量
      */
     public function count($condition = []){
-        return $this->_db->count($this->_tbname, $condition);
+        return $this->_db->count(static::TBNAME, $condition);
     }
 
     /**
@@ -196,7 +173,7 @@ abstract class Table{
      */
     public function add($post){
         $data = $this->_prase($post, 1);
-        return $this->_db->insert($this->_tbname, $data);
+        return $this->_db->insert(static::TBNAME, $data);
     }
 
     /**
@@ -209,7 +186,7 @@ abstract class Table{
         $data = $this->_prase($post, 2);
         $condition = [];
         $condition['id'] = intval($post['id']);
-        return $this->_db->update($this->_tbname, $data, $condition);
+        return $this->_db->update(static::TBNAME, $data, $condition);
     }
 
     /**
@@ -225,7 +202,7 @@ abstract class Table{
         $condition['id'] = intval($id);
         $data = [];
         $data[strval($field)] = $value;
-        return $this->_db->update($this->_tbname, $data, $condition);
+        return $this->_db->update(static::TBNAME, $data, $condition);
     }
 
     /**
@@ -238,7 +215,7 @@ abstract class Table{
         $condition = [
             'id' => intval($id)
         ];
-        return $this->_db->delete($this->_tbname, $condition);
+        return $this->_db->delete(static::TBNAME, $condition);
     }
 
     /**
@@ -250,7 +227,7 @@ abstract class Table{
     public function get_by_id($id){
         $condition = [];
         $condition['id'] = intval($id);
-        return $this->_db->one_query($this->_tbname, $condition);
+        return $this->_db->one_query(static::TBNAME, $condition);
     }
 
     /**
@@ -261,7 +238,7 @@ abstract class Table{
      * @return array 要查询的数据
      */
     public function get_one($condition, $field = []){
-        return $this->_db->one_query($this->_tbname, $condition, $field);
+        return $this->_db->one_query(static::TBNAME, $condition, $field);
     }
 
     /**
@@ -276,7 +253,7 @@ abstract class Table{
         $value = strval($value);
         $condition = [];
         $condition[$field] = $value;
-        return $this->_db->one_query($this->_tbname, $condition);
+        return $this->_db->one_query(static::TBNAME, $condition);
     }
 
     /**
@@ -291,7 +268,7 @@ abstract class Table{
         $value = strval($value);
         $condition = [];
         $condition[$field] = $value;
-        return $this->_db->limit_query($this->_tbname, $condition);
+        return $this->_db->limit_query(static::TBNAME, $condition);
     }
 
     /**
@@ -302,7 +279,7 @@ abstract class Table{
      * @return array 查询的结果
      */
     public function gets_by_condition($condition = [], $field = []){
-        return $this->_db->limit_query($this->_tbname, $condition, $field);
+        return $this->_db->limit_query(static::TBNAME, $condition, $field);
     }
 
     /**
@@ -347,10 +324,8 @@ abstract class Table{
     }
 
     public function drop(){
-        $this->_db->query('drop table if exists `' . $this->_tbname . '`');
+        $this->_db->query('drop table if exists `' . static::TBNAME . '`');
     }
-
-    abstract public function create($args = []);
 
     /*     * ******************************************************* */
 
@@ -358,7 +333,7 @@ abstract class Table{
      * 私有构造函数
      */
     protected function __construct($args = []){
-
+        $this->_db = DB::get($args);
     }
 
     /**

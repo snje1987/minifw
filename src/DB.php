@@ -41,7 +41,11 @@ abstract class DB{
      *
      * @return Minifw\DB 数据库唯一的实例
      */
-    public static function get($args = [], $type = ''){
+    public static function get($args = []){
+        $type = '';
+        if(isset($args['type'])){
+            $type = strval($args['type']);
+        }
         if($type == ''){
             $type = Minifw\Config::get('main', 'db', '');
         }
