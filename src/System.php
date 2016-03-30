@@ -37,13 +37,27 @@ class System{
 
     protected $_calls = [];
 
+    public function __construct($config = '/config.php') {
+        
+        if(!defined('CFG_FILE')){
+            define('CFG_FILE', $config);
+        }
+        if(!defined('WEB_ROOT')){
+            if(isset($_SERVER['DOCUMENT_ROOT'])){
+                define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
+            }
+            else{
+                die('"WEB_ROOT" is not define.');
+            }
+        }
+    }
+
     /**
      * 初始化系统
      */
     public function run(){
         $this->_set_env();
-        $this->dispatch(
-                $_SERVER[Minifw\Config::get('main', 'uri', 'REQUEST_URI')]);
+        $this->dispatch($_SERVER[Minifw\Config::get('main', 'uri', 'REQUEST_URI')]);
     }
 
     public function reg_call($reg, $callback){
