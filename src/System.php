@@ -38,7 +38,7 @@ class System{
     protected $_calls = [];
 
     public function __construct($config = '/config.php') {
-        
+
         if(!defined('CFG_FILE')){
             define('CFG_FILE', $config);
         }
@@ -128,75 +128,29 @@ class System{
     }
 
     /**
-     * 分发请求到对应的响应控制器
+     * 分发请求到对应的回调函数
      *
      * @param string $path 请求的路径
      */
     public function dispatch($path){
-        $order = Minifw\Config::get('route');
-        foreach($order as $v){
-            switch($v){
-            case 'tpl':
-                if($this->tpl($path)){
-                    return;
-                }
-                break;
-            case 'call':
-                if($this->call($path)){
-                    return;
-                }
-                break;
+        foreach($this->_calls as $v){
+            $matches = [];
+            if(preg_match($v['reg'], $path, $matches) === 1){
+                array_shift($matches);
+                call_user_func_array($v['callback'], $matches);
+                return;
             }
         }
         Minifw\Server::show_404();
     }
 
     /**
-     * 处理回调函数
+     * 按照路径规则解析路径信息
      *
      * @param string $path 请求的路径
-     * @return boolean 成功返回true,失败返回false
+     * @return array 路径信息
      */
-    public function call($path){
-        foreach($this->_calls as $v){
-            $matches = [];
-            if(preg_match($v['reg'], $path, $matches) === 1){
-                array_shift($matches);
-                call_user_func_array($v['callback'], $matches);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 查找并显示模板
-     *
-     * @param string $path 请求的路径
-     * @return boolean 成功返回true,失败返回false
-     */
-    public function tpl($path){
-        list($dir, $fname, $args) = self::path_info($path);
-        $theme = Config::get('main', 'tpl_name', '');
-        if($fname == ''){
-            $fname = Config::get('main', 'def_tpl', '');
-        }
-
-        if($theme == '' || $fname == ''){
-            return false;
-        }
-
-        $tpl = $dir . '/' . $fname;
-        return Tpl::display($tpl, $args, $theme);
-    }
-
-    /**
-     * 分析请求，找到对应的模板
-     *
-     * @param string $path 请求的路径
-     * @return array 请求的响应控制器、响应方法以及参数
-     */
-    protected static function path_info($path){
+    public static function path_info($path){
         $path = strval($path);
         $index = strpos($path,'?');
         if($index !== false){

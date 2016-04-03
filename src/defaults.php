@@ -42,17 +42,8 @@ $cfg['main'] = [
     'domain' => '',
     'err_404' => '/www/error/404.html',
     'uri' => 'REQUEST_URI',
-    'tpl_name' => '',
     'theme' => '',
-    'def_tpl' => '',
 ];
-
-/*
- * 定义url路径处理方法优先级
- * tpl: 调用模板
- * call: 调用回调函数
- */
-$cfg['route'] = ['call', 'tpl'];
 
 $cfg['mysql'] = [
     'host' => 'localhost',
