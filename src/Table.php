@@ -28,13 +28,14 @@
  */
 
 namespace Org\Snje\Minifw;
+
 use Org\Snje\Minifw as Minifw;
 use Zend\Json\Json as Json;
 
 /**
  * 定义数据表的基本操作
  */
-abstract class Table{
+abstract class Table {
 
     /**
      * @var string 数据表的名称
@@ -54,12 +55,12 @@ abstract class Table{
      * @param array args 实例参数
      * @return static 数据表实例
      */
-    public static function get($args = []){
+    public static function get($args = []) {
         $id = '';
-        if(!empty($args)){
+        if (!empty($args)) {
             $id = strval($args['id']);
         }
-        if(!isset(self::$_instance[$id])){
+        if (!isset(self::$_instance[$id])) {
             self::$_instance[$id] = new static($args);
         }
         return self::$_instance[$id];
@@ -71,45 +72,15 @@ abstract class Table{
      * @param mixed $post 方法的参数
      * @param string $call 调用的方法
      */
-    public function sync_call($post, $call){
+    public function sync_call($post, $call, $die = true) {
         $this->_db->begin();
-        try{
-            $ret = $this->$call($post);
-            if(is_array($ret)){
-                 $res = [
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ];
-                if(isset($ret['returl'])){
-                    $res['returl'] = $ret['returl'];
-                }
-                if(isset($ret['msg'])){
-                    $res['msg'] = $ret['msg'];
-                }
-                $this->_db->commit();
-                die(Json::encode($res));
-            }
-            elseif($ret == true){
-                $this->_db->commit();
-                die(Json::encode([
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ]));
-            }
-            else{
-                $this->_db->rollback();
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }catch(Minifw\Exception $e){
+        if (Common::json_call($post, [$this, $call], false)) {
+            $this->_db->commit();
+        } else {
             $this->_db->rollback();
-            die(Json::encode(['succeed' => false, 'msg' => $e->getMessage()]));
-        }catch(\Exception $e){
-            $this->_db->rollback();
-            if(DEBUG){
-                throw $e;
-            }else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
+        }
+        if ($die) {
+            die(0);
         }
     }
 
@@ -119,40 +90,8 @@ abstract class Table{
      * @param mixed $post 方法的参数
      * @param string $call 调用的方法
      */
-    public function json_call($post, $call){
-        try{
-            $ret = $this->$call($post);
-            if(is_array($ret)){
-                $res = [
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ];
-                if(isset($ret['returl'])){
-                    $res['returl'] = $ret['returl'];
-                }
-                if(isset($ret['msg'])){
-                    $res['msg'] = $ret['msg'];
-                }
-                die(Json::encode($res));
-            }
-            elseif($ret == true){
-                die(Json::encode([
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ]));
-            }
-            else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }catch(Minifw\Exception $e){
-            die(Json::encode(['succeed' => false, 'msg' => $e->getMessage()]));
-        }catch(\Exception $e){
-            if(DEBUG){
-                throw $e;
-            }else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }
+    public function json_call($post, $call, $die = true) {
+        Common::json_call($post, [$this, $call], $die);
     }
 
     /**
@@ -161,7 +100,7 @@ abstract class Table{
      * @param array $condition 计算的条件
      * @return int 数据的数量
      */
-    public function count($condition = []){
+    public function count($condition = []) {
         return $this->_db->count(static::TBNAME, $condition);
     }
 
@@ -171,7 +110,7 @@ abstract class Table{
      * @param array $post 要插入的数据
      * @return bool 成功返回true，失败返回false
      */
-    public function add($post){
+    public function add($post) {
         $data = $this->_prase($post, 1);
         return $this->_db->insert(static::TBNAME, $data);
     }
@@ -182,7 +121,7 @@ abstract class Table{
      * @param array $post 修改的条件和数值
      * @return bool 成功返回true，否则返回false
      */
-    public function edit($post){
+    public function edit($post) {
         $data = $this->_prase($post, 2);
         $condition = [];
         $condition['id'] = intval($post['id']);
@@ -197,7 +136,7 @@ abstract class Table{
      * @param mixed $value 要修改成的值
      * @return bool 成功返回true，否则返回false
      */
-    public function set_field($id, $field, $value){
+    public function set_field($id, $field, $value) {
         $condition = [];
         $condition['id'] = intval($id);
         $data = [];
@@ -211,7 +150,7 @@ abstract class Table{
      * @param int $id 要删除数据的id
      * @return bool 成功返回ture，否则返回fasle
      */
-    public function del($id){
+    public function del($id) {
         $condition = [
             'id' => intval($id)
         ];
@@ -224,7 +163,7 @@ abstract class Table{
      * @param int $id 要获取的数据的id
      * @return array 具有指定id的数据
      */
-    public function get_by_id($id){
+    public function get_by_id($id) {
         $condition = [];
         $condition['id'] = intval($id);
         return $this->_db->one_query(static::TBNAME, $condition);
@@ -237,7 +176,7 @@ abstract class Table{
      * @param array $field 查询的字段
      * @return array 要查询的数据
      */
-    public function get_one($condition, $field = []){
+    public function get_one($condition, $field = []) {
         return $this->_db->one_query(static::TBNAME, $condition, $field);
     }
 
@@ -248,7 +187,7 @@ abstract class Table{
      * @param string $value 指定的值
      * @return array 查询的结果
      */
-    public function get_by_field($field, $value){
+    public function get_by_field($field, $value) {
         $field = strval($field);
         $value = strval($value);
         $condition = [];
@@ -263,7 +202,7 @@ abstract class Table{
      * @param string $value 指定的值
      * @return array 查询的结果
      */
-    public function gets_by_field($field, $value){
+    public function gets_by_field($field, $value) {
         $field = strval($field);
         $value = strval($value);
         $condition = [];
@@ -278,7 +217,7 @@ abstract class Table{
      * @param array $field 查询的字段
      * @return array 查询的结果
      */
-    public function gets_by_condition($condition = [], $field = []){
+    public function gets_by_condition($condition = [], $field = []) {
         return $this->_db->limit_query(static::TBNAME, $condition, $field);
     }
 
@@ -288,7 +227,7 @@ abstract class Table{
      * @param string $sql sql语句
      * @return array 查询的结果
      */
-    public function gets_by_query($sql){
+    public function gets_by_query($sql) {
         return $this->_db->get_query($sql);
     }
 
@@ -298,32 +237,32 @@ abstract class Table{
      * @param string $sql sql语句
      * @return mixed 查询的结果
      */
-    public function query($sql){
+    public function query($sql) {
         return $this->_db->query($sql);
     }
 
     /**
      * 开启事务
      */
-    public function begin(){
+    public function begin() {
         $this->_db->begin();
     }
 
     /**
      * 提交事务
      */
-    public function commit(){
+    public function commit() {
         $this->_db->commit();
     }
 
     /**
      * 回滚事务
      */
-    public function rollback(){
+    public function rollback() {
         $this->_db->rollback();
     }
 
-    public function drop(){
+    public function drop() {
         $this->_db->query('drop table if exists `' . static::TBNAME . '`');
     }
 
@@ -332,7 +271,7 @@ abstract class Table{
     /**
      * 私有构造函数
      */
-    protected function __construct($args = []){
+    protected function __construct($args = []) {
         $this->_db = DB::get($args);
     }
 

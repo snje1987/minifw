@@ -25,7 +25,7 @@
  * @Description
  */
 
-namespace Test;
+namespace Org\Snje\MinifwTest;
 
 class TestFunction {
 

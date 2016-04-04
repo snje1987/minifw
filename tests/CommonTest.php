@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Test;
+namespace Org\Snje\MinifwTest;
 
 use Org\Snje\Minifw as FW;
 
@@ -36,71 +36,13 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function test_json_call_static() {
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', false);
-        $this->assertEquals($ret, [
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'msg' => '操作失败',
-                'returl' => '',
-            ],
-        ]);
+        $count = count(self::$input);
+        for ($i = 0; $i < $count; $i++) {
+            $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_func', self::$input[$i]);
+            $this->assertEquals($ret, self::$expect[$i]);
+        }
 
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', true);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
-        ]);
-
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', []);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
-        ]);
-
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', [
-                    'returl' => 'testurl',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-            ],
-        ]);
-
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', [
-                    'msg' => 'testmsg',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-                'msg' => 'testmsg',
-            ],
-        ]);
-
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_func', [
-                    'msg' => 'testmsg',
-                    'returl' => 'testurl',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-                'msg' => 'testmsg',
-            ],
-        ]);
-
-        $ret = self::funcTest(__NAMESPACE__ . '\TestFunction::static_except', '测试消息');
+        $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_except', '测试消息');
         $this->assertEquals($ret, [
             'ret' => false,
             'output' => [
@@ -113,71 +55,13 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
 
     public function test_json_call_func() {
         $obj = new TestFunction();
-        $ret = self::funcTest([$obj, 'func'], false);
-        $this->assertEquals($ret, [
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'msg' => '操作失败',
-                'returl' => '',
-            ],
-        ]);
+        $count = count(self::$input);
+        for ($i = 0; $i < $count; $i++) {
+            $ret = self::func_test([$obj, 'func'], self::$input[$i]);
+            $this->assertEquals($ret, self::$expect[$i]);
+        }
 
-        $ret = self::funcTest([$obj, 'func'], true);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
-        ]);
-
-        $ret = self::funcTest([$obj, 'func'], []);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
-        ]);
-
-        $ret = self::funcTest([$obj, 'func'], [
-                    'returl' => 'testurl',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-            ],
-        ]);
-
-        $ret = self::funcTest([$obj, 'func'], [
-                    'msg' => 'testmsg',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-                'msg' => 'testmsg',
-            ],
-        ]);
-
-        $ret = self::funcTest([$obj, 'func'], [
-                    'msg' => 'testmsg',
-                    'returl' => 'testurl',
-        ]);
-        $this->assertEquals($ret, [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-                'msg' => 'testmsg',
-            ],
-        ]);
-
-        $ret = self::funcTest([$obj, 'func_except'], '测试消息');
+        $ret = self::func_test([$obj, 'func_except'], '测试消息');
         $this->assertEquals($ret, [
             'ret' => false,
             'output' => [
@@ -188,7 +72,7 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
         ]);
     }
 
-    public static function funcTest($func, $args) {
+    public static function func_test($func, $args) {
         ob_start();
         $ret = FW\Common::json_call($args, $func, false);
         $output = ob_get_clean();
@@ -197,5 +81,68 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
             'output' => \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY),
         ];
     }
+
+    public static $input = [
+        false,
+        true,
+        [],
+        [
+            'returl' => 'testurl',
+        ],
+        [
+            'msg' => 'testmsg',
+        ],
+        [
+            'msg' => 'testmsg',
+            'returl' => 'testurl',
+        ]
+    ];
+    public static $expect = [
+        [
+            'ret' => false,
+            'output' => [
+                'succeed' => false,
+                'msg' => '操作失败',
+                'returl' => '',
+            ],
+        ],
+        [
+            'ret' => true,
+            'output' => [
+                'succeed' => true,
+                'returl' => '',
+            ],
+        ],
+        [
+            'ret' => true,
+            'output' => [
+                'succeed' => true,
+                'returl' => '',
+            ],
+        ],
+        [
+            'ret' => true,
+            'output' => [
+                'succeed' => true,
+                'returl' => 'testurl',
+            ],
+        ],
+        [
+            'ret' => true,
+            'output' => [
+                'succeed' => true,
+                'returl' => '',
+                'msg' => 'testmsg',
+            ],
+        ],
+        [
+            'ret' => true,
+            'output' => [
+                'succeed' => true,
+                'returl' => 'testurl',
+                'msg' => 'testmsg',
+            ],
+        ],
+    ];
 
 }
