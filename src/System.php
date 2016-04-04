@@ -33,16 +33,15 @@ use Org\Snje\Minifw as Minifw;
 /**
  * 系统的相关操作
  */
-class System{
+class System {
 
     protected $_calls = [];
 
     public function __construct($config = ['/config.php']) {
-        if(!defined('WEB_ROOT')){
-            if(isset($_SERVER['DOCUMENT_ROOT'])){
+        if (!defined('WEB_ROOT')) {
+            if (isset($_SERVER['DOCUMENT_ROOT'])) {
                 define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
-            }
-            else{
+            } else {
                 die('"WEB_ROOT" is not define.');
             }
         }
@@ -52,12 +51,12 @@ class System{
     /**
      * 初始化系统
      */
-    public function run(){
+    public function run() {
         $this->_set_env();
         $this->dispatch($_SERVER[Minifw\Config::get('main', 'uri', 'REQUEST_URI')]);
     }
 
-    public function reg_call($reg, $callback){
+    public function reg_call($reg, $callback) {
         $this->_calls[] = [
             'reg' => $reg,
             'callback' => $callback,
@@ -67,7 +66,7 @@ class System{
     /**
      * 配置系统的主要参数
      */
-    protected function _set_env(){
+    protected function _set_env() {
         //设置错误处理函数
         set_error_handler([__NAMESPACE__ . '\Error', 'captureNormal']);
         //设置异常处理函数
@@ -93,10 +92,10 @@ class System{
         //处理Flash丢失cookie的问题
         $session_id = '';
         isset($_POST[$session_name]) && $session_id = strval($_POST[$session_name]);
-        if($session_id == ''){
+        if ($session_id == '') {
             isset($_GET[$session_name]) && $session_id = strval($_GET[$session_name]);
         }
-        if($session_id != ''){
+        if ($session_id != '') {
             session_id($session_id);
         }
         session_start();
@@ -108,16 +107,15 @@ class System{
      * @param mixed $string 要处理的数据
      * @return mixed 处理后的数据
      */
-    public static function magic_gpc($string){
-        if(is_array($string)) {
-            foreach($string as $key => $val) {
+    public static function magic_gpc($string) {
+        if (is_array($string)) {
+            foreach ($string as $key => $val) {
                 $string[$key] = self::magic_gpc($val);
             }
         } else {
-            if(MAGIC_QUOTES_GPC){
+            if (MAGIC_QUOTES_GPC) {
                 $string = stripslashes(trim($string));
-            }
-            else{
+            } else {
                 $string = trim($string);
             }
         }
@@ -129,10 +127,10 @@ class System{
      *
      * @param string $path 请求的路径
      */
-    public function dispatch($path){
-        foreach($this->_calls as $v){
+    public function dispatch($path) {
+        foreach ($this->_calls as $v) {
             $matches = [];
-            if(preg_match($v['reg'], $path, $matches) === 1){
+            if (preg_match($v['reg'], $path, $matches) === 1) {
                 array_shift($matches);
                 call_user_func_array($v['callback'], $matches);
                 return;
@@ -147,26 +145,28 @@ class System{
      * @param string $path 请求的路径
      * @return array 路径信息
      */
-    public static function path_info($path){
+    public static function path_info($path) {
         $path = strval($path);
-        $index = strpos($path,'?');
-        if($index !== false){
-            $path = substr($path,0,$index);
+        $index = strpos($path, '?');
+        if ($index !== false) {
+            $path = substr($path, 0, $index);
         }
 
         $matches = [];
-        if(preg_match('/^(\/[_a-z0-9\/]*)?\/([_a-z\.0-9]*)(-([_a-z0-9-]*))?(!.*)?$/', $path, $matches) == 0){
+        if (preg_match('/^(\/[_a-z0-9\/]*)?\/([_a-z\.0-9]*)(-(.*))?$/', $path, $matches) == 0) {
             Server::show_404();
         }
 
         $dir = $matches[1];
         $fname = $matches[2];
         $args = [];
-        if(isset($matches[4])){
+        if (isset($matches[4])) {
             $args = explode('-', $matches[4]);
+        } else {
+            $matches[4] = '';
         }
 
-        return [$dir, $fname, $args];
+        return [$dir, $fname, $args, $matches[4]];
     }
 
 }
