@@ -38,6 +38,7 @@ class Tpl{
     protected static $theme_path;
     protected static $res_path;
     protected static $compiled_path;
+    protected static $always_compile;
 
     /**
      * 显示指定的页面模板
@@ -107,7 +108,7 @@ class Tpl{
         if(file_exists($dest)){
             $desttime = filemtime($dest);
         }
-        if($desttime == 0 || $desttime <= $srctime){
+        if(self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime){
             $str = file_get_contents($src);
 
             $str = preg_replace('/\s{2,}/i', ' ', $str);
@@ -190,3 +191,5 @@ class Tpl{
     }
 
 }
+
+Tpl::$always_compile = Minifw\Config::get('debug', 'tpl_always_compile', 0);

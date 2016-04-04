@@ -34,7 +34,6 @@ $cfg['path'] = [
 
 $cfg['main'] = [
     'db' => 'mysql',
-    'debug' => 0,
     'timezone' => 'PRC',
     'dbprefix' => '',
     'encoding' => 'utf-8',
@@ -43,6 +42,11 @@ $cfg['main'] = [
     'err_404' => '/www/error/404.html',
     'uri' => 'REQUEST_URI',
     'theme' => '',
+];
+
+$cfg['debug'] = [
+    'debug' => 0,
+    'tpl_always_compile' => 0,
 ];
 
 $cfg['mysql'] = [

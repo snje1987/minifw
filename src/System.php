@@ -84,7 +84,7 @@ class System{
         $_POST = self::magic_gpc($_POST);
         $_COOKIE = self::magic_gpc($_COOKIE);
 
-        define('DEBUG', Minifw\Config::get('main', 'debug', 0));
+        define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
         define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
         date_default_timezone_set(Minifw\Config::get('main', 'timezone', 'UTC'));
         header('Content-type:text/html;charset=' . Minifw\Config::get('main', 'encoding', 'utf-8'));
