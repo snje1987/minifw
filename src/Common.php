@@ -27,45 +27,53 @@ use Zend\Json\Json as Json;
  * @author Yang Ming <yangming0116@163.com>
  */
 class Common {
+
     /**
      * 使用Ajax方式调用指定方法
      *
      * @param mixed $post 方法的参数
-     * @param string $call 调用的方法
+     * @param mixed $call 调用的方法
      */
-    public static function json_call($post, $call){
-        try{
-            $ret = call_user_func($call, $post);
-            if(is_array($ret)){
-                $res = [
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ];
-                if(isset($ret['returl'])){
-                    $res['returl'] = $ret['returl'];
+    public static function json_call($post, $call, $die = true) {
+        $ret = [
+            'succeed' => false,
+            'returl' => '',
+        ];
+        try {
+            $value = call_user_func($call, $post);
+            if (is_array($value)) {
+                $ret['succeed'] = true;
+                if (isset($value['returl'])) {
+                    $ret['returl'] = $value['returl'];
+                } elseif (isset($_POST['returl'])) {
+                    $ret['returl'] = urldecode(strval($_POST['returl']));
                 }
-                if(isset($ret['msg'])){
-                    $res['msg'] = $ret['msg'];
+                if (isset($value['msg'])) {
+                    $ret['msg'] = $value['msg'];
                 }
-                die(Json::encode($res));
+            } elseif ($value == true) {
+                $ret['succeed'] = true;
+                if (isset($_POST['returl'])) {
+                    $ret['returl'] = urldecode(strval($_POST['returl']));
+                }
+            } else {
+                $ret['msg'] = '操作失败';
             }
-            elseif($ret == true){
-                die(Json::encode([
-                    'succeed' => true,
-                    'returl' => urldecode($post['returl']),
-                ]));
-            }
-            else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
-            }
-        }catch(Minifw\Exception $e){
-            die(Json::encode(['succeed' => false, 'msg' => $e->getMessage()]));
-        }catch(\Exception $e){
-            if(DEBUG){
-                throw $e;
-            }else{
-                die(Json::encode(['succeed' => false, 'msg' => '操作失败']));
+        } catch (Minifw\Exception $e) {
+            $ret['msg'] = $e->getMessage();
+        } catch (\Exception $e) {
+            if (DEBUG) {
+                $ret['msg'] = $e->getMessage();
+            } else {
+                $ret['msg'] = '操作失败';
             }
         }
+        if ($die) {
+            die(Json::encode($ret));
+        } else {
+            echo Json::encode($ret);
+            return $ret['succeed'];
+        }
     }
+
 }

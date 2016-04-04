@@ -2,7 +2,7 @@
     "name": "snje1987/minifw",
     "type": "library",
     "description": "A simple php framework",
-    "keywords": ["php","framework"],
+    "keywords": ["php", "framework"],
     "homepage": "https://github.com/snje1987/minifw",
     "license": "GPLv3",
     "authors": [
@@ -14,11 +14,19 @@
     ],
     "require": {
         "php": ">=5.6.0",
-        "zendframework/zend-json":"2.6.*"
+        "zendframework/zend-json": "2.6.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.3.*"
     },
     "autoload": {
         "psr-4": {
             "Org\\Snje\\Minifw\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "test/"
         }
     }
 }
