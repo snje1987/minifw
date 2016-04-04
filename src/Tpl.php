@@ -38,7 +38,7 @@ class Tpl{
     protected static $theme_path;
     protected static $res_path;
     protected static $compiled_path;
-    protected static $always_compile;
+    public static $always_compile;
 
     /**
      * 显示指定的页面模板
@@ -99,7 +99,12 @@ class Tpl{
      */
     protected static function _compile($src, $dest, $theme){
         if(!file_exists($src)){
-            return false;
+            if(DEBUG){
+                throw new Minifw\Exception('模板不存在：' . $src);
+            }
+            else{
+                return false;
+            }
         }
 
         //global $config;

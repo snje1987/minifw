@@ -37,11 +37,7 @@ class System{
 
     protected $_calls = [];
 
-    public function __construct($config = '/config.php') {
-
-        if(!defined('CFG_FILE')){
-            define('CFG_FILE', $config);
-        }
+    public function __construct($config = ['/config.php']) {
         if(!defined('WEB_ROOT')){
             if(isset($_SERVER['DOCUMENT_ROOT'])){
                 define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
@@ -50,6 +46,7 @@ class System{
                 die('"WEB_ROOT" is not define.');
             }
         }
+        Config::load_config($config);
     }
 
     /**

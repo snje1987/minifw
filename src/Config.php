@@ -37,7 +37,7 @@ class Config{
     /**
      * @var array 缓存加载过的数据
      */
-    protected static $_data = null;
+    protected static $_data;
 
     /**
      * 获取指定的配数据
@@ -49,9 +49,6 @@ class Config{
      * 在键名不为空时，如果段中存在键则返回相应键的值，否则返回默认值
      */
     public static function get($key, $name = '', $default = false){
-        if(self::$_data === null){
-            self::_load_config();
-        }
         if($key == '' || !isset(self::$_data[$key])){
             return false;
         }
@@ -66,13 +63,15 @@ class Config{
 
     /**
      * 加载相应的配置文件
-     * @param string $key 要加载的配置文件名
+     * @param arrsy $files 要加载的配置文件列表
      * @return array 如果文件存在则返回文件内容，否则返回空数组
      */
-    protected static function _load_config(){
+    public static function load_config($files = []){
         $cfg = [];
         require_once __DIR__ . '/defaults.php';
-        require_once WEB_ROOT . CFG_FILE;
+        foreach($files as $file){
+            require_once WEB_ROOT . $file;
+        }
         self::$_data = $cfg;
     }
 
