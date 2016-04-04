@@ -24,12 +24,11 @@
  * @datetime 2014-10-18  22:55:03
  * @Description 网站的默认配置,不要修改此文件,请修改根目录下的config.php
  */
-
 $cfg['path'] = [
-    'theme' => '/theme',//网站的模板
-    'theme_res' => '/www/theme',//网站模板的资源文件的位置
-    'compiled' => '/compiled',//编译后的模板
-    'ttfs' => '/ttfs',//字体文件
+    'theme' => '/theme', //网站的模板
+    'theme_res' => '/www/theme', //网站模板的资源文件的位置
+    'compiled' => '/compiled', //编译后的模板
+    'ttfs' => '/ttfs', //字体文件
 ];
 
 $cfg['main'] = [
@@ -42,6 +41,7 @@ $cfg['main'] = [
     'err_404' => '/www/error/404.html',
     'uri' => 'REQUEST_URI',
     'theme' => '',
+    'cache' => 3600
 ];
 
 $cfg['debug'] = [

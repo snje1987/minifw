@@ -28,22 +28,25 @@
  */
 
 namespace Org\Snje\Minifw;
+
 use Org\Snje\Minifw as Minifw;
 
 /**
  * 定义一些常用的服务端功能
  */
-class Server{
+class Server {
+
+    public static $cache_time;
 
     /**
      * 重定向页面到指定位置，会根据是否发送的header来决定使用不同的方法
      *
      * @param string $url 目标地址
      */
-    public static function redirect($url){
-        if(!headers_sent()){
+    public static function redirect($url) {
+        if (!headers_sent()) {
             header('Location:' . $url);
-        }else{
+        } else {
             echo '<script type="text/javascript">window.location="' . $url . '";</script>';
         }
         die(0);
@@ -52,17 +55,17 @@ class Server{
     /**
      * 返回当前页面的地址
      */
-    public static function cur_page_url(){
+    public static function cur_page_url() {
         $pageURL = 'http';
 
-        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on"){
+        if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {
             $pageURL .= "s";
         }
         $pageURL .= "://";
 
-        if($_SERVER["SERVER_PORT"] != "80"){
+        if ($_SERVER["SERVER_PORT"] != "80") {
             $pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
-        }else{
+        } else {
             $pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
         }
         return $pageURL;
@@ -71,7 +74,7 @@ class Server{
     /**
      * 显示404页面
      */
-    public static function show_404(){
+    public static function show_404() {
         header("HTTP/1.1 404 Not Found");
         header("status: 404 not found");
         die(readfile(WEB_ROOT . Minifw\Config::get('main', 'err_404')));
@@ -82,10 +85,28 @@ class Server{
      *
      * @param string $url 目标地址
      */
-    public static function show_301($url){
+    public static function show_301($url) {
         header('HTTP/1.1 301 Moved Permanently');
         header('Location: ' . $url);
         die(0);
+    }
+
+    /**
+     * 根据文件的更新情况显示304页面
+     *
+     * @param type $mtime 文件更新时间
+     */
+    public static function show_304($mtime) {
+        $expire = gmdate('D, d M Y H:i:s', time() + self::$cache_time) . ' GMT';
+        header('Expires: ' . $expire);
+        header('Pragma: cache');
+        header('Cache-Control: max-age=' . self::$cache_time);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+        header('Etag: ' . $mtime);
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $mtime) {
+            header('HTTP/1.1 304 Not Modified');
+            die(0);
+        }
     }
 
     /**
@@ -94,13 +115,15 @@ class Server{
      * @param string $default 如果referer不存在则返回该值
      * @return string 生成的链接
      */
-    public static function referer($default = ''){
-        if(isset($_SERVER['HTTP_REFERER'])){
+    public static function referer($default = '') {
+        if (isset($_SERVER['HTTP_REFERER'])) {
             $url = $_SERVER['HTTP_REFERER'];
-        }
-        else{
+        } else {
             $url = $default;
         }
         return $url;
     }
+
 }
+
+Server::$cache_time = Config::get('main', 'cache', 3600);

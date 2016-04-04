@@ -33,7 +33,7 @@ use Org\Snje\Minifw as Minifw;
 /**
  * 定义常用的文件操作
  */
-class File{
+class File {
 
     public static $encoding;
 
@@ -46,7 +46,7 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return string 保存的相对路径
      */
-    public static function save_str($str, $group, $ext, $fsencoding = ''){
+    public static function save_str($str, $group, $ext, $fsencoding = '') {
         $str = cText::strip_html($str);
         return self::save($str, $group, $ext, $fsencoding);
     }
@@ -60,10 +60,10 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return string 保存的相对路径
      */
-    public static function save($data, $group, $ext, $fsencoding = ''){
+    public static function save($data, $group, $ext, $fsencoding = '') {
         $dirmap = cConfig::get('save');
 
-        if(!isset($dirmap[$group])){
+        if (!isset($dirmap[$group])) {
             throw new Minifw\Exception('分组错误');
         }
 
@@ -71,15 +71,15 @@ class File{
 
         $name = self::mkname(WEB_ROOT . '/' . $base_dir, '.' . $ext, $fsencoding);
 
-        if($name == ''){
+        if ($name == '') {
             throw new Minifw\Exception('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . '/' . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir(dirname($dest));
-        if(file_put_contents($dest, $data) !== false){
+        if (file_put_contents($dest, $data) !== false) {
             return '/' . $base_dir . '/' . $name;
-        }else{
+        } else {
             throw new Minifw\Exception('文件写入出错');
         }
     }
@@ -92,13 +92,13 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return string 保存的相对路径
      */
-    public static function upload_file($file, $group, $fsencoding = ''){
-        if(empty($file)){
+    public static function upload_file($file, $group, $fsencoding = '') {
+        if (empty($file)) {
             return '';
         }
-        if($file['error'] != 0){
+        if ($file['error'] != 0) {
             $error = '';
-            switch($file['error']){
+            switch ($file['error']) {
                 case '1':
                     $error = '超过服务器允许的大小。';
                     break;
@@ -129,7 +129,7 @@ class File{
 
         $dirmap = cConfig::get('upload');
 
-        if(!isset($dirmap[$group])){
+        if (!isset($dirmap[$group])) {
             throw new Minifw\Exception('文件分组错误');
         }
 
@@ -139,19 +139,19 @@ class File{
         $pinfo = pathinfo($file['name']);
         $ext = strtolower($pinfo['extension']);
 
-        if(!in_array($ext, $allow)){
+        if (!in_array($ext, $allow)) {
             throw new Minifw\Exception('不允许的文件类型');
         }
         $name = self::mkname(WEB_ROOT . '/' . $base_dir, '.' . $ext, $fsencoding);
-        if($name == ''){
+        if ($name == '') {
             throw new Minifw\Exception('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . '/' . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir(dirname($dest));
-        if(move_uploaded_file($file['tmp_name'], $dest)){
+        if (move_uploaded_file($file['tmp_name'], $dest)) {
             return '/' . $base_dir . '/' . $name;
-        }else{
+        } else {
             throw new Minifw\Exception('文件移动出错');
         }
     }
@@ -163,7 +163,7 @@ class File{
      * @param string $dest 复制到的位置的绝对路径
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
-    public static function copy($src, $dest, $fsencoding = ''){
+    public static function copy($src, $dest, $fsencoding = '') {
         $src = self::conv_to($src, $fsencoding);
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir($dest);
@@ -178,18 +178,18 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return string 生成的文件名的相对路径，失败的返回空
      */
-    public static function mkname($full, $tail, $fsencoding = ''){
+    public static function mkname($full, $tail, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
         $name = '';
         $count = 0;
-        while($name == '' && $count < 1000000){
+        while ($name == '' && $count < 1000000) {
             $time = date('YmdHis');
             $year = date('Y');
             $month = date('m');
             $day = date('d');
             $rand = rand(100000, 999999);
             $name = $year . '/' . $month . '/' . $day . '/' . $time . $rand . $tail;
-            if(file_exists($full . '/' . $name)){
+            if (file_exists($full . '/' . $name)) {
                 $name = '';
             }
             $count++;
@@ -203,22 +203,21 @@ class File{
      * @param string $full 要删除的文件的相对路径
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
-    public static function delete($full, $fsencoding = ''){
-        if($full == ''){
+    public static function delete($full, $fsencoding = '') {
+        if ($full == '') {
             return;
         }
 
         $full = self::conv_to($full, $fsencoding);
 
         $parent = dirname($full);
-        if(file_exists($full)){
-            if(is_dir($full)){
+        if (file_exists($full)) {
+            if (is_dir($full)) {
                 rmdir($full);
-            }
-            else{
+            } else {
                 @unlink($full);
             }
-            if(self::dir_empty($parent)){
+            if (self::dir_empty($parent)) {
                 self::delete($parent);
             }
         }
@@ -231,23 +230,21 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return bool 为空返回true，否则返回false
      */
-    public static function dir_empty($full, $fsencoding = ''){
+    public static function dir_empty($full, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
-        if(is_dir($full)){
+        if (is_dir($full)) {
             $dir = opendir($full);
             while (false !== ($file = readdir($dir))) {
-                if($file == '.' || $file == '..'){
+                if ($file == '.' || $file == '..') {
                     continue;
-                }
-                else{
+                } else {
                     closedir($dir);
                     return false;
                 }
-             }
-             closedir($dir);
-             return true;
-        }
-        else{
+            }
+            closedir($dir);
+            return true;
+        } else {
             return false;
         }
     }
@@ -259,16 +256,16 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return array 目录中的文件列表
      */
-    public static function ls($full, $fsencoding = ''){
+    public static function ls($full, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
-        if(substr($full, -1) !== '/'){
+        if (substr($full, -1) !== '/') {
             $full .= '/';
         }
         $res = [];
         if (is_dir($full)) {
             if ($dh = opendir($full)) {
                 while (($file = readdir($dh)) !== false) {
-                    if($file === '.' || $file === '..'){
+                    if ($file === '.' || $file === '..') {
                         continue;
                     }
                     $filename = self::conv_from($file, $fsencoding);
@@ -289,9 +286,9 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return string
      */
-    public static function get_content($full, $fsencoding = ''){
+    public static function get_content($full, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
-        if(file_exists($full)){
+        if (file_exists($full)) {
             return file_get_contents($full);
         }
         return '';
@@ -304,9 +301,29 @@ class File{
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return int
      */
-    public static function put_content($full, $data, $fsencoding = ''){
+    public static function put_content($full, $data, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
         return file_put_contents($full, $data);
+    }
+
+    /**
+     * 读取文件并输出到浏览器
+     *
+     * @param type $full 文件路径
+     * @param type $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
+     */
+    public static function readfile($full, $fsencoding = '') {
+        $full = self::conv_to($full, $fsencoding);
+        if (file_exists($full)) {
+            $mtime = filemtime($full);
+            Server::show_304($mtime);
+            $fi = new \finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $fi->file($full);
+            header('Content-Type: ' . $mime_type);
+            readfile($full);
+        } else {
+            Server::show_404();
+        }
     }
 
     /**
@@ -315,9 +332,9 @@ class File{
      * @param string $full 要创建的目录路径
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
-    public static function mkdir($full, $fsencoding = ''){
+    public static function mkdir($full, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
-        if(!file_exists($full)){
+        if (!file_exists($full)) {
             return \mkdir($full, 0777, true);
         }
         return true;
@@ -330,8 +347,8 @@ class File{
      * @param string $fsencoding 转换到的编码，为空的不转换
      * @return string 转换后的字符串
      */
-    public static function conv_to($str, $fsencoding){
-        if($fsencoding != '' && $fsencoding != self::$encoding){
+    public static function conv_to($str, $fsencoding) {
+        if ($fsencoding != '' && $fsencoding != self::$encoding) {
             $str = iconv(self::$encoding, $fsencoding, $str);
         }
         return $str;
@@ -344,12 +361,13 @@ class File{
      * @param string $fsencoding 原字符串的编码，为空的不转换
      * @return string 转换后的字符串
      */
-    public static function conv_from($str, $fsencoding){
-        if($fsencoding != '' && $fsencoding != self::$encoding){
+    public static function conv_from($str, $fsencoding) {
+        if ($fsencoding != '' && $fsencoding != self::$encoding) {
             $str = iconv($fsencoding, self::$encoding, $str);
         }
         return $str;
     }
+
 }
 
 File::$encoding = Config::get('main', 'encoding', 'encoding');
