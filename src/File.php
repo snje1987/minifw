@@ -341,39 +341,18 @@ class File {
     }
 
     /**
-     * 判断文件是否存在
+     * 调用php文件相关函数
      *
+     * @param type $func 函数名
      * @param type $full 文件路径
      * @param type $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
-     * @return boolean
      */
-    public static function exist($full, $fsencoding = '') {
-        $full = self::conv_to($full, $fsencoding);
-        return \file_exists($full);
-    }
-
-    /**
-     * 判断是否是文件
-     *
-     * @param type $full 文件路径
-     * @param type $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
-     * @return boolean
-     */
-    public static function is_file($full, $fsencoding = '') {
-        $full = self::conv_to($full, $fsencoding);
-        return \is_file($full);
-    }
-
-    /**
-     * 判断是否是目录
-     *
-     * @param type $full 文件路径
-     * @param type $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
-     * @return boolean
-     */
-    public static function is_dir($full, $fsencoding = '') {
-        $full = self::conv_to($full, $fsencoding);
-        return \is_dir($full);
+    public static function call($func, $full, $fsencoding = '') {
+        if (function_exists($func)) {
+            $full = self::conv_to($full, $fsencoding);
+            return $func($full);
+        }
+        return false;
     }
 
     /**
