@@ -256,7 +256,7 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return array 目录中的文件列表
      */
-    public static function ls($full, $fsencoding = '', $hidden = false) {
+    public static function ls($full, $ext = '', $hidden = false, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
         if (substr($full, -1) !== '/') {
             $full .= '/';
@@ -272,6 +272,13 @@ class File {
                         continue;
                     }
                     $filename = self::conv_from($file, $fsencoding);
+
+                    if ($ext != '') {
+                        if (is_file($full . '/' . $file) && substr($filename, -1 * strlen($ext)) != $ext) {
+                            continue;
+                        }
+                    }
+
                     $res[] = [
                         'name' => $filename,
                         'dir' => is_dir($full . $file),
