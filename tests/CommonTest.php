@@ -39,18 +39,18 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
             $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_func', self::$input[$i]);
-            $this->assertEquals($ret, self::$expect[$i]);
+            $this->assertEquals(self::$expect[$i], $ret);
         }
 
         $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_except', '测试消息');
-        $this->assertEquals($ret, [
+        $this->assertEquals([
             'ret' => false,
             'output' => [
                 'succeed' => false,
                 'returl' => '',
                 'msg' => '测试消息',
             ],
-        ]);
+                ], $ret);
     }
 
     public function test_json_call_func() {
@@ -58,18 +58,18 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
             $ret = self::func_test([$obj, 'func'], self::$input[$i]);
-            $this->assertEquals($ret, self::$expect[$i]);
+            $this->assertEquals(self::$expect[$i], $ret);
         }
 
         $ret = self::func_test([$obj, 'func_except'], '测试消息');
-        $this->assertEquals($ret, [
+        $this->assertEquals([
             'ret' => false,
             'output' => [
                 'succeed' => false,
                 'returl' => '',
                 'msg' => '测试消息',
             ],
-        ]);
+                ], $ret);
     }
 
     public static function func_test($func, $args) {
