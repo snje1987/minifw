@@ -356,6 +356,54 @@ class File {
     }
 
     /**
+     * 返回路径的父目录，如果不存在，则返回空
+     *
+     * @param string $path
+     * @return string
+     */
+    public static function dirname($path) {
+        $path = \dirname($path);
+        if ($path == '.') {
+            $path = '';
+        }
+        return $path;
+    }
+
+    /**
+     * 返回路径中的文件名，不存在则原样返回
+     *
+     * @param string $path
+     * @return string
+     */
+    public static function basename($path) {
+        $pos = strrpos($path, '/');
+        if ($pos === false) {
+            return $path;
+        }
+        return substr($path, $pos + 1);
+    }
+
+    /**
+     * 返回文件中去除扩展名的部分
+     *
+     * @param string $file
+     * @param boolean $last 扩展名是否从最后一个'.'开始
+     * @return string
+     */
+    public static function filename($file, $last = true) {
+        $pos = false;
+        if ($last) {
+            $pos = strrpos($file, '.');
+        } else {
+            $pos = strpos($file, '.');
+        }
+        if ($pos === false) {
+            return $file;
+        }
+        return substr($file, 0, $pos);
+    }
+
+    /**
      * 将字符串的编码进行转换
      *
      * @param string $str 要转换的字符串
