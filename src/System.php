@@ -39,13 +39,24 @@ class System {
 
     public function __construct($config = ['/config.php']) {
         if (!defined('WEB_ROOT')) {
-            if (isset($_SERVER['DOCUMENT_ROOT'])) {
+            if (isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT'] != '') {
                 define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
             } else {
                 die('"WEB_ROOT" is not define.');
             }
         }
         Config::load_config($config);
+
+        define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
+        define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
+        date_default_timezone_set(Minifw\Config::get('main', 'timezone', 'UTC'));
+
+        //设置错误处理函数
+        set_error_handler([__NAMESPACE__ . '\Error', 'captureNormal']);
+        //设置异常处理函数
+        set_exception_handler([__NAMESPACE__ . '\Error', 'captureException']);
+        //设置停机处理函数
+        register_shutdown_function([__NAMESPACE__ . '\Error', 'captureShutdown']);
     }
 
     /**
@@ -67,22 +78,12 @@ class System {
      * 配置系统的主要参数
      */
     protected function _set_env() {
-        //设置错误处理函数
-        set_error_handler([__NAMESPACE__ . '\Error', 'captureNormal']);
-        //设置异常处理函数
-        set_exception_handler([__NAMESPACE__ . '\Error', 'captureException']);
-        //设置停机处理函数
-        register_shutdown_function([__NAMESPACE__ . '\Error', 'captureShutdown']);
-
         define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
 
         $_GET = self::magic_gpc($_GET);
         $_POST = self::magic_gpc($_POST);
         $_COOKIE = self::magic_gpc($_COOKIE);
 
-        define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
-        define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
-        date_default_timezone_set(Minifw\Config::get('main', 'timezone', 'UTC'));
         header('Content-type:text/html;charset=' . Minifw\Config::get('main', 'encoding', 'utf-8'));
 
         $session_name = Minifw\Config::get('main', 'session', 'PHPSESSION');

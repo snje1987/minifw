@@ -19,25 +19,12 @@
 
 namespace Org\Snje\MinifwTest;
 
-use Org\Snje\Minifw\Config;
-
 /**
  * Description of TableTest
  *
  * @author Yang Ming <yangming0116@163.com>
  */
 class TableTest extends \PHPUnit_Framework_TestCase {
-
-    public static function setUpBeforeClass() {
-        parent::setUpBeforeClass();
-        if (!defined("DEBUG")) {
-            define('DEBUG', 1);
-        }
-        if (!defined("WEB_ROOT")) {
-            define('WEB_ROOT', dirname(__DIR__));
-        }
-        Config::load_config(['/config.php']);
-    }
 
     public function test_sync_call() {
         $obj = TestTable::get();

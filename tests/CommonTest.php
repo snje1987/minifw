@@ -30,9 +30,8 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
         parent::setUpBeforeClass();
-        if (!defined("DEBUG")) {
-            define('DEBUG', 1);
-        }
+        define("WEB_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
+        new FW\System();
     }
 
     public function test_json_call_static() {
