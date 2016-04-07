@@ -26,6 +26,8 @@ namespace Org\Snje\MinifwTest;
  */
 class TestTable extends \Org\Snje\Minifw\Table {
 
+    const ALLOW = ['func', 'func_except', 'func_noexist'];
+
     public function func($args) {
         return $args;
     }
@@ -34,7 +36,15 @@ class TestTable extends \Org\Snje\Minifw\Table {
         throw new \Org\Snje\Minifw\Exception($args);
     }
 
+    public function func_not_allow($args) {
+        return $args;
+    }
+
     protected function _prase($post, $type) {
+
+    }
+
+    public function create() {
 
     }
 

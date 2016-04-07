@@ -38,7 +38,10 @@ class Common {
             'returl' => '',
         ];
         try {
-            $value = call_user_func($call, $post);
+            $value = false;
+            if (is_callable($call)) {
+                $value = call_user_func($call, $post);
+            }
             if (is_array($value)) {
                 $ret['succeed'] = true;
                 if (isset($value['returl'])) {

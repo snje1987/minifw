@@ -50,6 +50,17 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
                 'msg' => '测试消息',
             ],
                 ], $ret);
+
+        //不存在的方法
+        $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_noexist', '测试消息');
+        $this->assertEquals([
+            'ret' => false,
+            'output' => [
+                'succeed' => false,
+                'returl' => '',
+                'msg' => '操作失败',
+            ],
+                ], $ret);
     }
 
     public function test_json_call_func() {
@@ -67,6 +78,17 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
                 'succeed' => false,
                 'returl' => '',
                 'msg' => '测试消息',
+            ],
+                ], $ret);
+
+        //不存在的方法
+        $ret = self::func_test([$obj, 'func_noexist'], '测试消息');
+        $this->assertEquals([
+            'ret' => false,
+            'output' => [
+                'succeed' => false,
+                'returl' => '',
+                'msg' => '操作失败',
             ],
                 ], $ret);
     }
