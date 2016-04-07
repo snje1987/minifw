@@ -30,7 +30,6 @@
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as Minifw;
-use Zend\Json\Json as Json;
 
 /**
  * 定义数据表的基本操作

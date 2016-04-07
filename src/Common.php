@@ -19,8 +19,6 @@
 
 namespace Org\Snje\Minifw;
 
-use Zend\Json\Json as Json;
-
 /**
  * Description of Common
  *
@@ -69,9 +67,9 @@ class Common {
             }
         }
         if ($die) {
-            die(Json::encode($ret));
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
         } else {
-            echo Json::encode($ret);
+            echo \json_encode($ret, JSON_UNESCAPED_UNICODE);
             return $ret['succeed'];
         }
     }

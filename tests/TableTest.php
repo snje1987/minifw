@@ -64,14 +64,14 @@ class TableTest extends \PHPUnit_Framework_TestCase {
         ob_start();
         $obj->json_call($args, $func, false);
         $output = ob_get_clean();
-        return \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+        return \json_decode($output, true);
     }
 
     public static function sync_call_test($obj, $func, $args) {
         ob_start();
         $obj->sync_call($args, $func, false);
         $output = ob_get_clean();
-        return \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+        return \json_decode($output, true);
     }
 
     public static $input = [

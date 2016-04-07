@@ -77,7 +77,7 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
         $output = ob_get_clean();
         return [
             'ret' => $ret,
-            'output' => \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY),
+            'output' => \json_decode($output, true),
         ];
     }
 
