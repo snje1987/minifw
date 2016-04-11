@@ -17,9 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest;
+namespace Org\Snje\MinifwTest\Test\JsonCall;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest;
+use Org\Snje\MinifwTest\Data\Functions;
 
 /**
  * Description of CommonTest
@@ -30,18 +32,19 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
         parent::setUpBeforeClass();
-        define("WEB_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
-        new FW\System();
+        MinifwTest\Common::set_env();
     }
 
     public function test_json_call_static() {
+        $obj = new Functions();
+        $class = get_class($obj);
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
-            $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_func', self::$input[$i]);
+            $ret = self::func_test($class . '::static_func', self::$input[$i]);
             $this->assertEquals(self::$expect[$i], $ret);
         }
 
-        $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_except', '测试消息');
+        $ret = self::func_test($class . '::static_except', '测试消息');
         $this->assertEquals([
             'ret' => false,
             'output' => [
@@ -52,7 +55,7 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
                 ], $ret);
 
         //不存在的方法
-        $ret = self::func_test(__NAMESPACE__ . '\TestFunction::static_noexist', '测试消息');
+        $ret = self::func_test($class . '::static_noexist', '测试消息');
         $this->assertEquals([
             'ret' => false,
             'output' => [
@@ -64,7 +67,7 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function test_json_call_func() {
-        $obj = new TestFunction();
+        $obj = new Functions();
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
             $ret = self::func_test([$obj, 'func'], self::$input[$i]);

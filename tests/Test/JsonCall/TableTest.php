@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest;
+namespace Org\Snje\MinifwTest\Test\JsonCall;
+
+use Org\Snje\MinifwTest\Data\Table;
 
 /**
  * Description of TableTest
@@ -27,7 +29,7 @@ namespace Org\Snje\MinifwTest;
 class TableTest extends \PHPUnit_Framework_TestCase {
 
     public function test_sync_call() {
-        $obj = TestTable::get();
+        $obj = Table\Table1::get();
 
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
@@ -54,7 +56,7 @@ class TableTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function test_json_call() {
-        $obj = TestTable::get();
+        $obj = Table\Table1::get();
 
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {

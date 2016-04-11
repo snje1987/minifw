@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php">
     <testsuites>
-        <testsuite name="json_call">
-            <file>tests/CommonTest.php</file>
-            <file>tests/TableTest.php</file>
+        <testsuite name="all">
+            <file>tests/Test/JsonCall/CommonTest.php</file>
+            <file>tests/Test/JsonCall/TableTest.php</file>
+            <file>tests/Test/Table/GetTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

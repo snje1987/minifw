@@ -19,33 +19,18 @@
 
 namespace Org\Snje\MinifwTest;
 
+use Org\Snje\Minifw as FW;
+
 /**
- * Description of TestTable
+ * Description of Common
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class TestTable extends \Org\Snje\Minifw\Table {
+class Common {
 
-    const ALLOW = ['func', 'func_except', 'func_noexist'];
-
-    public function func($args) {
-        return $args;
-    }
-
-    public function func_except($args) {
-        throw new \Org\Snje\Minifw\Exception($args);
-    }
-
-    public function func_not_allow($args) {
-        return $args;
-    }
-
-    protected function _prase($post, $type) {
-
-    }
-
-    public function create() {
-
+    public static function set_env() {
+        define("WEB_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
+        new FW\System();
     }
 
 }

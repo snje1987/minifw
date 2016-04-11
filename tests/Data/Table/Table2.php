@@ -17,36 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace Org\Snje\MinifwTest\Data\Table;
+
+use Org\Snje\Minifw as FW;
+
 /**
- * @filename Test.php
- * @encoding UTF-8
+ * Description of Test2
+ *
  * @author Yang Ming <yangming0116@163.com>
- * @datetime 2016-2-27  23:28:47
- * @Description
  */
+class Table2 extends FW\Table {
 
-namespace Org\Snje\MinifwTest;
-
-class TestFunction {
-
-    public function __construct() {
+    protected function _prase($post, $type) {
 
     }
 
-    public static function static_func($args) {
-        return $args;
+    public function create() {
+
     }
 
-    public static function static_except($args) {
-        throw new \Org\Snje\Minifw\Exception($args);
-    }
-
-    public function func($args) {
-        return $args;
-    }
-
-    public function func_except($args) {
-        throw new \Org\Snje\Minifw\Exception($args);
-    }
-
+//put your code here
 }
