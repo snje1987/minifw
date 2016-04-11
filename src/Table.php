@@ -61,9 +61,12 @@ abstract class Table {
             $id = strval($args['id']);
         }
         if (!isset(self::$_instance[$id])) {
-            self::$_instance[$id] = new static($args);
+            self::$_instance[$id] = [];
         }
-        return self::$_instance[$id];
+        if (!isset(self::$_instance[$id][static::class])) {
+            self::$_instance[$id][static::class] = new static($args);
+        }
+        return self::$_instance[$id][static::class];
     }
 
     /**
