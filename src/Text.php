@@ -32,7 +32,7 @@ namespace Org\Snje\Minifw;
 /**
  * 定义常用的字符串操作
  */
-class Text{
+class Text {
 
     /**
      * 压缩html数据
@@ -40,10 +40,10 @@ class Text{
      * @param string $str 要压缩的数据
      * @return string 压缩后的数据
      */
-    public static function strip_html($str){
+    public static function strip_html($str) {
         $str = preg_replace('/^\s*(.*?)\s*$/im', '$1', $str);
         $str = preg_replace('/^\/\/(.*?)$/im', '', $str);
-        $str = preg_replace('/\r|\n/i', '', $str);
+        $str = preg_replace('/\r|\n/i', ' ', $str);
         $str = preg_replace('/\>\s*(.*?)\s*\</im', '>$1<', $str);
         $str = preg_replace('/\s{2,}/i', ' ', $str);
         return $str;
@@ -55,8 +55,8 @@ class Text{
      * @param string $str 要处理的数据
      * @return string 处理后的数据
      */
-    public static function strip_tags($str){
-        return preg_replace('/\<(\/?[a-zA-Z0-9]+)(\s+[^>]*)?\s*\>/i','',$str);
+    public static function strip_tags($str) {
+        return preg_replace('/\<(\/?[a-zA-Z0-9]+)(\s+[^>]*)?\/?\>/i', '', $str);
     }
 
     /**
@@ -65,8 +65,8 @@ class Text{
      * @param string $str 要判断的字符串
      * @return bool 具有标记返回true，否则返回fasle
      */
-    public static function is_rich($str){
-        return preg_match('/\<(\/?[a-zA-Z0-9]+)(\s+[^>]*)?\s*\>/i',$str);
+    public static function is_rich($str) {
+        return preg_match('/\<(\/?[a-zA-Z0-9]+)(\s+[^>]*)?\/?\>/i', $str);
     }
 
     /**
@@ -76,11 +76,11 @@ class Text{
      * @param int $len 要截取的长度
      * @return string 截取的结果
      */
-    public static function sub_text($str,$len){
+    public static function sub_text($str, $len) {
         $ini = Config::get('run_main');
         $str = self::strip_tags($str);
-        $str = preg_replace('/(\s|&nbsp;)+/i',' ',$str);
-        return mb_substr($str,0,$len,$ini['encoding']);
+        $str = preg_replace('/(\s|&nbsp;)+/i', ' ', $str);
+        return mb_substr($str, 0, $len, $ini['encoding']);
     }
 
     /**
@@ -90,17 +90,17 @@ class Text{
      * @param int $len 要截取的长度
      * @return string 截取的结果
      */
-    public static function sub_rich($str,$len){
+    public static function sub_rich($str, $len) {
         $ini = Config::get('run_main');
-        if(self::is_rich($str)){
+        if (self::is_rich($str)) {
             $str = self::strip_html($str);
-            $str = preg_replace('/\r/i','',preg_replace('/\n/i','',$str));
-            $str = preg_replace('/\<br[^>]*\>/i',"\n",preg_replace('/\<p[^>]*\>/i',"\n",$str));
+            $str = preg_replace('/\r/i', '', preg_replace('/\n/i', '', $str));
+            $str = preg_replace('/\<br[^>]*\>/i', "\n", preg_replace('/\<p[^>]*\>/i', "\n", $str));
             $str = self::strip_tags($str);
         }
-        $str = preg_replace('/^\s*\n/im','',preg_replace('/(\t| |　|&nbsp;)+/i',' ',$str));
-        $str = mb_substr($str,0,$len,$ini['encoding']);
-        $str = preg_replace('/^([^\r\n]*)\r?\n?$/im',"<p>$1</p>",$str);
+        $str = preg_replace('/^\s*\n/im', '', preg_replace('/(\t| |　|&nbsp;)+/i', ' ', $str));
+        $str = mb_substr($str, 0, $len, $ini['encoding']);
+        $str = preg_replace('/^([^\r\n]*)\r?\n?$/im', "<p>$1</p>", $str);
         return $str;
     }
 

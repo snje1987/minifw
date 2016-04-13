@@ -5,6 +5,7 @@
             <file>tests/Test/JsonCall/CommonTest.php</file>
             <file>tests/Test/JsonCall/TableTest.php</file>
             <file>tests/Test/Table/GetTest.php</file>
+            <file>tests/Test/Text/TextTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
