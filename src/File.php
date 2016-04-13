@@ -47,7 +47,7 @@ class File {
      * @return string 保存的相对路径
      */
     public static function save_str($str, $group, $ext, $fsencoding = '') {
-        $str = cText::strip_html($str);
+        $str = Text::strip_html($str);
         return self::save($str, $group, $ext, $fsencoding);
     }
 
@@ -61,7 +61,7 @@ class File {
      * @return string 保存的相对路径
      */
     public static function save($data, $group, $ext, $fsencoding = '') {
-        $dirmap = cConfig::get('save');
+        $dirmap = Config::get('save');
 
         if (!isset($dirmap[$group])) {
             throw new Minifw\Exception('分组错误');
@@ -69,16 +69,16 @@ class File {
 
         $base_dir = $dirmap[$group];
 
-        $name = self::mkname(WEB_ROOT . '/' . $base_dir, '.' . $ext, $fsencoding);
+        $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
 
         if ($name == '') {
             throw new Minifw\Exception('同一时间上传的文件过多');
         }
-        $dest = WEB_ROOT . '/' . $base_dir . '/' . $name;
+        $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir(dirname($dest));
         if (file_put_contents($dest, $data) !== false) {
-            return '/' . $base_dir . '/' . $name;
+            return $base_dir . '/' . $name;
         } else {
             throw new Minifw\Exception('文件写入出错');
         }
@@ -127,7 +127,7 @@ class File {
             throw new Minifw\Exception($error);
         }
 
-        $dirmap = cConfig::get('upload');
+        $dirmap = Config::get('upload');
 
         if (!isset($dirmap[$group])) {
             throw new Minifw\Exception('文件分组错误');
@@ -142,15 +142,15 @@ class File {
         if (!in_array($ext, $allow)) {
             throw new Minifw\Exception('不允许的文件类型');
         }
-        $name = self::mkname(WEB_ROOT . '/' . $base_dir, '.' . $ext, $fsencoding);
+        $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
         if ($name == '') {
             throw new Minifw\Exception('同一时间上传的文件过多');
         }
-        $dest = WEB_ROOT . '/' . $base_dir . '/' . $name;
+        $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir(dirname($dest));
         if (move_uploaded_file($file['tmp_name'], $dest)) {
-            return '/' . $base_dir . '/' . $name;
+            return $base_dir . '/' . $name;
         } else {
             throw new Minifw\Exception('文件移动出错');
         }
@@ -220,6 +220,40 @@ class File {
             if (self::dir_empty($parent)) {
                 self::delete($parent);
             }
+        }
+    }
+
+    /**
+     * 删除指定的文件，同时删除后缀相同的文件
+     *
+     * @param string $full 要删除的文件的相对路径
+     * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
+     */
+    public static function delete_img($full, $fsencoding = '') {
+        if ($full == '') {
+            return;
+        }
+
+        $full = self::conv_to($full, $fsencoding);
+        $pinfo = pathinfo($full);
+        $dir = $pinfo['dirname'] . '/';
+        $name = $pinfo['filename'];
+        $files = array();
+
+        if ($dh = opendir($dir)) {
+            while (($file = readdir($dh)) !== false) {
+                if ($file == '.' || $file == '..') {
+                    continue;
+                }
+                if (preg_match('/^' . $name . '_?.*$/i', $file)) {
+                    $files[] = $dir . $file;
+                }
+            }
+            closedir($dh);
+        }
+
+        foreach ($files as $one) {
+            self::delete($one);
         }
     }
 
