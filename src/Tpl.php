@@ -28,12 +28,13 @@
  */
 
 namespace Org\Snje\Minifw;
+
 use Org\Snje\Minifw as Minifw;
 
 /**
  * 基本的模板操作
  */
-class Tpl{
+class Tpl {
 
     protected static $theme_path;
     protected static $res_path;
@@ -47,8 +48,8 @@ class Tpl{
      * @param string $args 页面参数
      * @param string $theme 模板的主题
      */
-    public static function display($tpl, $args, $theme = ''){
-        $theme = ($theme == '' ? Minifw\Config::get('main','theme') : $theme);
+    public static function display($tpl, $args, $theme = '') {
+        $theme = ($theme == '' ? Minifw\Config::get('main', 'theme') : $theme);
 
         self::$theme_path = Minifw\Config::get('path', 'theme');
         self::$res_path = Minifw\Config::get('path', 'theme_res');
@@ -57,14 +58,13 @@ class Tpl{
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
 
-        if(self::_compile($tpl_src, $tpl_dest, $theme)){
+        if (self::_compile($tpl_src, $tpl_dest, $theme)) {
             ob_start();
-            try{
+            try {
                 include($tpl_dest);
-            }
-            catch(\Exception $ex){
+            } catch (\Exception $ex) {
                 ob_end_clean();
-                if(DEBUG){
+                if (DEBUG) {
                     throw $ex;
                 }
                 return false;
@@ -82,10 +82,10 @@ class Tpl{
      * @param string $args 页面参数
      * @param string $theme 模板的主题
      */
-    protected static function _inc($tpl, $args, $theme){
+    protected static function _inc($tpl, $args, $theme) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
-        if(self::_compile($tpl_src, $tpl_dest, $theme)){
+        if (self::_compile($tpl_src, $tpl_dest, $theme)) {
             include($tpl_dest);
         }
     }
@@ -97,12 +97,11 @@ class Tpl{
      * @param string $dest 目标文件
      * @param string $theme 模板的主题
      */
-    protected static function _compile($src, $dest, $theme){
-        if(!file_exists($src)){
-            if(DEBUG){
+    protected static function _compile($src, $dest, $theme) {
+        if (!file_exists($src)) {
+            if (DEBUG) {
                 throw new Minifw\Exception('模板不存在：' . $src);
-            }
-            else{
+            } else {
                 return false;
             }
         }
@@ -110,26 +109,23 @@ class Tpl{
         //global $config;
         $srctime = filemtime($src);
         $desttime = 0;
-        if(file_exists($dest)){
+        if (file_exists($dest)) {
             $desttime = filemtime($dest);
         }
-        if(self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime){
+        if (self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime) {
             $str = file_get_contents($src);
 
             $str = preg_replace('/\s{2,}/i', ' ', $str);
 
             /* 处理模板中的处理逻辑语句——开始 */
             $str = preg_replace(
-                    '/\<{inc (\S*?)\s*}\>/',
-                    '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",[],"' . $theme . '"); ?>', $str);
+                    '/\<{inc (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",[],"' . $theme . '"); ?>', $str);
 
             $str = preg_replace(
-                    '/\<{inc (\S*?) (\S*?)\s*}\>/',
-                    '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"' . $theme . '"); ?>', $str);
+                    '/\<{inc (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"' . $theme . '"); ?>', $str);
 
             $str = preg_replace(
-                    '/\<{inc (\S*?) (\S*?) (\S*?)\s*}\>/',
-                    '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"$3"); ?>', $str);
+                    '/\<{inc (\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"$3"); ?>', $str);
 
             $str = preg_replace('/\<{ (.*?)}\>/', '<?php echo ($1); ?>', $str);
             $str = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){ ?>', $str);
@@ -137,16 +133,13 @@ class Tpl{
             $str = preg_replace('/\<{else}\>/', '<?php }else{ ?>', $str);
             $str = preg_replace('/\<{\/if}\>/', '<?php } ?>', $str);
 
-            $str = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/',
-                    '<?php for($1=$2; $1 <= $3; $1++){ ?>', $str);
+            $str = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php for($1=$2; $1 <= $3; $1++){ ?>', $str);
 
             $str = preg_replace('/\<{\/for}\>/', '<?php } ?>', $str);
 
-            $str = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/',
-                    '<?php foreach($1 as $2){ ?>', $str);
+            $str = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/', '<?php foreach($1 as $2){ ?>', $str);
 
-            $str = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/',
-                    '<?php foreach($1 as $2 => $3){ ?>', $str);
+            $str = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php foreach($1 as $2 => $3){ ?>', $str);
 
             $str = preg_replace('/\<{\/foreach}\>/', '<?php } ?>', $str);
             $str = preg_replace('/\<{(\S.*?)}\>/', '<?php $1; ?>', $str);
@@ -154,29 +147,20 @@ class Tpl{
             /* 处理模板中的处理逻辑语句——完成 */
 
             //处理相对路径："/xxxx/yyyy"
-            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i',
-                    '<link $1 href="' . self::$res_path . '/' . $theme . '/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i',
-                    '<script $1 src="' . self::$res_path . '/' . $theme . '/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i',
-                    '<img $1 src="' . self::$res_path . '/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/' . $theme . '/$2" $3>', $str);
+            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/' . $theme . '/$2" $3 />', $str);
 
             //处理绝对路径："|xxx/yyy"
-            $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i',
-                    '<link $1 href="/www/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i',
-                    '<script $1 src="/www/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i',
-                    '<img $1 src="/www/$2" $3 />', $str);
+            $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="/www/$2" $3 />', $str);
+            $str = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1 src="/www/$2" $3>', $str);
+            $str = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1 src="/www/$2" $3 />', $str);
             /* 处理绝对路径——完成 */
 
             //处理原始路径："\xxx/yyy"
-            $str = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i',
-                    '<link $1 href="/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i',
-                    '<script $1 src="/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i',
-                    '<img $1 src="/$2" $3 />', $str);
+            $str = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1 href="/$2" $3 />', $str);
+            $str = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1 src="/$2" $3>', $str);
+            $str = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1 src="/$2" $3 />', $str);
             /* 处理原始路径——完成 */
 
             /* 删除模板中多余的空行和空格——开始 */
@@ -188,7 +172,7 @@ class Tpl{
             /* 删除模板中多余的空行和空格——完成 */
 
             Minifw\File::mkdir(dirname($dest));
-            if(!file_put_contents($dest, $str)){
+            if (!file_put_contents($dest, $str)) {
                 return fasle;
             }
         }

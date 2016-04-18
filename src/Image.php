@@ -31,7 +31,7 @@ namespace Org\Snje\Minifw;
 /**
  * 定义一些常用的图片操作
  */
-class Image{
+class Image {
 
     /**
      * 将图片缩放到指定大小，并保存到指定路径，如果图片类型不支持则直接复制文件
@@ -41,14 +41,14 @@ class Image{
      * @param int $w 目标宽度
      * @param int $h 目标高度
      */
-    public static function image_resize($src, $dest, $w, $h){
+    public static function image_resize($src, $dest, $w, $h) {
         $img = getimagesize($src);
-        switch($img[2]){
+        switch ($img[2]) {
             case 1:
                 $im_in = imagecreatefromgif($src);
                 $im_out = imagecreate($w, $h);
                 $bgcolor = imagecolorallocate($im_out, 0, 0, 0);
-                $bgcolortrans=ImageColorTransparent($im_out, $bgcolor);
+                $bgcolortrans = ImageColorTransparent($im_out, $bgcolor);
                 break;
             case 2:
                 $im_in = imagecreatefromjpeg($src);
@@ -65,11 +65,11 @@ class Image{
             default:
                 copy($src, $dest);
         }
-        if(!$im_in || !$im_out){
+        if (!$im_in || !$im_out) {
             return false;
         }
-        imagecopyresampled($im_out, $im_in, 0,0, 0, 0, $w, $h, $img[0], $img[1]);
-        switch($img[2]){
+        imagecopyresampled($im_out, $im_in, 0, 0, 0, 0, $w, $h, $img[0], $img[1]);
+        switch ($img[2]) {
             case 1:
                 imagegif($im_out, $dest);
                 break;
@@ -95,26 +95,25 @@ class Image{
      * @param int $h 目标高度，0为不限制
      * @return string 缩放结果的文件的相对路径
      */
-    public static function image_widthin($src, $dest, $w, $h){
-        $img = getimagesize(WEB_ROOT.$src);
-        if(!$img){
+    public static function image_widthin($src, $dest, $w, $h) {
+        $img = getimagesize(WEB_ROOT . $src);
+        if (!$img) {
             return false;
         }
         $nw = $img[0];
         $nh = $img[1];
-        if($nw > $w && $w > 0){
-            $nh = (($w / $nw)*$nh);
+        if ($nw > $w && $w > 0) {
+            $nh = (($w / $nw) * $nh);
             $nw = $w;
         }
-        if($nh > $h && $h > 0){
-            $nw = (($h / $nh)*$nw);
+        if ($nh > $h && $h > 0) {
+            $nw = (($h / $nh) * $nw);
             $nh = $h;
         }
-        if($nw != $img[0] || $nh != $img[1]){
-            self::image_resize(WEB_ROOT.$src, WEB_ROOT.$dest, $nw, $nh);
-        }
-        else{
-            copy(WEB_ROOT.$src, WEB_ROOT.$dest);
+        if ($nw != $img[0] || $nh != $img[1]) {
+            self::image_resize(WEB_ROOT . $src, WEB_ROOT . $dest, $nw, $nh);
+        } else {
+            copy(WEB_ROOT . $src, WEB_ROOT . $dest);
         }
         return $dest;
     }
@@ -128,11 +127,11 @@ class Image{
      * @param int $h 目标高度，0为不限制
      * @return string 缩放结果的文件的相对路径
      */
-    public static function path($src, $tail = '', $w = 0, $h = 0){
-        if($src == ''){
+    public static function path($src, $tail = '', $w = 0, $h = 0) {
+        if ($src == '') {
             return '';
         }
-        if($tail == ''){
+        if ($tail == '') {
             return $src;
         }
         $temp = pathinfo($src);
@@ -140,10 +139,10 @@ class Image{
         $path = $temp['dirname'];
         $exte = $temp['extension'];
         $dest = $path . '/' . $name . '_' . $tail . '.' . $exte;
-        if(!file_exists(WEB_ROOT.$dest)){
+        if (!file_exists(WEB_ROOT . $dest)) {
             $dest = self::image_widthin($src, $dest, $w, $h);
         }
         return $dest;
     }
-}
 
+}

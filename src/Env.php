@@ -27,15 +27,16 @@
 
 namespace Org\Snje\Minifw;
 
-class Env{
+class Env {
 
     protected static $data = [];
 
-    public static function set($name, $val){
+    public static function set($name, $val) {
         self::$data[$name] = $val;
     }
 
-    public static function get($name, $default = ''){
-        return (isset(self::$data[$name])? self::$data[$name]: $default);
+    public static function get($name, $default = '') {
+        return (isset(self::$data[$name]) ? self::$data[$name] : $default);
     }
+
 }

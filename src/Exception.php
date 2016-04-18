@@ -32,6 +32,6 @@ namespace Org\Snje\Minifw;
 /**
  * 自定义的异常类，只在本程序内抛出和捕获
  */
-class Exception extends \Exception{
+class Exception extends \Exception {
 
 }

@@ -28,6 +28,7 @@
  */
 
 namespace Org\Snje\Minifw\DB;
+
 use Org\Snje\Minifw as Minifw;
 
 class Mysqli extends Minifw\DB {
@@ -77,12 +78,12 @@ class Mysqli extends Minifw\DB {
      *
      * @return Minifw\DB\Mysqli 数据库唯一的实例
      */
-    public static function get_instance($args = []){
+    public static function get_instance($args = []) {
         $id = '';
-        if(!empty($args)){
+        if (!empty($args)) {
             $id = strval($args['id']);
         }
-        if(!isset(self::$_instance[$id])){
+        if (!isset(self::$_instance[$id])) {
             self::$_instance[$id] = new Mysqli($args);
         }
         return self::$_instance[$id];
@@ -93,14 +94,14 @@ class Mysqli extends Minifw\DB {
      *
      * @return int 自增字段的数值
      */
-    public function last_insert_id(){
+    public function last_insert_id() {
         return $this->_mysqli->insert_id;
     }
 
     /**
      * 开启事务
      */
-    public function begin(){
+    public function begin() {
         $this->_query('SET AUTOCOMMIT=0');
         $this->_query('BEGIN');
         $this->_rollback = true;
@@ -109,8 +110,8 @@ class Mysqli extends Minifw\DB {
     /**
      * 提交事务
      */
-    public function commit(){
-        if($this->_rollback){
+    public function commit() {
+        if ($this->_rollback) {
             $this->_query('COMMIT');
             $this->_query('SET AUTOCOMMIT=1');
             $this->_rollback = false;
@@ -120,30 +121,29 @@ class Mysqli extends Minifw\DB {
     /**
      * 回滚事务
      */
-    public function rollback(){
-        if($this->_rollback){
+    public function rollback() {
+        if ($this->_rollback) {
             $this->_query('ROLLBACK');
             $this->_query('SET AUTOCOMMIT=1');
             $this->_rollback = false;
         }
     }
 
-    /*************************************************************/
+    /*     * ********************************************************** */
 
     /**
      * 私有构造函数
      */
-    protected function __construct($args = []){
+    protected function __construct($args = []) {
         parent::__construct();
         $ini = [];
-        if(!empty($args)){
+        if (!empty($args)) {
             $ini = $args;
-        }
-        else{
+        } else {
             $ini = Minifw\Config::get('mysql');
         }
 
-        if(empty($ini)){
+        if (empty($ini)) {
             throw new Minifw\Exception('数据库未配置');
         }
         $this->_host = $ini['host'];
@@ -152,10 +152,10 @@ class Mysqli extends Minifw\DB {
         $this->_dbname = $ini['dbname'];
         $this->_encoding = $ini['encoding'];
         $this->_mysqli = new \mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
-        if($this->_mysqli->connect_error){
+        if ($this->_mysqli->connect_error) {
             throw new Minifw\Exception('数据库连接失败');
         }
-        if(!$this->_mysqli->set_charset($this->_encoding)){
+        if (!$this->_mysqli->set_charset($this->_encoding)) {
             throw new Minifw\Exception('数据库查询失败');
         }
     }
@@ -166,16 +166,16 @@ class Mysqli extends Minifw\DB {
      * @param string $sql 要执行的查询
      * @return mixed 查询的结果
      */
-    protected function _query($sql){
+    protected function _query($sql) {
         //echo $sql.'<br />';
         //$sql .= 'ddd';
-        if(!$this->_mysqli->ping()){
+        if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
-            if($this->_mysqli->connect_error){
+            if ($this->_mysqli->connect_error) {
                 throw new Minifw\Exception('数据库连接失败');
             }
-            if(!$this->_mysqli->set_charset($this->_encoding)){
+            if (!$this->_mysqli->set_charset($this->_encoding)) {
                 throw new Minifw\Exception('数据库查询失败');
             }
         }
@@ -188,11 +188,11 @@ class Mysqli extends Minifw\DB {
      * @param \mysqli_result $res 要转化的查询
      * @return array 查询的结果
      */
-    protected function _fetch_all($res){
-        if(method_exists('mysqli_result', 'fetch_all')){
+    protected function _fetch_all($res) {
+        if (method_exists('mysqli_result', 'fetch_all')) {
             $data = $res->fetch_all(MYSQLI_ASSOC);
-        }else{
-            for($data = []; $tmp = $res->fetch_array(MYSQLI_ASSOC);){
+        } else {
+            for ($data = []; $tmp = $res->fetch_array(MYSQLI_ASSOC);) {
                 $data[] = $tmp;
             }
         }
@@ -205,7 +205,7 @@ class Mysqli extends Minifw\DB {
      * @param \mysqli_result $res sql查询结果
      * @return array 获取的数据，或者false
      */
-    protected function _fetch($res){
+    protected function _fetch($res) {
         return $res->fetch_array(MYSQLI_ASSOC);
     }
 
@@ -215,7 +215,7 @@ class Mysqli extends Minifw\DB {
      * @param \mysqli_result $res 要释放的结果
      * @return bool 成功返回true，失败返回false
      */
-    protected function _free($res){
+    protected function _free($res) {
         return $res->free();
     }
 
@@ -225,7 +225,7 @@ class Mysqli extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_str($str){
+    protected function _parse_str($str) {
         $str = htmlspecialchars(trim($str));
         $str = $this->_mysqli->escape_string($str);
         return $str;
@@ -237,7 +237,7 @@ class Mysqli extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_richstr($str){
+    protected function _parse_richstr($str) {
         $str = $this->_mysqli->escape_string($str);
         return trim($str);
     }
@@ -248,7 +248,7 @@ class Mysqli extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_like($str){
+    protected function _parse_like($str) {
         $str = $this->_mysqli->escape_string($str);
         $str = str_replace("_", "\_", $str);
         $str = str_replace("%", "\%", $str);

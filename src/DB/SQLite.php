@@ -27,6 +27,7 @@
  */
 
 namespace Org\Snje\Minifw\DB;
+
 use Org\Snje\Minifw as Minifw;
 
 class SQLite extends Minifw\DB {
@@ -51,12 +52,12 @@ class SQLite extends Minifw\DB {
      *
      * @return Minifw\DB\Sqlite 数据库唯一的实例
      */
-    public static function get_instance($args = []){
+    public static function get_instance($args = []) {
         $id = '';
-        if(!empty($args)){
+        if (!empty($args)) {
             $id = strval($args['id']);
         }
-        if(!isset(self::$_instance[$id])){
+        if (!isset(self::$_instance[$id])) {
             self::$_instance[$id] = new Sqlite($args);
         }
         return self::$_instance[$id];
@@ -67,14 +68,14 @@ class SQLite extends Minifw\DB {
      *
      * @return int 自增字段的数值
      */
-    public function last_insert_id(){
+    public function last_insert_id() {
         return $this->_sqlite->lastInsertRowID();
     }
 
     /**
      * 开启事务
      */
-    public function begin(){
+    public function begin() {
         $this->_query('begin');
         $this->_rollback = true;
     }
@@ -82,8 +83,8 @@ class SQLite extends Minifw\DB {
     /**
      * 提交事务
      */
-    public function commit(){
-        if($this->_rollback){
+    public function commit() {
+        if ($this->_rollback) {
             $this->_query('COMMIT');
             $this->_rollback = false;
         }
@@ -92,29 +93,28 @@ class SQLite extends Minifw\DB {
     /**
      * 回滚事务
      */
-    public function rollback(){
-        if($this->_rollback){
+    public function rollback() {
+        if ($this->_rollback) {
             $this->_query('ROLLBACK');
             $this->_rollback = false;
         }
     }
 
-    /*************************************************************/
+    /*     * ********************************************************** */
 
     /**
      * 私有构造函数
      */
-    protected function __construct($args = []){
+    protected function __construct($args = []) {
         parent::__construct();
         $ini = [];
-        if(!empty($args)){
+        if (!empty($args)) {
             $ini = $args;
-        }
-        else{
+        } else {
             $ini = Minifw\Config::get('sqlite');
         }
 
-        if(empty($ini)){
+        if (empty($ini)) {
             throw new Minifw\Exception('数据库未配置');
         }
         $this->_sqlite = new \SQLite3(WEB_ROOT . $ini['path'], SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
@@ -126,7 +126,7 @@ class SQLite extends Minifw\DB {
      * @param string $sql 要执行的查询
      * @return mixed 查询的结果
      */
-    protected function _query($sql){
+    protected function _query($sql) {
         return $this->_sqlite->query($sql);
     }
 
@@ -136,8 +136,8 @@ class SQLite extends Minifw\DB {
      * @param \SQLite3Result $res 要转化的查询
      * @return array 查询的结果
      */
-    protected function _fetch_all($res){
-        for($data = []; $tmp = $res->fetchArray(MYSQLI_ASSOC);){
+    protected function _fetch_all($res) {
+        for ($data = []; $tmp = $res->fetchArray(MYSQLI_ASSOC);) {
             $data[] = $tmp;
         }
         return $data;
@@ -149,7 +149,7 @@ class SQLite extends Minifw\DB {
      * @param \SQLite3Result $res sql查询结果
      * @return array 获取的数据，或者false
      */
-    protected function _fetch($res){
+    protected function _fetch($res) {
         return $res->fetchArray(MYSQLI_ASSOC);
     }
 
@@ -159,7 +159,7 @@ class SQLite extends Minifw\DB {
      * @param \SQLite3Result $res 要释放的结果
      * @return bool 成功返回true，失败返回false
      */
-    protected function _free($res){
+    protected function _free($res) {
         return $res->finalize();
     }
 
@@ -169,7 +169,7 @@ class SQLite extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_str($str){
+    protected function _parse_str($str) {
         $str = htmlspecialchars(trim($str));
         $str = str_replace("\"", "\"\"", $str);
         return $str;
@@ -181,7 +181,7 @@ class SQLite extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_richstr($str){
+    protected function _parse_richstr($str) {
         $str = str_replace("\"", "\"\"", $str);
         return trim($str);
     }
@@ -192,12 +192,11 @@ class SQLite extends Minifw\DB {
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    protected function _parse_like($str){
+    protected function _parse_like($str) {
         $str = str_replace(
-            ["/" , "'" , "\""  , "[" , "]" , "%" , "&" , "_" , "(" , ")" ],
-            ["//", "''", "\"\"", "/[", "/]", "/%", "/&", "/_", "/(", "/)"],
-            $str
+                ["/", "'", "\"", "[", "]", "%", "&", "_", "(", ")"], ["//", "''", "\"\"", "/[", "/]", "/%", "/&", "/_", "/(", "/)"], $str
         );
         return trim($str);
     }
+
 }

@@ -32,7 +32,7 @@ namespace Org\Snje\Minifw;
 /**
  * 用于加载、缓存和保存配置数据
  */
-class Config{
+class Config {
 
     /**
      * @var array 缓存加载过的数据
@@ -48,14 +48,14 @@ class Config{
      * @return mixed 如果配置段不存在,返回false;如果存在,那么在键名为空时返回整个段，
      * 在键名不为空时，如果段中存在键则返回相应键的值，否则返回默认值
      */
-    public static function get($key, $name = '', $default = false){
-        if($key == '' || !isset(self::$_data[$key])){
+    public static function get($key, $name = '', $default = false) {
+        if ($key == '' || !isset(self::$_data[$key])) {
             return false;
         }
-        if($name == ''){
+        if ($name == '') {
             return self::$_data[$key];
         }
-        if(!isset(self::$_data[$key][$name])){
+        if (!isset(self::$_data[$key][$name])) {
             return $default;
         }
         return self::$_data[$key][$name];
@@ -66,10 +66,10 @@ class Config{
      * @param arrsy $files 要加载的配置文件列表
      * @return array 如果文件存在则返回文件内容，否则返回空数组
      */
-    public static function load_config($files = []){
+    public static function load_config($files = []) {
         $cfg = [];
         require_once __DIR__ . '/defaults.php';
-        foreach($files as $file){
+        foreach ($files as $file) {
             require_once WEB_ROOT . $file;
         }
         self::$_data = $cfg;

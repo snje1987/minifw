@@ -32,7 +32,7 @@ namespace Org\Snje\Minifw;
 /**
  * 网络的基本操作
  */
-class Client{
+class Client {
 
     /**
      * 用POST方法发送数据到指定的URL，并接收数据
@@ -41,17 +41,16 @@ class Client{
      * @param array $data 要发送的数据
      * @return 接收到的数据
      */
-    public static function post($url,$data){
-        $o="";
-        foreach ($data as $k=>$v)
-        {
-            $o.= "$k=".urlencode($v)."&";
+    public static function post($url, $data) {
+        $o = "";
+        foreach ($data as $k => $v) {
+            $o.= "$k=" . urlencode($v) . "&";
         }
-        $data=substr($o,0,-1);
+        $data = substr($o, 0, -1);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         //为了支持cookie
         //curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -67,21 +66,21 @@ class Client{
      * @param array $data 要发送的数据
      * @return 接收到的数据
      */
-    public static function get($url,$data){
-        $o="";
-        foreach ($data as $k=>$v)
-        {
-            $o.= "$k=".urlencode($v)."&";
+    public static function get($url, $data) {
+        $o = "";
+        foreach ($data as $k => $v) {
+            $o.= "$k=" . urlencode($v) . "&";
         }
-        $data=substr($o,0,-1);
-        $url .= '?'.$data;
+        $data = substr($o, 0, -1);
+        $url .= '?' . $data;
         //die($url);
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
         $result = curl_exec($ch);
         return $result;
     }
+
 }

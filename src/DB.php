@@ -28,10 +28,10 @@
  */
 
 namespace Org\Snje\Minifw;
+
 use Org\Snje\Minifw as Minifw;
 
-abstract class DB{
-
+abstract class DB {
     /**
      * 共有方法
      */
@@ -41,19 +41,19 @@ abstract class DB{
      *
      * @return Minifw\DB 数据库唯一的实例
      */
-    public static function get($args = []){
+    public static function get($args = []) {
         $type = '';
-        if(isset($args['type'])){
+        if (isset($args['type'])) {
             $type = strval($args['type']);
         }
-        if($type == ''){
+        if ($type == '') {
             $type = Minifw\Config::get('main', 'db', '');
         }
-        if($type == ''){
+        if ($type == '') {
             throw new Minifw\Exception("未指定数据库类型");
         }
         $class_name = __NAMESPACE__ . "\\DB\\" . $type;
-        if(!class_exists($class_name)){
+        if (!class_exists($class_name)) {
             throw new Minifw\Exception("类型不存在");
         }
         return $class_name::get_instance($args);
@@ -67,7 +67,7 @@ abstract class DB{
      * @param array $field 要选取的字段，为空的选取所有字段
      * @return array 查询到的所有的数据
      */
-    public function limit_query($tbname, $condition = [], $field = []){
+    public function limit_query($tbname, $condition = [], $field = []) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
@@ -83,9 +83,9 @@ abstract class DB{
      * @param string $sql 要执行的sql查询
      * @return array 查询的结果，不存在则返回空数组
      */
-    public function get_query($sql){
+    public function get_query($sql) {
         $res = $this->_query($sql);
-        if($res != null){
+        if ($res != null) {
             $data = $this->_fetch_all($res);
             $this->_free($res);
             return $data;
@@ -101,7 +101,7 @@ abstract class DB{
      * @param array $field 查询的字段，为空则返回所有字段
      * @return array 符合条件的第一条数据
      */
-    public function one_query($tbname, $condition = [], $field = []){
+    public function one_query($tbname, $condition = [], $field = []) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr . ' limit 1';
@@ -118,7 +118,7 @@ abstract class DB{
      * @param array $condition 查询的条件
      * @return int 符合条件的数据的数量
      */
-    public function count($tbname, $condition = []){
+    public function count($tbname, $condition = []) {
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'select count(*) as "count" from `' . $tbname . '` ' . $conditionstr;
         $res = $this->_query($sql);
@@ -134,7 +134,7 @@ abstract class DB{
      * @param array $value 插入的数据各个字段的值
      * @return bool 成功返回true，失败返回false
      */
-    public function insert($tbname, $value){
+    public function insert($tbname, $value) {
         $valuestr = $this->_parse_value($value);
         $sql = 'insert into `' . $tbname . '`' . $valuestr;
         return $this->_query($sql);
@@ -147,8 +147,8 @@ abstract class DB{
      * @param array $condition 删除的条件，不能为空
      * @return bool 成功返回true，失败返回false
      */
-    public function delete($tbname, $condition = []){
-        if(empty($condition)){
+    public function delete($tbname, $condition = []) {
+        if (empty($condition)) {
             throw new Minifw\Exception('删除条件不能为空');
         }
         $conditionstr = $this->_parse_condition($condition);
@@ -164,8 +164,8 @@ abstract class DB{
      * @param array $condition 更新的条件
      * @return bool 成功返回true，失败返回false
      */
-    public function update($tbname, $value, $condition = []){
-        if(empty($condition)){
+    public function update($tbname, $value, $condition = []) {
+        if (empty($condition)) {
             throw new Minifw\Exception('更新条件不能为空');
         }
         $updatestr = $this->_parse_update($value);
@@ -180,7 +180,7 @@ abstract class DB{
      * @param string $sql 要执行的语句
      * @return mixed 返回的结果
      */
-    public function query($sql){
+    public function query($sql) {
         return $this->_query($sql);
     }
 
@@ -190,7 +190,7 @@ abstract class DB{
      * @param \mysqli_result $res 要转化的查询
      * @return array 查询的结果
      */
-    public function fetch_all($res){
+    public function fetch_all($res) {
         return $this->_fetch_all($res);
     }
 
@@ -200,7 +200,7 @@ abstract class DB{
      * @param \mysqli_result $res sql查询结果
      * @return array 获取的数据，或者false
      */
-    public function fetch($res){
+    public function fetch($res) {
         return $this->_fetch($res);
     }
 
@@ -210,7 +210,7 @@ abstract class DB{
      * @param \mysqli_result $res 要释放的结果
      * @return bool 成功返回true，失败返回false
      */
-    public function free($res){
+    public function free($res) {
         return $this->_free($res);
     }
 
@@ -220,7 +220,7 @@ abstract class DB{
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    public function parse_str($str){
+    public function parse_str($str) {
         return $this->_parse_str($str);
     }
 
@@ -230,7 +230,7 @@ abstract class DB{
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    public function parse_richstr($str){
+    public function parse_richstr($str) {
         return $this->_parse_richstr($str);
     }
 
@@ -240,15 +240,14 @@ abstract class DB{
      * @param string $str 要转义的字符串
      * @return string 转义的结果
      */
-    public function parse_like($str){
+    public function parse_like($str) {
         return $this->_parse_like($str);
     }
 
     /**
      * 受保护方法
      */
-
-    protected function __construct($args = []){
+    protected function __construct($args = []) {
 
     }
 
@@ -258,17 +257,17 @@ abstract class DB{
      * @param string $field 要处理的字段名
      * @return string 处理后得到的sql语句
      */
-    protected function _parse_field($field){
-        if(empty($field)){
+    protected function _parse_field($field) {
+        if (empty($field)) {
             return '*';
         }
         $str = '';
         $first = true;
-        foreach($field as $one){
-            if($first){
+        foreach ($field as $one) {
+            if ($first) {
                 $str .= '`' . strval($one) . '`';
                 $first = false;
-            }else{
+            } else {
                 $str .= ',`' . strval($one) . '`';
             }
         }
@@ -281,24 +280,24 @@ abstract class DB{
      * @param array $value 要处理的字段值
      * @return string 处理后得到的sql语句
      */
-    protected function _parse_value($value){
+    protected function _parse_value($value) {
         $fieldstr = '';
         $valuestr = '';
         $first = true;
-        foreach($value as $key => $value1){
-            if($first == true){
+        foreach ($value as $key => $value1) {
+            if ($first == true) {
                 $first = false;
                 $fieldstr .= '`' . $key . '`';
-                if(is_array($value1) && $value1[0] == 'rich'){
+                if (is_array($value1) && $value1[0] == 'rich') {
                     $valuestr .= '"' . ($this->_parse_richstr(strval($value1[1]))) . '"';
-                }else{
+                } else {
                     $valuestr .= '"' . ($this->_parse_str(strval($value1))) . '"';
                 }
-            }else{
+            } else {
                 $fieldstr .= ',`' . $key . '`';
-                if(is_array($value1) && $value1[0] == 'rich'){
+                if (is_array($value1) && $value1[0] == 'rich') {
                     $valuestr .= ',"' . ($this->_parse_richstr(strval($value1[1]))) . '"';
-                }else{
+                } else {
                     $valuestr .= ',"' . ($this->_parse_str(strval($value1))) . '"';
                 }
             }
@@ -312,21 +311,21 @@ abstract class DB{
      * @param array $value 要处理的字段值
      * @return string 处理后得到的sql语句
      */
-    protected function _parse_update($value){
+    protected function _parse_update($value) {
         $str = '';
         $first = true;
-        foreach($value as $key => $value1){
-            if($first == true){
+        foreach ($value as $key => $value1) {
+            if ($first == true) {
                 $first = false;
-                if(is_array($value1) && $value1[0] == 'rich'){
+                if (is_array($value1) && $value1[0] == 'rich') {
                     $str .= '`' . $key . '`="' . ($this->_parse_richstr($value1[1])) . '"';
-                }else{
+                } else {
                     $str .= '`' . $key . '`="' . ($this->_parse_str($value1)) . '"';
                 }
-            }else{
-                if(is_array($value1) && $value1[0] == 'rich'){
+            } else {
+                if (is_array($value1) && $value1[0] == 'rich') {
                     $str .= ',`' . $key . '`="' . ($this->_parse_richstr($value1[1])) . '"';
-                }else{
+                } else {
                     $str .= ',`' . $key . '`="' . ($this->_parse_str($value1)) . '"';
                 }
             }
@@ -343,67 +342,67 @@ abstract class DB{
      * @param string $tbname 条件对应的数据表
      * @return string 处理后得到的sql语句
      */
-    protected function _parse_opt($value, &$first, $key, $tbname){
+    protected function _parse_opt($value, &$first, $key, $tbname) {
         $str = '';
         $value[0] = strval($value[0]);
-        switch($value[0]){
+        switch ($value[0]) {
             case '>':
             case '<':
             case '=':
             case '>=':
             case '<=':
             case '<>':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '`' . $value[0] . '"' . ($this->_parse_str($value[1])) . '")';
                 break;
             case 'between':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` between "' . ($this->_parse_str($value[1])) . '" and "' . ($this->_parse_str($value[2])) . '")';
                 break;
             case 'have':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like "%' . ($this->_parse_like($value[1])) . '%")';
                 break;
             case 'end':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like "%' . ($this->_parse_like($value[1])) . '")';
                 break;
             case 'begin':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like "' . ($this->_parse_like($value[1])) . '%")';
                 break;
             case 'nohave':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` not like "%' . ($this->_parse_like($value[1])) . '%")';
                 break;
             case 'in':
-                if($first != true){
+                if ($first != true) {
                     $str .= ' and ';
-                }else{
+                } else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` in (';
@@ -430,40 +429,40 @@ abstract class DB{
      * @param string $tbname 数据表的名称
      * @return string 处理后得到的sql语句
      */
-    protected function _parse_condition($condition, $tbname = ''){
-        if(empty($condition)){
+    protected function _parse_condition($condition, $tbname = '') {
+        if (empty($condition)) {
             return '';
         }
         $str = '';
         $first = true;
-        foreach($condition as $key => $value){
-            if($key == 'order'){
+        foreach ($condition as $key => $value) {
+            if ($key == 'order') {
                 $str .= ' order by ' . $value;
-            }elseif($key == 'limit'){
+            } elseif ($key == 'limit') {
                 $str .= ' limit ' . $value;
-            }else{
-                if(is_array($value)){
-                    if(is_array($value[0])){
-                        foreach($value as $one){
+            } else {
+                if (is_array($value)) {
+                    if (is_array($value[0])) {
+                        foreach ($value as $one) {
                             $str .= $this->_parse_opt($one, $first, $key, $tbname);
                         }
-                    }else{
+                    } else {
                         $str .= $this->_parse_opt($value, $first, $key, $tbname);
                     }
-                }else{
-                    if($first != true){
+                } else {
+                    if ($first != true) {
                         $str .= ' and ';
-                    }else{
+                    } else {
                         $first = false;
                     }
-                    if($tbname != ''){
+                    if ($tbname != '') {
                         $str .= '`' . $tbname . '` .';
                     }
                     $str .= ' `' . $key . '` = "' . ($this->_parse_str(strval($value))) . '"';
                 }
             }
         }
-        if($first == false){
+        if ($first == false) {
             $str = ' where ' . $str;
         }
         return $str;

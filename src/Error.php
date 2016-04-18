@@ -32,7 +32,7 @@ namespace Org\Snje\Minifw;
 /**
  * 用于错误处理的辅助方法
  */
-class Error{
+class Error {
 
     /**
      * 用于处理普通的错误信息
@@ -42,8 +42,8 @@ class Error{
      * @param string $file 出错的文件
      * @param int $line 出错的行号
      */
-    public static function captureNormal($number, $message, $file, $line){
-        if(DEBUG == 1){
+    public static function captureNormal($number, $message, $file, $line) {
+        if (DEBUG == 1) {
             $error = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
             echo '<pre>';
             print_r($error);
@@ -56,13 +56,12 @@ class Error{
      *
      * @param \Exception $exception 要处理的异常
      */
-    public static function captureException($exception){
-        if(DEBUG == 1){
+    public static function captureException($exception) {
+        if (DEBUG == 1) {
             echo '<pre>';
             print_r($exception);
             echo '</pre>';
-        }
-        else{
+        } else {
             echo 'Runtime Error';
         }
     }
@@ -70,19 +69,17 @@ class Error{
     /**
      * 处理程序的异常停止
      */
-    public static function captureShutdown(){
+    public static function captureShutdown() {
         $error = error_get_last();
-        if($error){
-            if(DEBUG == 1){
+        if ($error) {
+            if (DEBUG == 1) {
                 echo '<pre>';
                 print_r($error);
                 echo '</pre>';
-            }
-            else{
+            } else {
                 echo 'Runtime Error';
             }
-        }
-        else{
+        } else {
             return true;
         }
     }
