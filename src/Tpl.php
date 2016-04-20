@@ -115,8 +115,6 @@ class Tpl {
         if (self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime) {
             $str = file_get_contents($src);
 
-            $str = preg_replace('/\s{2,}/i', ' ', $str);
-
             /* 处理模板中的处理逻辑语句——开始 */
             $str = preg_replace(
                     '/\<{inc (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",[],"' . $theme . '"); ?>', $str);
@@ -127,7 +125,7 @@ class Tpl {
             $str = preg_replace(
                     '/\<{inc (\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"$3"); ?>', $str);
 
-            $str = preg_replace('/\<{ (.*?)}\>/', '<?php echo ($1); ?>', $str);
+            $str = preg_replace('/\<{=(.*?)}\>/', '<?= ($1); ?>', $str);
             $str = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){ ?>', $str);
             $str = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){ ?>', $str);
             $str = preg_replace('/\<{else}\>/', '<?php }else{ ?>', $str);
@@ -165,10 +163,12 @@ class Tpl {
 
             /* 删除模板中多余的空行和空格——开始 */
             $str = preg_replace('/^\s*(.*?)\s*$/im', '$1', $str);
-            $str = preg_replace('/^\/\/(.*?)$/im', '', $str);
-            $str = preg_replace('/\r|\n/i', '', $str);
-            $str = preg_replace('/\>\s*(.*?)\s*\</im', '>$1<', $str);
+            $str = preg_replace('/\r|\n/', '', $str);
+            $str = preg_replace('/\>\s*\</', '>$1<', $str);
+            $str = preg_replace('/\s*\?\>\s*\<\?php\s*/', '', $str);
+            $str = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $str);
             $str = preg_replace('/\s{2,}/i', ' ', $str);
+            $str = preg_replace('/\?\>$/i', '', $str);
             /* 删除模板中多余的空行和空格——完成 */
 
             Minifw\File::mkdir(dirname($dest));
