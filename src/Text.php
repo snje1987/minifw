@@ -77,10 +77,10 @@ class Text {
      * @return string 截取的结果
      */
     public static function sub_text($str, $len) {
-        $ini = Config::get('run_main');
+        $encoding = Config::get('main', 'encoding');
         $str = self::strip_tags($str);
         $str = preg_replace('/(\s|&nbsp;)+/i', ' ', $str);
-        return mb_substr($str, 0, $len, $ini['encoding']);
+        return mb_substr($str, 0, $len, $encoding);
     }
 
     /**
@@ -91,7 +91,7 @@ class Text {
      * @return string 截取的结果
      */
     public static function sub_rich($str, $len) {
-        $ini = Config::get('run_main');
+        $encoding = Config::get('main', 'encoding');
         if (self::is_rich($str)) {
             $str = self::strip_html($str);
             $str = preg_replace('/\r/i', '', preg_replace('/\n/i', '', $str));
@@ -99,7 +99,7 @@ class Text {
             $str = self::strip_tags($str);
         }
         $str = preg_replace('/^\s*\n/im', '', preg_replace('/(\t| |　|&nbsp;)+/i', ' ', $str));
-        $str = mb_substr($str, 0, $len, $ini['encoding']);
+        $str = mb_substr($str, 0, $len, $encoding);
         $str = preg_replace('/^([^\r\n]*)\r?\n?$/im', "<p>$1</p>", $str);
         return $str;
     }
