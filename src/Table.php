@@ -160,12 +160,13 @@ abstract class Table {
     /**
      * 删除指定id的数据
      *
-     * @param int $id 要删除数据的id
+     * @param int $args 要删除数据的信息
      * @return bool 成功返回ture，否则返回fasle
      */
-    public function del($id) {
+    public function del($args) {
+        $id = intval($args[0]);
         $condition = [
-            'id' => intval($id)
+            'id' => $id
         ];
         return $this->_db->delete(static::TBNAME, $condition);
     }
