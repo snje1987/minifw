@@ -170,4 +170,52 @@ class System {
         return [$dir, $fname, $args, $matches[4]];
     }
 
+    /**
+     * 将一个路径路由到指定方法
+     *
+     * @param string $path 路径
+     * @param string $prefix 指定方法所在类的名空间前缀
+     * @param string $def_func 当路径中方法名为空时掉用的默认函数
+     * @return bool
+     */
+    public static function route($path, $prefix = '', $def_func = 'index') {
+        list($classname, $funcname, $args, $nouse) = self::path_info($path);
+        $classname = str_replace('/', '\\', $classname);
+        $classname = $prefix . ucwords($classname, '\\');
+
+        if ($funcname == '') {
+            $funcname = $def_func;
+        }
+
+        try {
+            $class = new \ReflectionClass($classname);
+            $func = $class->getMethod($funcname);
+            $doc = $func->getDocComment();
+            $doc = str_replace(' ', '', $doc);
+            if (!preg_match('/^\*@route(\(prev=(true|false)\))?$/im', $doc, $matches)) {
+                return false;
+            }
+
+            $obj = $class->newInstance();
+            if (!isset($matches[2]) || $matches[2] === 'true') {
+                if ($class->hasMethod('_prev')) {
+                    $prev = $class->getMethod('_prev');
+                    $prev->setAccessible(true);
+                    $prev->invoke($obj);
+                }
+            }
+            $func->setAccessible(true);
+            $func->invoke($obj, $args);
+            return true;
+        } catch (Minifw\Exception $ex) {
+            if (DEBUG === 1) {
+                echo $ex->getMessage();
+                die();
+            }
+        } catch (\Exception $ex) {
+            //echo $ex->getMessage();
+        }
+        return false;
+    }
+
 }
