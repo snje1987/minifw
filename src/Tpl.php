@@ -39,7 +39,45 @@ class Tpl {
     protected static $theme_path;
     protected static $res_path;
     protected static $compiled_path;
+    protected static $_varis = [];
     public static $always_compile;
+
+    public static function assign($name, $value) {
+        self::$_varis[$name] = $value;
+    }
+
+    public static function get($name) {
+        if (isset(self::$_varis[$name])) {
+            return self::$_varis[$name];
+        }
+        return [];
+    }
+
+    public static function append($name, $value) {
+        if (isset(self::$_varis[$name])) {
+            self::$_varis[$name] .= $value;
+        } else {
+            self::$_varis[$name] = $value;
+        }
+    }
+
+    public static function prepend($name, $value) {
+        if (isset(self::$_varis[$name])) {
+            self::$_varis[$name] = $value . self::$_varis[$name];
+        } else {
+            self::$_varis[$name] = $value;
+        }
+    }
+
+    public static function exist($tpl, $theme, $is_block = false) {
+        $path = '';
+        if ($is_block) {
+            $path = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
+        } else {
+            $path = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
+        }
+        return file_exists($path);
+    }
 
     /**
      * 显示指定的页面模板
@@ -61,6 +99,7 @@ class Tpl {
         if (self::_compile($tpl_src, $tpl_dest, $theme)) {
             ob_start();
             try {
+                extract(self::$_varis);
                 include($tpl_dest);
             } catch (\Exception $ex) {
                 ob_end_clean();
@@ -86,6 +125,7 @@ class Tpl {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
         if (self::_compile($tpl_src, $tpl_dest, $theme)) {
+            extract(self::$_varis);
             include($tpl_dest);
         }
     }
