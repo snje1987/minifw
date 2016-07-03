@@ -200,25 +200,29 @@ class File {
     /**
      * 删除指定的文件或目录，如果删除后父目录为空也会删除父目录
      *
-     * @param string $full 要删除的文件的相对路径
+     * @param string $path 要删除的文件的路径
+     * @param string $isfull 路径是否为完整路径
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
-    public static function delete($full, $fsencoding = '') {
-        if ($full == '') {
+    public static function delete($path, $isfull = false, $fsencoding = '') {
+        if ($path == '') {
             return;
         }
+        if (!$isfull) {
+            $path = WEB_ROOT . $path;
+        }
 
-        $full = self::conv_to($full, $fsencoding);
+        $path = self::conv_to($path, $fsencoding);
 
-        $parent = dirname($full);
-        if (file_exists($full)) {
-            if (is_dir($full)) {
-                rmdir($full);
+        $parent = dirname($path);
+        if (file_exists($path)) {
+            if (is_dir($path)) {
+                rmdir($path);
             } else {
-                @unlink($full);
+                @unlink($path);
             }
             if (self::dir_empty($parent)) {
-                self::delete($parent);
+                self::delete($parent, true);
             }
         }
     }
@@ -226,16 +230,20 @@ class File {
     /**
      * 删除指定的文件，同时删除后缀相同的文件
      *
-     * @param string $full 要删除的文件的相对路径
+     * @param string $path 要删除的文件的路径
+     * @param string $isfull 路径是否为完整路径
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
-    public static function delete_img($full, $fsencoding = '') {
-        if ($full == '') {
+    public static function delete_img($path, $isfull = false, $fsencoding = '') {
+        if ($path == '') {
             return;
         }
+        if (!$isfull) {
+            $path = WEB_ROOT . $path;
+        }
 
-        $full = self::conv_to($full, $fsencoding);
-        $pinfo = pathinfo($full);
+        $path = self::conv_to($path, $fsencoding);
+        $pinfo = pathinfo($path);
         $dir = $pinfo['dirname'] . '/';
         $name = $pinfo['filename'];
         $files = array();
@@ -253,7 +261,7 @@ class File {
         }
 
         foreach ($files as $one) {
-            self::delete($one);
+            self::delete($one, true);
         }
     }
 
