@@ -40,7 +40,6 @@ abstract class Table {
      * @var string 数据表的名称
      */
     const TBNAME = '';
-    const ALLOW = ['edit', 'add', 'del'];
 
     protected static $_instance = [];
 
@@ -77,13 +76,11 @@ abstract class Table {
      */
     public function sync_call($post, $call, $die = true) {
         $call = strval($call);
-        if (in_array($call, static::ALLOW)) {
-            $this->_db->begin();
-            if (Common::json_call($post, [$this, $call], false)) {
-                $this->_db->commit();
-            } else {
-                $this->_db->rollback();
-            }
+        $this->_db->begin();
+        if (Common::json_call($post, [$this, $call], false)) {
+            $this->_db->commit();
+        } else {
+            $this->_db->rollback();
         }
         if ($die) {
             die(0);
@@ -98,12 +95,9 @@ abstract class Table {
      */
     public function json_call($post, $call, $die = true) {
         $call = strval($call);
-        if (in_array($call, static::ALLOW)) {
-            Common::json_call($post, [$this, $call], $die);
-        } else {
-            if ($die) {
-                die(0);
-            }
+        Common::json_call($post, [$this, $call], $die);
+        if ($die) {
+            die(0);
         }
     }
 
