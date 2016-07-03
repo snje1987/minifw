@@ -72,6 +72,9 @@ abstract class DB {
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
         $res = $this->_query($sql);
+        if ($res === false) {
+            throw new Exception($this->last_error() . '<br />' . $sql);
+        }
         $data = $this->_fetch_all($res);
         $this->_free($res);
         return $data;
@@ -85,12 +88,12 @@ abstract class DB {
      */
     public function get_query($sql) {
         $res = $this->_query($sql);
-        if ($res != null) {
-            $data = $this->_fetch_all($res);
-            $this->_free($res);
-            return $data;
+        if ($res === false) {
+            throw new Exception($this->last_error() . '<br />' . $sql);
         }
-        return [];
+        $data = $this->_fetch_all($res);
+        $this->_free($res);
+        return $data;
     }
 
     /**
@@ -106,6 +109,9 @@ abstract class DB {
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr . ' limit 1';
         $res = $this->_query($sql);
+        if ($res === false) {
+            throw new Exception($this->last_error() . '<br />' . $sql);
+        }
         $data = $this->_fetch($res);
         $this->_free($res);
         return $data;
@@ -122,6 +128,9 @@ abstract class DB {
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'select count(*) as "count" from `' . $tbname . '` ' . $conditionstr;
         $res = $this->_query($sql);
+        if ($res === false) {
+            throw new Exception($this->last_error() . '<br />' . $sql);
+        }
         $data = $this->_fetch($res);
         $this->_free($res);
         return $data['count'];
