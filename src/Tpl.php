@@ -36,23 +36,60 @@ use Org\Snje\Minifw as Minifw;
  */
 class Tpl {
 
+    /**
+     * @var string 主题的保存路径
+     */
     protected static $theme_path;
+
+    /**
+     * @var string 主题资源的保存路径
+     */
     protected static $res_path;
+
+    /**
+     * @var string 编译后模板的保存路径
+     */
     protected static $compiled_path;
+
+    /**
+     * @var array 已关联的变量
+     */
     protected static $_varis = [];
+
+    /**
+     * @var int 是否每次都重新编译模板
+     */
     public static $always_compile;
 
+    /**
+     * 将变量关联到模板
+     *
+     * @param string $name 变量名
+     * @param mixed $value 变量值
+     */
     public static function assign($name, $value) {
         self::$_varis[$name] = $value;
     }
 
+    /**
+     * 获取关联到模板的变量值
+     *
+     * @param string $name 变量名
+     * @return mixed 变量的值，不存在则返回null
+     */
     public static function get($name) {
         if (isset(self::$_varis[$name])) {
             return self::$_varis[$name];
         }
-        return [];
+        return null;
     }
 
+    /**
+     * 将字符串拼接到变量后面
+     *
+     * @param string $name 变量名
+     * @param string $value 变量值
+     */
     public static function append($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] .= $value;
@@ -61,6 +98,12 @@ class Tpl {
         }
     }
 
+    /**
+     * 将字符串拼接到变量前面
+     *
+     * @param string $name 变量名
+     * @param string $value 变量值
+     */
     public static function prepend($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] = $value . self::$_varis[$name];
@@ -69,6 +112,14 @@ class Tpl {
         }
     }
 
+    /**
+     * 判断模板是否存在
+     *
+     * @param string $tpl 模板路径
+     * @param string $theme 主题名称
+     * @param bool $is_block 模板的类型是否为block
+     * @return bool
+     */
     public static function exist($tpl, $theme, $is_block = false) {
         $path = '';
         if ($is_block) {
