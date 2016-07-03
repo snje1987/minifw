@@ -154,11 +154,21 @@ abstract class Table {
     /**
      * 删除指定id的数据
      *
-     * @param int $args 要删除数据的信息
+     * @param mixed $args 要删除数据的信息
      * @return bool 成功返回ture，否则返回fasle
      */
     public function del($args) {
-        $id = intval($args[0]);
+        $id = 0;
+        if (is_array($args)) {
+            $id = intval($args[0]);
+        } else {
+            $id = intval($args);
+        }
+
+        if ($id == 0) {
+            return false;
+        }
+
         $condition = [
             'id' => $id
         ];
