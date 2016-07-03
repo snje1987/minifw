@@ -503,6 +503,8 @@ abstract class DB {
      */
     abstract public function rollback();
 
+    abstract public function last_error();
+
     /**
      * 执行sql查询，返回结果
      *

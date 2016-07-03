@@ -100,6 +100,10 @@ class SQLite extends Minifw\DB {
         }
     }
 
+    public function last_error() {
+        return $this->_sqlite->lastErrorMsg();
+    }
+
     /*     * ********************************************************** */
 
     /**

@@ -129,6 +129,10 @@ class Mysqli extends Minifw\DB {
         }
     }
 
+    public function last_error() {
+        return $this->_mysqli->error;
+    }
+
     /*     * ********************************************************** */
 
     /**
