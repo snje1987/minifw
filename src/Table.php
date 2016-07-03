@@ -40,6 +40,42 @@ abstract class Table {
      * @var string 数据表的名称
      */
     const TBNAME = '';
+    const ENGINE = 'InnoDB';
+    const CHARSET = 'utf8';
+
+    /**
+     * @var array 表中的列定义
+     * 结构：
+     * [
+     *     [
+     *         'name' => 'test',
+     *         'type' => 'varchar',
+     *         'len' => '255',
+     *         'attr' => '',
+     *         'default' => '',
+     *         'extra' => 'AUTO_INCREMENT',
+     *         'comment' => '测试'
+     *     ],
+     *     ...
+     * ]
+     *
+     */
+    const FIELDS = [];
+
+    /**
+     * @var array 表中的索引定义
+     * 结构：
+     * [
+     *     [
+     *         'type' => 'primary',
+     *         'name' => '',
+     *         'fields' => ['id'],
+     *     ],
+     *     ...
+     * ]
+     *
+     */
+    const INDEXS = [];
 
     protected static $_instance = [];
 
@@ -287,7 +323,61 @@ abstract class Table {
     /**
      * 创建该数据表
      */
-    abstract public function create();
+    public function create($recreate = false) {
+        if ($recreate == true) {
+            $sql = 'DROP TABLE IF EXISTS `' . static::TBNAME . '`';
+            if (!$this->_db->query($sql)) {
+                throw new Exception('重建失败');
+            }
+        }
+        $sql = 'CREATE TABLE IF NOT EXISTS `' . static::TBNAME . '` (';
+        $arr = [];
+        foreach (static::FIELDS as $v) {
+            $tmp = '';
+            switch ($v['type']) {
+                case 'text':
+                    $tmp = '`' . $v['name'] . '` text NOT NULL';
+                    break;
+                default :
+                    $tmp = '`' . $v['name'] . '` ' . $v['type'] . '(' . $v['len'] . ')';
+                    if (isset($v['attr'])) {
+                        $tmp .= ' ' . $v['attr'];
+                    }
+                    $tmp .= ' NOT NULL';
+                    if (isset($v['extra'])) {
+                        $tmp .= ' ' . $v['extra'];
+                    }
+                    if (isset($v['default'])) {
+                        $tmp .= ' DEFAULT "' . $v['default'] . '"';
+                    }
+                    break;
+            }
+            if (isset($v['comment'])) {
+                $tmp .= ' COMMENT "' . $v['comment'] . '"';
+            }
+            $arr[] = $tmp;
+        }
+
+        foreach (static::INDEXS as $v) {
+            $tmp = '';
+            switch ($v['type']) {
+                case 'PRIMARY':
+                    $tmp = 'PRIMARY KEY (`' . implode('`,`', $v['fields']) . '`)';
+                    break;
+                default :
+                    $tmp = $v['type'] . ' `' . $v['name'] . '` (`' . implode('`,`', $v['fields']) . '`)';
+                    break;
+            }
+            $arr[] = $tmp;
+        }
+
+        $sql .= implode(',', $arr);
+        $sql .= ') ENGINE=' . static::ENGINE . ' DEFAULT CHARSET=' . static::CHARSET;
+        if (!$this->_db->query($sql)) {
+            throw new Exception($this->_db->last_error());
+        }
+        return true;
+    }
 
     /*     * ******************************************************* */
 
