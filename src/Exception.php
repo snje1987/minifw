@@ -34,4 +34,17 @@ namespace Org\Snje\Minifw;
  */
 class Exception extends \Exception {
 
+    /**
+     *
+     * @param mixed $message 错误消息，如果是数组或对象，则会使用print_r转换
+     * @param int $code 错误码
+     * @param \Exception $previous 触发者
+     */
+    public function __construct($message = "", $code = 0, \Exception $previous = null) {
+        if (is_array($message) || is_object($message)) {
+            $message = print_r($message, true);
+        }
+        parent::__construct($message, $code, $previous);
+    }
+
 }
