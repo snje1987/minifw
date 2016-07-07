@@ -263,24 +263,22 @@ abstract class DB {
     /**
      * 处理用于指定sql查询的字段名
      *
-     * @param string $field 要处理的字段名
+     * @param array $field 要处理的字段名
      * @return string 处理后得到的sql语句
      */
     protected function _parse_field($field) {
         if (empty($field)) {
             return '*';
         }
-        $str = '';
-        $first = true;
-        foreach ($field as $one) {
-            if ($first) {
-                $str .= '`' . strval($one) . '`';
-                $first = false;
+        $arr = [];
+        foreach ($field as $k => $v) {
+            if (is_int($k)) {
+                $arr[] = '`' . $v . '`';
             } else {
-                $str .= ',`' . strval($one) . '`';
+                $arr[] = $v . ' as "' . $k . '"';
             }
         }
-        return $str;
+        return implode(',', $arr);
     }
 
     /**
@@ -290,28 +288,25 @@ abstract class DB {
      * @return string 处理后得到的sql语句
      */
     protected function _parse_value($value) {
-        $fieldstr = '';
-        $valuestr = '';
-        $first = true;
-        foreach ($value as $key => $value1) {
-            if ($first == true) {
-                $first = false;
-                $fieldstr .= '`' . $key . '`';
-                if (is_array($value1) && $value1[0] == 'rich') {
-                    $valuestr .= '"' . ($this->_parse_richstr(strval($value1[1]))) . '"';
+        if (empty($value)) {
+            throw new Exception('参数错误');
+        }
+        $farr = [];
+        $varr = [];
+
+        foreach ($value as $k => $v) {
+            $farr[] = $k;
+            if (is_array($v)) {
+                if ($v[0] == 'rich') {
+                    $varr[] = $this->_parse_richstr(strval($v[1]));
                 } else {
-                    $valuestr .= '"' . ($this->_parse_str(strval($value1))) . '"';
+                    throw new Exception('参数错误');
                 }
             } else {
-                $fieldstr .= ',`' . $key . '`';
-                if (is_array($value1) && $value1[0] == 'rich') {
-                    $valuestr .= ',"' . ($this->_parse_richstr(strval($value1[1]))) . '"';
-                } else {
-                    $valuestr .= ',"' . ($this->_parse_str(strval($value1))) . '"';
-                }
+                $varr[] = $this->_parse_str(strval($v));
             }
         }
-        return '(' . $fieldstr . ') values (' . $valuestr . ')';
+        return '(`' . implode('`,`', $farr) . '`) values ("' . implode('","', $varr) . '")';
     }
 
     /**
@@ -321,25 +316,24 @@ abstract class DB {
      * @return string 处理后得到的sql语句
      */
     protected function _parse_update($value) {
-        $str = '';
-        $first = true;
-        foreach ($value as $key => $value1) {
-            if ($first == true) {
-                $first = false;
-                if (is_array($value1) && $value1[0] == 'rich') {
-                    $str .= '`' . $key . '`="' . ($this->_parse_richstr($value1[1])) . '"';
+
+        $arr = [];
+
+        foreach ($value as $k => $v) {
+            if (is_array($v)) {
+                if ($v[0] == 'rich') {
+                    $arr[] = '`' . $k . '`="' . $this->_parse_richstr(strval($v[1])) . '"';
+                } elseif ($v[0] == 'expr') {
+                    $arr[] = '`' . $k . '`=' . $v[1];
                 } else {
-                    $str .= '`' . $key . '`="' . ($this->_parse_str($value1)) . '"';
+                    throw new Exception('参数错误');
                 }
             } else {
-                if (is_array($value1) && $value1[0] == 'rich') {
-                    $str .= ',`' . $key . '`="' . ($this->_parse_richstr($value1[1])) . '"';
-                } else {
-                    $str .= ',`' . $key . '`="' . ($this->_parse_str($value1)) . '"';
-                }
+                $arr[] = '`' . $k . '`="' . $this->_parse_str(strval($v)) . '"';
             }
         }
-        return $str;
+
+        return implode(',', $arr);
     }
 
     /**
