@@ -182,11 +182,10 @@ class System {
         list($classname, $funcname, $args, $nouse) = self::path_info($path);
         $classname = str_replace('/', '\\', $classname);
         $classname = $prefix . ucwords($classname, '\\');
-
         if ($funcname == '') {
             $funcname = $def_func;
         }
-
+        $funcname = 'c_' . $funcname;
         try {
             $class = new \ReflectionClass($classname);
             $func = $class->getMethod($funcname);
@@ -195,11 +194,10 @@ class System {
             if (!preg_match('/^\*@route(\(prev=(true|false)\))?$/im', $doc, $matches)) {
                 return false;
             }
-
             $obj = $class->newInstance();
             if (!isset($matches[2]) || $matches[2] === 'true') {
-                if ($class->hasMethod('_prev')) {
-                    $prev = $class->getMethod('_prev');
+                if ($class->hasMethod('prev')) {
+                    $prev = $class->getMethod('prev');
                     $prev->setAccessible(true);
                     $prev->invoke($obj);
                 }
