@@ -105,6 +105,53 @@ abstract class Table {
     }
 
     /**
+     * 对比指定目录中所有的数据表
+     *
+     * @param string $ns 目录对应的名空间
+     * @param string $path 目录的绝对路径
+     * @param bool $top 是否为第一级调用
+     */
+    public static function diff_all($ns = '', $path = '', $top = true) {
+        if ($path == '' || !is_dir($path)) {
+            return;
+        }
+        if ($top) {
+            echo '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>数据库结构检查</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><style>*{padding:0;margin:0;}table{width:80%;margin:20px auto;border-collapse:collapse;border:1px solid black;font-size:12px;line-height:16px;}th{border:1px solid black;padding:4px;background-color:#DDDDDD;}td{border:1px solid black;padding:4px;}.red{color:red;}.green{color:green;}.blue{color:blue;}.center{text-align:center;}</style></head><body>';
+
+            echo '<table><tr><th>数据表</th><th>类型</th><th>变化/转换SQL</th></tr>';
+        }
+        try {
+            $dir = opendir($path);
+            while (false !== ($file = readdir($dir))) {
+                if ($file == '.' || $file == '..') {
+                    continue;
+                }
+                if (is_dir($path . '/' . $file)) {
+                    self::diff_all($ns . '\\' . $file, $path . '/' . $file, false);
+                } else {
+                    if (substr($file, -4, 4) !== '.php') {
+                        continue;
+                    }
+                    $classname = $ns . '\\' . substr($file, 0, strlen($file) - 4);
+                    if (class_exists($classname)) {
+                        $obj = new $classname();
+                        if ($obj instanceof Table) {
+                            $obj->table_diff();
+                        }
+                    }
+                }
+            }
+            closedir($dir);
+        } catch (\Exception $ex) {
+            echo $ex->getMessage();
+        }
+        if ($top) {
+            echo '</table></body></html>';
+            die();
+        }
+    }
+
+    /**
      * 启用事务处理，执行指定的方法
      *
      * @param mixed $post 方法的参数
@@ -316,59 +363,87 @@ abstract class Table {
         $this->_db->rollback();
     }
 
+    /**
+     * 删除数据表
+     *
+     * @return bool
+     */
     public function drop() {
-        $this->_db->query('drop table if exists `' . static::TBNAME . '`');
+        return $this->_db->query('drop table if exists `' . static::TBNAME . '`');
+    }
+
+    /**
+     * 根据列定义数组生成定义SQL
+     *
+     * @param array $attr 定义数组
+     * @return string 定义SQL
+     */
+    public static function field_sql($attr) {
+        $tmp = '';
+        switch ($attr['type']) {
+            case 'text':
+                $tmp = '`' . $attr['name'] . '` text';
+                if (!isset($attr['null']) || $attr['null'] === 'NO') {
+                    $tmp .= ' NOT NULL';
+                }
+                break;
+            default :
+                $tmp = '`' . $attr['name'] . '` ' . $attr['type'];
+                if (!isset($attr['null']) || $attr['null'] === 'NO') {
+                    $tmp .= ' NOT NULL';
+                }
+                if (isset($attr['extra']) && $attr['extra'] !== null && $attr['extra'] !== '') {
+                    $tmp .= ' ' . $attr['extra'];
+                }
+                if (isset($attr['default']) && $attr['default'] !== null) {
+                    $tmp .= ' DEFAULT "' . $attr['default'] . '"';
+                }
+                break;
+        }
+        if (isset($attr['comment']) && $attr['comment'] !== null) {
+            $tmp .= ' COMMENT "' . $attr['comment'] . '"';
+        }
+        return $tmp;
+    }
+
+    /**
+     * 根据索引定义数组生成定义SQL
+     *
+     * @param array $attr 定义数组
+     * @return string 定义SQL
+     */
+    public static function index_sql($attr) {
+        $tmp = '';
+        switch ($attr['type']) {
+            case 'PRIMARY':
+                $tmp = 'PRIMARY KEY (`' . implode('`,`', $attr['fields']) . '`)';
+                break;
+            default :
+                $tmp = $attr['type'] . ' `' . $attr['name'] . '` (`' . implode('`,`', $attr['fields']) . '`)';
+                break;
+        }
+        return $tmp;
     }
 
     /**
      * 创建该数据表
+     *
+     * @param bool $recreate 如果存在是否重建
+     * @return bool
+     * @throws Exception
      */
     public function create($recreate = false) {
-        if ($recreate == true) {
-            $sql = 'DROP TABLE IF EXISTS `' . static::TBNAME . '`';
-            if (!$this->_db->query($sql)) {
-                throw new Exception('重建失败');
-            }
+        if ($recreate == true && !$this->drop()) {
+            throw new Exception('重建失败');
         }
         $sql = 'CREATE TABLE IF NOT EXISTS `' . static::TBNAME . '` (';
         $arr = [];
         foreach (static::FIELDS as $v) {
-            $tmp = '';
-            switch ($v['type']) {
-                case 'text':
-                    $tmp = '`' . $v['name'] . '` text NOT NULL';
-                    break;
-                default :
-                    $tmp = '`' . $v['name'] . '` ' . $v['type'] . '(' . $v['len'] . ')';
-                    if (isset($v['attr'])) {
-                        $tmp .= ' ' . $v['attr'];
-                    }
-                    $tmp .= ' NOT NULL';
-                    if (isset($v['extra'])) {
-                        $tmp .= ' ' . $v['extra'];
-                    }
-                    if (isset($v['default'])) {
-                        $tmp .= ' DEFAULT "' . $v['default'] . '"';
-                    }
-                    break;
-            }
-            if (isset($v['comment'])) {
-                $tmp .= ' COMMENT "' . $v['comment'] . '"';
-            }
-            $arr[] = $tmp;
+            $arr[] = self::field_sql($v);
         }
 
         foreach (static::INDEXS as $v) {
-            $tmp = '';
-            switch ($v['type']) {
-                case 'PRIMARY':
-                    $tmp = 'PRIMARY KEY (`' . implode('`,`', $v['fields']) . '`)';
-                    break;
-                default :
-                    $tmp = $v['type'] . ' `' . $v['name'] . '` (`' . implode('`,`', $v['fields']) . '`)';
-                    break;
-            }
-            $arr[] = $tmp;
+            $arr[] = self::index_sql($v);
         }
 
         $sql .= implode(',', $arr);
@@ -377,6 +452,69 @@ abstract class Table {
             throw new Exception($this->_db->last_error());
         }
         return true;
+    }
+
+    /**
+     * 对比数据表的定义以及实际的数据库结构
+     */
+    public function table_diff() {
+        $sql = 'show full fields from `' . static::TBNAME . '`';
+        $data = $this->_db->get_query($sql);
+        $k = 0;
+        foreach ($data as $k => $v) {
+            $this->field_diff($v, $k);
+        }
+        for ($k ++; $k < count(static::FIELDS); $k ++) {
+            $right = static::FIELDS[$k];
+            $right_sql = self::field_sql($right);
+            echo '<tr><th>' . static::TBNAME . '</th><td class="center">列</td><td>';
+            echo '<p class="green">+&nbsp;' . $right_sql . '</p>';
+            echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';</p>';
+            echo '</td></tr>';
+        }
+    }
+
+    /**
+     * 对比数据表中一列的定义以及实际的数据库中的列
+     *
+     * @param array $dbattr 列在实际数据库中的定义
+     * @param int $index 列的索引号，从0开始
+     */
+    public function field_diff($dbattr, $index) {
+        $left = [];
+
+        $hash = [
+            'Field' => 'name',
+            'Type' => 'type',
+            'Null' => 'null',
+            'Extra' => 'extra',
+            'Default' => 'default',
+            'Comment' => 'comment',
+        ];
+
+        foreach ($hash as $k => $v) {
+            $left[$v] = $dbattr[$k];
+        }
+
+        $left_sql = self::field_sql($left);
+        $right_sql = '';
+
+        if ($index < count(static::FIELDS)) {
+            $right = static::FIELDS[$index];
+            $right_sql = self::field_sql($right);
+        }
+
+        if ($left_sql != $right_sql) {
+            echo '<tr><th>' . static::TBNAME . '</th><td class="center">列</td><td>';
+            echo '<p class="red">-&nbsp;' . $left_sql . '</p>';
+            if ($right_sql != '') {
+                echo '<p class="green">+&nbsp;' . $right_sql . '</p>';
+                echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $left['name'] . '` ' . $right_sql . ';</p>';
+            } else {
+                echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` DROP `' . $left['name'] . '`;</p>';
+            }
+            echo '</td></tr>';
+        }
     }
 
     /*     * ******************************************************* */
