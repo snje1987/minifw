@@ -104,4 +104,15 @@ class Text {
         return $str;
     }
 
+    /**
+     * 计算字符串长度
+     *
+     * @param string $str 字符串
+     * @return int 长度
+     */
+    public static function str_len($str) {
+        $encoding = Config::get('main', 'encoding');
+        return mb_strlen($str, $encoding);
+    }
+
 }
