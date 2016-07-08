@@ -47,11 +47,8 @@ abstract class Table {
      * @var array 表中的列定义
      * 结构：
      * [
-     *     [
-     *         'name' => 'test',
-     *         'type' => 'varchar',
-     *         'len' => '255',
-     *         'attr' => '',
+     *     'test' => [
+     *         'type' => 'varchar(200)',
      *         'default' => '',
      *         'extra' => 'AUTO_INCREMENT',
      *         'comment' => '测试'
@@ -66,11 +63,10 @@ abstract class Table {
      * @var array 表中的索引定义
      * 结构：
      * [
-     *     [
-     *         'type' => 'primary',
-     *         'name' => '',
+     *     'PRIMARY' => [
+     *         'unique' => true,
      *         'fields' => ['id'],
-     *     ],
+     *     ]
      *     ...
      * ]
      *
@@ -104,6 +100,8 @@ abstract class Table {
         return self::$_instance[$id][static::class];
     }
 
+    private static $_diff = [];
+
     /**
      * 对比指定目录中所有的数据表
      *
@@ -112,13 +110,11 @@ abstract class Table {
      * @param bool $top 是否为第一级调用
      */
     public static function diff_all($ns = '', $path = '', $top = true) {
-        if ($path == '' || !is_dir($path)) {
+        if (DEBUG != 1 || $path == '' || !is_dir($path)) {
             return;
         }
         if ($top) {
-            echo '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>数据库结构检查</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><style>*{padding:0;margin:0;}table{width:80%;margin:20px auto;border-collapse:collapse;border:1px solid black;font-size:12px;line-height:16px;}th{border:1px solid black;padding:4px;background-color:#DDDDDD;}td{border:1px solid black;padding:4px;}.red{color:red;}.green{color:green;}.blue{color:blue;}.center{text-align:center;}</style></head><body>';
-
-            echo '<table><tr><th>数据表</th><th>类型</th><th>变化/转换SQL</th></tr>';
+            self::$_diff = [];
         }
         try {
             $dir = opendir($path);
@@ -136,7 +132,11 @@ abstract class Table {
                     if (class_exists($classname)) {
                         $obj = new $classname();
                         if ($obj instanceof Table) {
-                            $obj->table_diff();
+                            $ndiff = $obj->table_diff();
+                            if (empty($ndiff)) {
+                                continue;
+                            }
+                            self::$_diff = array_merge(self::$_diff, $ndiff);
                         }
                     }
                 }
@@ -146,6 +146,33 @@ abstract class Table {
             echo $ex->getMessage();
         }
         if ($top) {
+            echo '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml">'
+            . '<head>'
+            . '<title>数据库结构检查</title>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
+            . '<style>'
+            . '*{padding:0;margin:0;}'
+            . 'table{width:80%;margin:20px auto;border-collapse:collapse;border:1px solid black;font-size:12px;line-height:16px;}'
+            . 'th{border:1px solid black;padding:4px;background-color:#DDDDDD;}'
+            . 'td{border:1px solid black;padding:4px;}'
+            . '.red{color:red;}'
+            . '.green{color:green;}'
+            . '.blue{color:blue;}'
+            . '.center{text-align:center;'
+            . '}p{padding:5px 0;}'
+            . '</style>'
+            . '</head>'
+            . '<body>'
+            . '<table>'
+            . '<tr><th>数据表</th><th>差异</th></tr>';
+
+            $trans = [];
+            foreach (self::$_diff as $v) {
+                echo '<tr><th>' . $v['table'] . '</th><td>' . $v['diff'] . '</td></tr>';
+                $trans[] = $v['trans'];
+            }
+
+            echo '<tr><th>转换</th><td><p>' . implode('</p><p>', $trans) . '</p></td></tr>';
             echo '</table></body></html>';
             die();
         }
@@ -378,17 +405,17 @@ abstract class Table {
      * @param array $attr 定义数组
      * @return string 定义SQL
      */
-    public static function field_sql($attr) {
+    public static function field_sql($name, $attr) {
         $tmp = '';
         switch ($attr['type']) {
             case 'text':
-                $tmp = '`' . $attr['name'] . '` text';
+                $tmp = '`' . $name . '` text';
                 if (!isset($attr['null']) || $attr['null'] === 'NO') {
                     $tmp .= ' NOT NULL';
                 }
                 break;
             default :
-                $tmp = '`' . $attr['name'] . '` ' . $attr['type'];
+                $tmp = '`' . $name . '` ' . $attr['type'];
                 if (!isset($attr['null']) || $attr['null'] === 'NO') {
                     $tmp .= ' NOT NULL';
                 }
@@ -412,14 +439,26 @@ abstract class Table {
      * @param array $attr 定义数组
      * @return string 定义SQL
      */
-    public static function index_sql($attr) {
+    public static function index_sql($name, $attr, $in_create = true) {
         $tmp = '';
-        switch ($attr['type']) {
+        switch ($name) {
             case 'PRIMARY':
                 $tmp = 'PRIMARY KEY (`' . implode('`,`', $attr['fields']) . '`)';
                 break;
             default :
-                $tmp = $attr['type'] . ' `' . $attr['name'] . '` (`' . implode('`,`', $attr['fields']) . '`)';
+                if ($in_create) {
+                    if (isset($attr['unique']) && $attr['unique'] === true) {
+                        $tmp = 'UNIQUE ';
+                    }
+                    $tmp .= 'KEY ';
+                } else {
+                    if (isset($attr['unique']) && $attr['unique'] === true) {
+                        $tmp = 'UNIQUE ';
+                    } else {
+                        $tmp = 'INDEX ';
+                    }
+                }
+                $tmp .= '`' . $name . '` (`' . implode('`,`', $attr['fields']) . '`)';
                 break;
         }
         return $tmp;
@@ -436,85 +475,194 @@ abstract class Table {
         if ($recreate == true && !$this->drop()) {
             throw new Exception('重建失败');
         }
-        $sql = 'CREATE TABLE IF NOT EXISTS `' . static::TBNAME . '` (';
-        $arr = [];
-        foreach (static::FIELDS as $v) {
-            $arr[] = self::field_sql($v);
-        }
-
-        foreach (static::INDEXS as $v) {
-            $arr[] = self::index_sql($v);
-        }
-
-        $sql .= implode(',', $arr);
-        $sql .= ') ENGINE=' . static::ENGINE . ' DEFAULT CHARSET=' . static::CHARSET;
+        $sql = $this->create_sql();
         if (!$this->_db->query($sql)) {
             throw new Exception($this->_db->last_error());
         }
         return true;
     }
 
+    public function create_sql($dim = '') {
+        $sql = 'CREATE TABLE IF NOT EXISTS `' . static::TBNAME . "` (" . $dim;
+        $arr = [];
+        foreach (static::FIELDS as $k => $v) {
+            $arr[] = self::field_sql($k, $v);
+        }
+
+        foreach (static::INDEXS as $k => $v) {
+            $arr[] = self::index_sql($k, $v);
+        }
+
+        $sql .= implode("," . $dim, $arr) . $dim;
+        $sql .= ') ENGINE=' . static::ENGINE . ' DEFAULT CHARSET=' . static::CHARSET;
+        return $sql;
+    }
+
     /**
      * 对比数据表的定义以及实际的数据库结构
      */
     public function table_diff() {
-        $sql = 'show full fields from `' . static::TBNAME . '`';
-        $data = $this->_db->get_query($sql);
-        $k = 0;
-        foreach ($data as $k => $v) {
-            $this->field_diff($v, $k);
+        try {
+            $diff = $this->fields_diff();
+        } catch (Exception $ex) {
+            $sql = $this->create_sql('<br />+&nbsp;');
+            $sql1 = $this->create_sql('<br />');
+            $diff[] = [
+                'table' => static::TBNAME,
+                'diff' => '<p class="green">+&nbsp;' . $sql . '</p>',
+                'trans' => $sql1 . ';',
+            ];
+            return $diff;
         }
-        for ($k ++; $k < count(static::FIELDS); $k ++) {
-            $right = static::FIELDS[$k];
-            $right_sql = self::field_sql($right);
-            echo '<tr><th>' . static::TBNAME . '</th><td class="center">列</td><td>';
-            echo '<p class="green">+&nbsp;' . $right_sql . '</p>';
-            echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';</p>';
-            echo '</td></tr>';
+
+        $idiff = $this->index_diff();
+        if (!empty($idiff)) {
+            $diff = array_merge($diff, $idiff);
         }
+
+        return $diff;
     }
 
-    /**
-     * 对比数据表中一列的定义以及实际的数据库中的列
-     *
-     * @param array $dbattr 列在实际数据库中的定义
-     * @param int $index 列的索引号，从0开始
-     */
-    public function field_diff($dbattr, $index) {
-        $left = [];
-
-        $hash = [
-            'Field' => 'name',
-            'Type' => 'type',
-            'Null' => 'null',
-            'Extra' => 'extra',
-            'Default' => 'default',
-            'Comment' => 'comment',
-        ];
-
-        foreach ($hash as $k => $v) {
-            $left[$v] = $dbattr[$k];
-        }
-
-        $left_sql = self::field_sql($left);
-        $right_sql = '';
-
-        if ($index < count(static::FIELDS)) {
-            $right = static::FIELDS[$index];
-            $right_sql = self::field_sql($right);
-        }
-
-        if ($left_sql != $right_sql) {
-            echo '<tr><th>' . static::TBNAME . '</th><td class="center">列</td><td>';
-            echo '<p class="red">-&nbsp;' . $left_sql . '</p>';
-            if ($right_sql != '') {
-                echo '<p class="green">+&nbsp;' . $right_sql . '</p>';
-                echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $left['name'] . '` ' . $right_sql . ';</p>';
-            } else {
-                echo '<p class="blue">=&nbsp;ALTER TABLE `' . static::TBNAME . '` DROP `' . $left['name'] . '`;</p>';
+    public function fields_diff() {
+        $fields = $this->get_table_field();
+        $diff = [];
+        foreach ($fields as $k => $v) {
+            $left_sql = self::field_sql($k, $v);
+            if (!array_key_exists($k, static::FIELDS)) {
+                $diff[] = [
+                    'table' => static::TBNAME,
+                    'diff' => '<p class = "red">-&nbsp;' . $left_sql . '</p>',
+                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` DROP `' . $k . '`;',
+                ];
+                continue;
             }
-            echo '</td></tr>';
+            $right_sql = self::field_sql($k, static::FIELDS[$k]);
+            if ($left_sql != $right_sql) {
+                $diff[] = [
+                    'table' => static::TBNAME,
+                    'diff' => '<p class = "red">-&nbsp;' . $left_sql . '</p><p class = "green">+&nbsp;' . $right_sql . '</p>',
+                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $k . '` ' . $right_sql . ';',
+                ];
+            }
         }
+
+        foreach (static::FIELDS as $k => $v) {
+            if (isset($fields[$k])) {
+                continue;
+            }
+            $right_sql = self::field_sql($k, static::FIELDS[$k]);
+            $diff[] = [
+                'table' => static::TBNAME,
+                'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
+                'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
+            ];
+        }
+
+        return $diff;
+    }
+
+    public function index_diff() {
+        $diff = [];
+        $db_index = $this->get_table_index();
+
+        foreach ($db_index as $key => $attr) {
+            $left_sql = $this->index_sql($key, $attr, false);
+            $right_sql = '';
+            if (array_key_exists($key, static::INDEXS)) {
+                $right_sql = $this->index_sql($key, static::INDEXS[$key], false);
+            }
+            if ($right_sql == '') {
+
+                $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP INDEX `' . $key . '`;';
+                if ($key == 'PRIMARY') {
+                    $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP PRIMARY KEY;';
+                }
+
+                $diff[] = [
+                    'table' => static::TBNAME,
+                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
+                    'trans' => $trans,
+                ];
+                continue;
+            }
+
+            if ($left_sql != $right_sql) {
+                $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP';
+                if ($key == 'PRIMARY') {
+                    $trans .= ' PRIMARY KEY';
+                } else {
+                    $trans .= ' INDEX `' . $key . '`';
+                }
+                $trans .= ', ADD ' . $right_sql . ';';
+                $diff[] = [
+                    'table' => static::TBNAME,
+                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p><p class="green">+&nbsp;' . $right_sql . '</p>',
+                    'trans' => $trans,
+                ];
+                continue;
+            }
+        }
+
+        foreach (static::INDEXS as $key => $v) {
+            if (isset($db_index[$key])) {
+                continue;
+            }
+            $right_sql = $this->index_sql($key, static::INDEXS[$key], false);
+            $diff[] = [
+                'table' => static::TBNAME,
+                'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
+                'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
+            ];
+        }
+
+        return $diff;
+    }
+
+    public function get_table_field() {
+        $sql = 'show full fields from `' . static::TBNAME . '`';
+        $data = $this->_db->get_query($sql);
+        $fields = [];
+        foreach ($data as $v) {
+            $fields[$v['Field']] = [
+                'type' => $v['Type'],
+                'null' => $v['Null'],
+                'extra' => $v['Extra'],
+                'default' => $v['Default'],
+                'comment' => $v['Comment'],
+            ];
+        }
+        return $fields;
+    }
+
+    public function get_table_index() {
+        $sql = 'show index from `' . static::TBNAME . '`';
+        $data = $this->_db->get_query($sql);
+        $index = [];
+
+        foreach ($data as $v) {
+            $name = $v['Key_name'];
+            if (!isset($index[$name])) {
+                if ($name == 'PRIMARY') {
+                    $index[$name] = [
+                        'fields' => [
+                            $v['Column_name']
+                        ]
+                    ];
+                } else {
+                    $index[$name] = [
+                        'fields' => [
+                            $v['Column_name']
+                        ]
+                    ];
+                    if ($v['Non_unique'] == 0) {
+                        $index[$name]['unique'] = true;
+                    }
+                }
+            } else {
+                $index[$name]['fields'][] = $v['Column_name'];
+            }
+        }
+        return $index;
     }
 
     /*     * ******************************************************* */
