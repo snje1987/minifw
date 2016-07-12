@@ -185,7 +185,7 @@ class System {
         if ($funcname == '') {
             $funcname = $def_func;
         }
-        $funcname = 'c_' . $funcname;
+        $funcname = 'c_' . str_replace('.', '', $funcname);
         try {
             $class = new \ReflectionClass($classname);
             $func = $class->getMethod($funcname);
