@@ -50,9 +50,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
             'returl' => '',
             'msg' => '操作失败',
                 ], $ret);
-
-        $ret = self::sync_call_test($obj, 'func_not_allow', '测试消息');
-        $this->assertEquals(null, $ret);
     }
 
     public function test_json_call() {
@@ -77,9 +74,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
             'returl' => '',
             'msg' => '操作失败',
                 ], $ret);
-
-        $ret = self::json_call_test($obj, 'func_not_allow', '测试消息');
-        $this->assertEquals(null, $ret);
     }
 
     public static function json_call_test($obj, $func, $args) {

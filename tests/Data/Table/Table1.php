@@ -28,8 +28,6 @@ use Org\Snje\Minifw as FW;
  */
 class Table1 extends FW\Table {
 
-    const ALLOW = ['func', 'func_except', 'func_noexist'];
-
     public function func($args) {
         return $args;
     }
@@ -38,15 +36,7 @@ class Table1 extends FW\Table {
         throw new \Org\Snje\Minifw\Exception($args);
     }
 
-    public function func_not_allow($args) {
-        return $args;
-    }
-
     protected function _prase($post, $type) {
-
-    }
-
-    public function create() {
 
     }
 

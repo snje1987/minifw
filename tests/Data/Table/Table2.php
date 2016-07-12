@@ -32,9 +32,4 @@ class Table2 extends FW\Table {
 
     }
 
-    public function create() {
-
-    }
-
-//put your code here
 }
