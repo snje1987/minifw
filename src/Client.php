@@ -39,23 +39,68 @@ class Client {
      *
      * @param string $url 发送到的url
      * @param array $data 要发送的数据
-     * @return 接收到的数据
+     * @param string $cookie Cookie
+     * @param string $referer Referer
+     * @return array 接收到的数据
      */
-    public static function post($url, $data) {
+    public static function post($url, $data, $cookie = '', $referer = '') {
+        $result = [];
+        $result['url'] = $url;
+        $result['cookie_send'] = $cookie;
+
         $o = "";
         foreach ($data as $k => $v) {
-            $o.= "$k=" . urlencode($v) . "&";
+            $o .= $k . '=' . urlencode($v) . '&';
         }
         $data = substr($o, 0, -1);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
-        //为了支持cookie
-        //curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); //不自动跳转
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1; rv:20.0) Gecko/20100101 Firefox/20.0');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($ch);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // https请求 不验证证书和hosts
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        if ($cookie != '') {
+            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+        }
+        if ($referer != '') {
+            curl_setopt($ch, CURLOPT_REFERER, $referer);
+        }
+
+        $content = curl_exec($ch);
+        curl_close($ch);
+
+        if (preg_match_all('/Set-Cookie:(.*);/iU', $content, $matches)) {
+            $cookie = implode(';', $matches[1]);
+        } else {
+            $cookie = '';
+        }
+
+        $location = '';
+        if (preg_match('/Location:(.*)\r\n/iU', $content, $matches)) {
+            $location = trim($matches[1]);
+        } else {
+            $location = '';
+        }
+
+        $header = '';
+        $pos = strpos($content, "\r\n\r\n");
+        if ($pos !== false) {
+            $header = substr($content, 0, $pos);
+            $content = substr($content, $pos + 4);
+        }
+
+        $result['cookie'] = substr($cookie, 1);
+        $result['location'] = $location;
+        $result['header'] = $header;
+        $result['content'] = $content;
+
         return $result;
     }
 
@@ -64,22 +109,71 @@ class Client {
      *
      * @param string $url 发送到的url
      * @param array $data 要发送的数据
-     * @return 接收到的数据
+     * @param string $cookie Cookie
+     * @param string $referer Referer
+     * @return array 接收到的数据
      */
-    public static function get($url, $data) {
-        $o = "";
-        foreach ($data as $k => $v) {
-            $o.= "$k=" . urlencode($v) . "&";
+    public static function get($url, $data, $cookie = '', $referer = '') {
+        if (!empty($data)) {
+            $o = "";
+            foreach ($data as $k => $v) {
+                $o .= $k . '=' . urlencode($v) . '&';
+            }
+            $data = substr($o, 0, -1);
+            $url .= '?' . $data;
         }
-        $data = substr($o, 0, -1);
-        $url .= '?' . $data;
-        //die($url);
+
+        $result = [];
+        $result['url'] = $url;
+        $result['cookie_send'] = $cookie;
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); //不自动跳转
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1; rv:20.0) Gecko/20100101 Firefox/20.0');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-        $result = curl_exec($ch);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // https请求 不验证证书和hosts
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        if ($cookie != '') {
+            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+        }
+        if ($referer != '') {
+            curl_setopt($ch, CURLOPT_REFERER, $referer);
+        }
+
+        $content = curl_exec($ch);
+        curl_close($ch);
+
+        if (preg_match_all('/Set-Cookie:(.*);/iU', $content, $matches)) {
+            $cookie = implode(';', $matches[1]);
+        } else {
+            $cookie = '';
+        }
+
+        $location = '';
+        if (preg_match('/Location:(.*)\r\n/iU', $content, $matches)) {
+            $location = trim($matches[1]);
+        } else {
+            $location = '';
+        }
+
+        $header = '';
+        $pos = strpos($content, "\r\n\r\n");
+        if ($pos !== false) {
+            $header = substr($content, 0, $pos);
+            $content = substr($content, $pos + 4);
+        }
+
+        $result['cookie'] = substr($cookie, 1);
+        $result['location'] = $location;
+        $result['header'] = $header;
+        $result['content'] = $content;
+
         return $result;
     }
 
