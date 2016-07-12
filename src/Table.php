@@ -40,8 +40,21 @@ abstract class Table {
      * @var string 数据表的名称
      */
     const TBNAME = '';
+
+    /**
+     * @var string 存储引擎
+     */
     const ENGINE = 'InnoDB';
+
+    /**
+     * @var string 默认字符集
+     */
     const CHARSET = 'utf8';
+
+    /**
+     * @var string 表注释
+     */
+    const COMMENT = '';
 
     /**
      * @var array 表中的列定义
@@ -61,6 +74,7 @@ abstract class Table {
 
     /**
      * @var array 表中的索引定义
+     *
      * 结构：
      * [
      *     'PRIMARY' => [
@@ -482,6 +496,12 @@ abstract class Table {
         return true;
     }
 
+    /**
+     * 生成建立表结构的sql语句
+     *
+     * @param string $dim 分隔符
+     * @return string
+     */
     public function create_sql($dim = '') {
         $sql = 'CREATE TABLE IF NOT EXISTS `' . static::TBNAME . "` (" . $dim;
         $arr = [];
@@ -495,15 +515,21 @@ abstract class Table {
 
         $sql .= implode("," . $dim, $arr) . $dim;
         $sql .= ') ENGINE=' . static::ENGINE . ' DEFAULT CHARSET=' . static::CHARSET;
+        if (static::COMMENT != '') {
+            $sql .= ' COMMENT="' . static::COMMENT . '"';
+        }
         return $sql;
     }
 
     /**
      * 对比数据表的定义以及实际的数据库结构
+     *
+     * @return array 实际数据表与定义的差异
      */
     public function table_diff() {
+        $diff = [];
         try {
-            $diff = $this->fields_diff();
+            $diff = $this->status_diff();
         } catch (Exception $ex) {
             $sql = $this->create_sql('<br />+&nbsp;');
             $sql1 = $this->create_sql('<br />');
@@ -514,7 +540,10 @@ abstract class Table {
             ];
             return $diff;
         }
-
+        $fdiff = $this->fields_diff();
+        if (!empty($fdiff)) {
+            $diff = array_merge($diff, $fdiff);
+        }
         $idiff = $this->index_diff();
         if (!empty($idiff)) {
             $diff = array_merge($diff, $idiff);
@@ -523,6 +552,42 @@ abstract class Table {
         return $diff;
     }
 
+    /**
+     * 获取表属性的差异，表不存在时抛出异常
+     *
+     * @return array 表属性的差异
+     * @throws Exception
+     */
+    public function status_diff() {
+        $sql = 'show table status like "' . static::TBNAME . '"';
+        $data = $this->_db->get_query($sql);
+        if (count($data) !== 1) {
+            throw new Exception('数据表不存在');
+        }
+        $data = $data[0];
+        $diff = [];
+        if ($data['Engine'] != static::ENGINE) {
+            $diff[] = [
+                'table' => static::TBNAME,
+                'diff' => '<p class = "red">-&nbsp;Engine=' . $data['Engine'] . '</p><p class = "green">+&nbsp;Engine=' . static::ENGINE . '</p>',
+                'trans' => 'alter table `' . static::TBNAME . '` ENGINE=' . static::ENGINE . ';',
+            ];
+        }
+        if ($data['Comment'] != static::COMMENT) {
+            $diff[] = [
+                'table' => static::TBNAME,
+                'diff' => '<p class = "red">-&nbsp;Comment=' . $data['Comment'] . '</p><p class = "green">+&nbsp;Comment=' . static::COMMENT . '</p>',
+                'trans' => 'alter table `' . static::TBNAME . '` COMMENT=“' . static::COMMENT . '";',
+            ];
+        }
+        return $diff;
+    }
+
+    /**
+     * 获取表列的差异
+     *
+     * @return array 表列的差异
+     */
     public function fields_diff() {
         $fields = $this->get_table_field();
         $diff = [];
@@ -531,7 +596,7 @@ abstract class Table {
             if (!array_key_exists($k, static::FIELDS)) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class = "red">-&nbsp;' . $left_sql . '</p>',
+                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
                     'trans' => 'ALTER TABLE `' . static::TBNAME . '` DROP `' . $k . '`;',
                 ];
                 continue;
@@ -540,7 +605,7 @@ abstract class Table {
             if ($left_sql != $right_sql) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class = "red">-&nbsp;' . $left_sql . '</p><p class = "green">+&nbsp;' . $right_sql . '</p>',
+                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p><p class = "green">+&nbsp;' . $right_sql . '</p>',
                     'trans' => 'ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $k . '` ' . $right_sql . ';',
                 ];
             }
@@ -561,6 +626,11 @@ abstract class Table {
         return $diff;
     }
 
+    /**
+     * 获取表索引的差异
+     *
+     * @return array 表索引的差异
+     */
     public function index_diff() {
         $diff = [];
         $db_index = $this->get_table_index();
@@ -618,6 +688,11 @@ abstract class Table {
         return $diff;
     }
 
+    /**
+     * 获取实际数据表列的定义
+     *
+     * @return array 实际数据表列的定义
+     */
     public function get_table_field() {
         $sql = 'show full fields from `' . static::TBNAME . '`';
         $data = $this->_db->get_query($sql);
@@ -634,6 +709,11 @@ abstract class Table {
         return $fields;
     }
 
+    /**
+     * 获取实际数据表索引的定义
+     *
+     * @return array 实际数据表索引的定义
+     */
     public function get_table_index() {
         $sql = 'show index from `' . static::TBNAME . '`';
         $data = $this->_db->get_query($sql);
