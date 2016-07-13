@@ -421,6 +421,7 @@ abstract class Table {
     /**
      * 根据列定义数组生成定义SQL
      *
+     * @param string $name 名称
      * @param array $attr 定义数组
      * @return string 定义SQL
      */
@@ -455,7 +456,9 @@ abstract class Table {
     /**
      * 根据索引定义数组生成定义SQL
      *
+     * @param string $name 索引名称
      * @param array $attr 定义数组
+     * @param bool $in_create 用于表创建语句
      * @return string 定义SQL
      */
     public static function index_sql($name, $attr, $in_create = true) {
@@ -596,17 +599,17 @@ abstract class Table {
     public function fields_diff() {
         $fields = $this->get_table_field();
         $diff = [];
-        foreach ($fields as $k => $v) {
-            $left_sql = self::field_sql($k, $v);
-            if (!array_key_exists($k, static::FIELDS)) {
+        foreach (static::FIELDS as $k => $v) {
+            $right_sql = self::field_sql($k, $v);
+            if (!isset($fields[$k])) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
-                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` DROP `' . $k . '`;',
+                    'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
+                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
                 ];
                 continue;
             }
-            $right_sql = self::field_sql($k, static::FIELDS[$k]);
+            $left_sql = self::field_sql($k, $fields[$k]);
             if ($left_sql != $right_sql) {
                 $diff[] = [
                     'table' => static::TBNAME,
@@ -616,15 +619,15 @@ abstract class Table {
             }
         }
 
-        foreach (static::FIELDS as $k => $v) {
-            if (isset($fields[$k])) {
+        foreach ($fields as $k => $v) {
+            if (array_key_exists($k, static::FIELDS)) {
                 continue;
             }
-            $right_sql = self::field_sql($k, static::FIELDS[$k]);
+            $left_sql = self::field_sql($k, $v);
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
-                'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
+                'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
+                'trans' => 'ALTER TABLE `' . static::TBNAME . '` DROP `' . $k . '`;',
             ];
         }
 
@@ -640,33 +643,23 @@ abstract class Table {
         $diff = [];
         $db_index = $this->get_table_index();
 
-        foreach ($db_index as $key => $attr) {
-            $left_sql = $this->index_sql($key, $attr, false);
-            $right_sql = '';
-            if (array_key_exists($key, static::INDEXS)) {
-                $right_sql = $this->index_sql($key, static::INDEXS[$key], false);
-            }
-            if ($right_sql == '') {
-
-                $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP INDEX `' . $key . '`;';
-                if ($key == 'PRIMARY') {
-                    $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP PRIMARY KEY;';
-                }
-
+        foreach (static::INDEXS as $k => $v) {
+            $right_sql = $this->index_sql($k, $v, false);
+            if (!isset($db_index[$k])) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
-                    'trans' => $trans,
+                    'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
+                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
                 ];
                 continue;
             }
-
+            $left_sql = $this->index_sql($k, $db_index[$k], false);
             if ($left_sql != $right_sql) {
                 $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP';
-                if ($key == 'PRIMARY') {
+                if ($k == 'PRIMARY') {
                     $trans .= ' PRIMARY KEY';
                 } else {
-                    $trans .= ' INDEX `' . $key . '`';
+                    $trans .= ' INDEX `' . $k . '`';
                 }
                 $trans .= ', ADD ' . $right_sql . ';';
                 $diff[] = [
@@ -678,15 +671,20 @@ abstract class Table {
             }
         }
 
-        foreach (static::INDEXS as $key => $v) {
-            if (isset($db_index[$key])) {
+        foreach ($db_index as $k => $v) {
+            if (array_key_exists($k, static::INDEXS)) {
                 continue;
             }
-            $right_sql = $this->index_sql($key, static::INDEXS[$key], false);
+            $left_sql = $this->index_sql($k, $v, false);
+            $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP INDEX `' . $k . '`;';
+            if ($k == 'PRIMARY') {
+                $trans = 'ALTER TABLE `' . static::TBNAME . '` DROP PRIMARY KEY;';
+            }
+
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
-                'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
+                'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
+                'trans' => $trans,
             ];
         }
 

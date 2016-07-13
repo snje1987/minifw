@@ -144,12 +144,12 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
             [
                 'table' => 'table_with_all',
                 'diff' => '<p class = "red">-&nbsp;Engine=InnoDB</p><p class = "green">+&nbsp;Engine=MyISAM</p>',
-                'trans' => 'alter table `table_with_all` ENGINE=MyISAM;',
+                'trans' => 'ALTER TABLE `table_with_all` ENGINE=MyISAM;',
             ],
             [
                 'table' => 'table_with_all',
-                'diff' => '<p class = "red">-&nbsp;Comment=Table To Create</p><p class = "green">+&nbsp;Comment=Table To Change</p>',
-                'trans' => 'alter table `table_with_all` COMMENT=“Table To Change";',
+                'diff' => '<p class = "red">-&nbsp;Comment="Table To Create"</p><p class = "green">+&nbsp;Comment="Table To Change"</p>',
+                'trans' => 'ALTER TABLE `table_with_all` COMMENT="Table To Change";',
             ],
             [
                 'table' => 'table_with_all',
@@ -188,8 +188,8 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
             ],
             [
                 'table' => 'table_with_all',
-                'diff' => '<p class="red">-&nbsp;UNIQUE `uniqueindex` (`intfield`)</p><p class="green">+&nbsp;INDEX `uniqueindex` (`intfield`)</p>',
-                'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `uniqueindex`, ADD INDEX `uniqueindex` (`intfield`);',
+                'diff' => '<p class="red">-&nbsp;INDEX `intfield` (`intfield`,`charfield`)</p><p class="green">+&nbsp;INDEX `intfield` (`charfield`)</p>',
+                'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `intfield`, ADD INDEX `intfield` (`charfield`);',
             ],
             [
                 'table' => 'table_with_all',
@@ -198,8 +198,8 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
             ],
             [
                 'table' => 'table_with_all',
-                'diff' => '<p class="red">-&nbsp;INDEX `intfield` (`intfield`,`charfield`)</p><p class="green">+&nbsp;INDEX `intfield` (`charfield`)</p>',
-                'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `intfield`, ADD INDEX `intfield` (`charfield`);',
+                'diff' => '<p class="red">-&nbsp;UNIQUE `uniqueindex` (`intfield`)</p><p class="green">+&nbsp;INDEX `uniqueindex` (`intfield`)</p>',
+                'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `uniqueindex`, ADD INDEX `uniqueindex` (`intfield`);',
             ],
                 ], $diff);
     }
