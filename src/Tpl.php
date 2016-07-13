@@ -39,17 +39,17 @@ class Tpl {
     /**
      * @var string 主题的保存路径
      */
-    protected static $theme_path;
+    public static $theme_path;
 
     /**
      * @var string 主题资源的保存路径
      */
-    protected static $res_path;
+    public static $res_path;
 
     /**
      * @var string 编译后模板的保存路径
      */
-    protected static $compiled_path;
+    public static $compiled_path;
 
     /**
      * @var array 已关联的变量
@@ -139,10 +139,6 @@ class Tpl {
      */
     public static function display($tpl, $args, $theme = '') {
         $theme = ($theme == '' ? Minifw\Config::get('main', 'theme') : $theme);
-
-        self::$theme_path = Minifw\Config::get('path', 'theme');
-        self::$res_path = Minifw\Config::get('path', 'theme_res');
-        self::$compiled_path = Minifw\Config::get('path', 'compiled');
 
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
@@ -273,3 +269,6 @@ class Tpl {
 }
 
 Tpl::$always_compile = Minifw\Config::get('debug', 'tpl_always_compile', 0);
+Tpl::$theme_path = Minifw\Config::get('path', 'theme');
+Tpl::$res_path = Minifw\Config::get('path', 'theme_res');
+Tpl::$compiled_path = Minifw\Config::get('path', 'compiled');
