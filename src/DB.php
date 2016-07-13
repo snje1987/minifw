@@ -150,6 +150,19 @@ abstract class DB {
     }
 
     /**
+     * 插入一条数据，如果存在则替换
+     *
+     * @param string $tbname 插入数据的数据表
+     * @param array $value 插入的数据各个字段的值
+     * @return bool 成功返回true，失败返回false
+     */
+    public function replace($tbname, $value) {
+        $valuestr = $this->_parse_value($value);
+        $sql = 'replace into `' . $tbname . '`' . $valuestr;
+        return $this->_query($sql);
+    }
+
+    /**
      * 根据条件删除数据
      *
      * @param string $tbname 数据表的名称
