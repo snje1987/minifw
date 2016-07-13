@@ -178,16 +178,20 @@ class System {
      * @param string $def_func 当路径中方法名为空时掉用的默认函数
      * @return bool
      */
-    public static function route($path, $prefix = '', $def_func = 'index') {
+    public static function route($path, $prefix = '') {
         list($classname, $funcname, $args, $nouse) = self::path_info($path);
         $classname = str_replace('/', '\\', $classname);
         $classname = $prefix . ucwords($classname, '\\');
-        if ($funcname == '') {
-            $funcname = $def_func;
-        }
-        $funcname = 'c_' . str_replace('.', '', $funcname);
         try {
             $class = new \ReflectionClass($classname);
+            if ($funcname == '' && $class->hasConstant('DEF_FUNC')) {
+                $funcname = $class->getConstant('DEF_FUNC');
+            }
+            $funcname = str_replace('.', '', $funcname);
+            if ($funcname == '') {
+                return false;
+            }
+            $funcname = 'c_' . $funcname;
             $func = $class->getMethod($funcname);
             $doc = $func->getDocComment();
             $doc = str_replace(' ', '', $doc);
@@ -211,7 +215,7 @@ class System {
                 die();
             }
         } catch (\Exception $ex) {
-            //echo $ex->getMessage();
+
         }
         return false;
     }
