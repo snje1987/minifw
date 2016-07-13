@@ -592,6 +592,21 @@ abstract class Table {
     }
 
     /**
+     * 在移动列之后修改列号
+     *
+     * @param array& $fields 列数据
+     * @param int $from 起始列号，包含
+     * @param int $to 终止列号，不包含
+     */
+    private static function move_no(&$fields, $from, $to = -1) {
+        foreach ($fields as $k => $v) {
+            if ($v['no'] >= $from && ($to == -1 || $v['no'] < $to)) {
+                $fields[$k]['no'] ++;
+            }
+        }
+    }
+
+    /**
      * 获取表列的差异
      *
      * @return array 表列的差异
@@ -599,24 +614,30 @@ abstract class Table {
     public function fields_diff() {
         $fields = $this->get_table_field();
         $diff = [];
+        $tail = ' first';
+        $i = 0;
         foreach (static::FIELDS as $k => $v) {
             $right_sql = self::field_sql($k, $v);
             if (!isset($fields[$k])) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
-                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
+                    'diff' => '<p class="green">+[' . $i . ']&nbsp;' . $right_sql . '</p>',
+                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . $tail . ';',
                 ];
-                continue;
+                self::move_no($fields, $i);
+            } else {
+                $left_sql = self::field_sql($k, $fields[$k]);
+                if ($left_sql != $right_sql || $i != $fields[$k]['no']) {
+                    $diff[] = [
+                        'table' => static::TBNAME,
+                        'diff' => '<p class="red">-[' . $fields[$k]['no'] . ']&nbsp;' . $left_sql . '</p><p class = "green">+[' . $i . ']&nbsp;' . $right_sql . '</p>',
+                        'trans' => 'ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $k . '` ' . $right_sql . $tail . ';',
+                    ];
+                }
+                self::move_no($fields, $i, $fields[$k]['no']);
             }
-            $left_sql = self::field_sql($k, $fields[$k]);
-            if ($left_sql != $right_sql) {
-                $diff[] = [
-                    'table' => static::TBNAME,
-                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p><p class = "green">+&nbsp;' . $right_sql . '</p>',
-                    'trans' => 'ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $k . '` ' . $right_sql . ';',
-                ];
-            }
+            $tail = ' after `' . $k . '`';
+            $i ++;
         }
 
         foreach ($fields as $k => $v) {
@@ -700,8 +721,9 @@ abstract class Table {
         $sql = 'show full fields from `' . static::TBNAME . '`';
         $data = $this->_db->get_query($sql);
         $fields = [];
-        foreach ($data as $v) {
+        foreach ($data as $k => $v) {
             $fields[$v['Field']] = [
+                'no' => $k,
                 'type' => $v['Type'],
                 'null' => $v['Null'],
                 'extra' => $v['Extra'],
