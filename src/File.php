@@ -157,6 +157,23 @@ class File {
     }
 
     /**
+     * 获取上传文件的原文件名
+     *
+     * @param array $file 要上传的文件
+     * @return string 上传文件的文件名
+     */
+    public static function get_name($file) {
+        $name = trim($file['name']);
+        $name = str_replace(' ', '', $name);
+        $name = str_replace('　', '', $name);
+        $pos = strrpos($name, '.');
+        if ($pos === false) {
+            return $name;
+        }
+        return trim(substr($name, 0, $pos));
+    }
+
+    /**
      * 复制文件到指定路径，目录不存在也会同时建立
      *
      * @param string $src 要复制的文件的绝对路径
