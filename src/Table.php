@@ -275,6 +275,11 @@ abstract class Table {
         return $this->_db->update(static::TBNAME, $data, $condition);
     }
 
+    public function change_field($id, $field, $value) {
+        $sql = 'update `' . static::TBNAME . '` set `' . $field . '` = ' . $value . ' where `id`="' . $id . '"';
+        return $this->_db->query($sql);
+    }
+
     /**
      * 删除指定id的数据
      *
