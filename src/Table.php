@@ -172,8 +172,8 @@ abstract class Table {
             . '.red{color:red;}'
             . '.green{color:green;}'
             . '.blue{color:blue;}'
-            . '.center{text-align:center;'
-            . '}p{padding:5px 0;}'
+            . '.center{text-align:center;}'
+            . 'p{line-height:16px;}'
             . '</style>'
             . '</head>'
             . '<body>'
@@ -575,14 +575,14 @@ abstract class Table {
             $diff[] = [
                 'table' => static::TBNAME,
                 'diff' => '<p class = "red">-&nbsp;Engine=' . $data['Engine'] . '</p><p class = "green">+&nbsp;Engine=' . static::ENGINE . '</p>',
-                'trans' => 'alter table `' . static::TBNAME . '` ENGINE=' . static::ENGINE . ';',
+                'trans' => 'ALTER TABLE `' . static::TBNAME . '` ENGINE=' . static::ENGINE . ';',
             ];
         }
         if ($data['Comment'] != static::COMMENT) {
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class = "red">-&nbsp;Comment=' . $data['Comment'] . '</p><p class = "green">+&nbsp;Comment=' . static::COMMENT . '</p>',
-                'trans' => 'alter table `' . static::TBNAME . '` COMMENT=“' . static::COMMENT . '";',
+                'diff' => '<p class = "red">-&nbsp;Comment="' . $data['Comment'] . '"</p><p class = "green">+&nbsp;Comment="' . static::COMMENT . '"</p>',
+                'trans' => 'ALTER TABLE `' . static::TBNAME . '` COMMENT="' . static::COMMENT . '";',
             ];
         }
         return $diff;
