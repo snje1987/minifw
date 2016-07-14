@@ -176,7 +176,6 @@ class System {
      * @param string $path 路径
      * @param string $prefix 指定方法所在类的名空间前缀
      * @param string $def_func 当路径中方法名为空时掉用的默认函数
-     * @return bool
      */
     public static function route($path, $prefix = '') {
         list($classname, $funcname, $args, $nouse) = self::path_info($path);
@@ -189,14 +188,14 @@ class System {
             }
             $funcname = str_replace('.', '', $funcname);
             if ($funcname == '') {
-                return false;
+                die();
             }
             $funcname = 'c_' . $funcname;
             $func = $class->getMethod($funcname);
             $doc = $func->getDocComment();
             $doc = str_replace(' ', '', $doc);
             if (!preg_match('/^\*@route(\(prev=(true|false)\))?$/im', $doc, $matches)) {
-                return false;
+                die();
             }
             $obj = $class->newInstance();
             if (!isset($matches[2]) || $matches[2] === 'true') {
@@ -208,16 +207,14 @@ class System {
             }
             $func->setAccessible(true);
             $func->invoke($obj, $args);
-            return true;
         } catch (Minifw\Exception $ex) {
             if (DEBUG === 1) {
                 echo $ex->getMessage();
-                die();
             }
         } catch (\Exception $ex) {
 
         }
-        return false;
+        die();
     }
 
 }
