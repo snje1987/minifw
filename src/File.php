@@ -160,12 +160,16 @@ class File {
      * 获取上传文件的原文件名
      *
      * @param array $file 要上传的文件
+     * @param bool $ext 是否包含扩展名
      * @return string 上传文件的文件名
      */
-    public static function get_name($file) {
+    public static function get_name($file, $ext = false) {
         $name = trim($file['name']);
         $name = str_replace(' ', '', $name);
         $name = str_replace('　', '', $name);
+        if ($ext) {
+            return $name;
+        }
         $pos = strrpos($name, '.');
         if ($pos === false) {
             return $name;
