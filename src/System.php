@@ -78,6 +78,7 @@ class System {
      * 配置系统的主要参数
      */
     protected function _set_env() {
+        ob_start();
         define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
 
         $_GET = self::magic_gpc($_GET);
@@ -188,14 +189,14 @@ class System {
             }
             $funcname = str_replace('.', '', $funcname);
             if ($funcname == '') {
-                die();
+                Server::show_404();
             }
             $funcname = 'c_' . $funcname;
             $func = $class->getMethod($funcname);
             $doc = $func->getDocComment();
             $doc = str_replace(' ', '', $doc);
             if (!preg_match('/^\*@route(\(prev=(true|false)\))?$/im', $doc, $matches)) {
-                die();
+                Server::show_404();
             }
             $obj = $class->newInstance();
             if (!isset($matches[2]) || $matches[2] === 'true') {
@@ -207,14 +208,15 @@ class System {
             }
             $func->setAccessible(true);
             $func->invoke($obj, $args);
+            die();
         } catch (Minifw\Exception $ex) {
             if (DEBUG === 1) {
                 echo $ex->getMessage();
             }
+            Server::show_404();
         } catch (\Exception $ex) {
-
+            Server::show_404();
         }
-        die();
     }
 
 }

@@ -37,6 +37,11 @@ use Org\Snje\Minifw as Minifw;
 class Tpl {
 
     /**
+     * @var bool 是否处于渲染状态
+     */
+    public static $render = false;
+
+    /**
      * @var string 主题的保存路径
      */
     public static $theme_path;
@@ -55,11 +60,16 @@ class Tpl {
      * @var array 已关联的变量
      */
     protected static $_varis = [];
+    protected static $_error = [];
 
     /**
      * @var int 是否每次都重新编译模板
      */
     public static $always_compile;
+
+    public static function error($error) {
+        self::$_error[] = $error;
+    }
 
     /**
      * 将变量关联到模板
@@ -138,27 +148,33 @@ class Tpl {
      * @param string $theme 模板的主题
      */
     public static function display($tpl, $args, $theme = '') {
+        self::$render = true;
         $theme = ($theme == '' ? Minifw\Config::get('main', 'theme') : $theme);
 
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
 
-        if (self::_compile($tpl_src, $tpl_dest, $theme)) {
-            ob_start();
-            try {
+        try {
+            if (self::_compile($tpl_src, $tpl_dest, $theme)) {
                 extract(self::$_varis);
                 include($tpl_dest);
-            } catch (\Exception $ex) {
-                ob_end_clean();
-                if (DEBUG) {
-                    throw $ex;
-                }
-                return false;
             }
-            ob_end_flush();
-            return true;
+        } catch (\Exception $ex) {
+            ob_end_clean();
+            if (DEBUG) {
+                throw $ex;
+            }
+            die();
         }
-        return false;
+        if (DEBUG && !empty(self::$_error)) {
+            $content = ob_get_clean();
+            echo '<pre>';
+            print_r(self::$_error);
+            echo '</pre>' . $content;
+        } else {
+            ob_end_flush();
+        }
+        die();
     }
 
     /**

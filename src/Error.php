@@ -45,9 +45,11 @@ class Error {
     public static function captureNormal($number, $message, $file, $line) {
         if (DEBUG == 1) {
             $error = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
-            echo '<pre>';
-            print_r($error);
-            echo '</pre>';
+            if (Tpl::$render) {
+                Tpl::error($error);
+            } else {
+                print_r($error);
+            }
         }
     }
 
@@ -57,10 +59,10 @@ class Error {
      * @param \Exception $exception 要处理的异常
      */
     public static function captureException($exception) {
+        @ob_end_clean();
         if (DEBUG == 1) {
-            echo '<pre>';
+            header('Content-type:text/plain;');
             print_r($exception);
-            echo '</pre>';
         } else {
             echo 'Runtime Error';
         }
@@ -72,10 +74,10 @@ class Error {
     public static function captureShutdown() {
         $error = error_get_last();
         if ($error) {
+            @ob_end_clean();
             if (DEBUG == 1) {
-                echo '<pre>';
+                header('Content-type:text/plain;');
                 print_r($error);
-                echo '</pre>';
             } else {
                 echo 'Runtime Error';
             }
