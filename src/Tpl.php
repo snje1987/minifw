@@ -147,7 +147,7 @@ class Tpl {
      * @param string $args 页面参数
      * @param string $theme 模板的主题
      */
-    public static function display($tpl, $args, $theme = '') {
+    public static function display($tpl, $args, $theme = '', $die = true) {
         self::$render = true;
         $theme = ($theme == '' ? Minifw\Config::get('main', 'theme') : $theme);
 
@@ -164,7 +164,11 @@ class Tpl {
             if (DEBUG) {
                 throw $ex;
             }
-            die();
+            if ($die) {
+                die();
+            } else {
+                return false;
+            }
         }
         if (DEBUG && !empty(self::$_error)) {
             $content = ob_get_clean();
@@ -174,7 +178,11 @@ class Tpl {
         } else {
             ob_end_flush();
         }
-        die();
+        if ($die) {
+            die();
+        } else {
+            return true;
+        }
     }
 
     /**

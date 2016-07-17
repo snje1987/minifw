@@ -178,7 +178,7 @@ class System {
      * @param string $prefix 指定方法所在类的名空间前缀
      * @param string $def_func 当路径中方法名为空时掉用的默认函数
      */
-    public static function route($path, $prefix = '') {
+    public static function route($path, $prefix = '', $die = true) {
         list($classname, $funcname, $args, $nouse) = self::path_info($path);
         $classname = str_replace('/', '\\', $classname);
         $classname = $prefix . ucwords($classname, '\\');
@@ -189,14 +189,20 @@ class System {
             }
             $funcname = str_replace('.', '', $funcname);
             if ($funcname == '') {
-                Server::show_404();
+                if ($die) {
+                    Server::show_404();
+                }
+                return false;
             }
             $funcname = 'c_' . $funcname;
             $func = $class->getMethod($funcname);
             $doc = $func->getDocComment();
             $doc = str_replace(' ', '', $doc);
             if (!preg_match('/^\*@route(\(prev=(true|false)\))?$/im', $doc, $matches)) {
-                Server::show_404();
+                if ($die) {
+                    Server::show_404();
+                }
+                return false;
             }
             $obj = $class->newInstance();
             if (!isset($matches[2]) || $matches[2] === 'true') {
@@ -208,14 +214,23 @@ class System {
             }
             $func->setAccessible(true);
             $func->invoke($obj, $args);
-            die();
+            if ($die) {
+                Server::show_404();
+            }
+            return true;
         } catch (Minifw\Exception $ex) {
             if (DEBUG === 1) {
                 echo $ex->getMessage();
             }
-            Server::show_404();
+            if ($die) {
+                Server::show_404();
+            }
+            return false;
         } catch (\Exception $ex) {
-            Server::show_404();
+            if ($die) {
+                Server::show_404();
+            }
+            return false;
         }
     }
 
