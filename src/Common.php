@@ -70,7 +70,9 @@ class Common {
             }
         }
         if ($die) {
+            // @codeCoverageIgnoreStart
             die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
+            // @codeCoverageIgnoreEnd
         } else {
             echo \json_encode($ret, JSON_UNESCAPED_UNICODE);
             return $ret['succeed'];

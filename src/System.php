@@ -46,9 +46,12 @@ class System {
             }
         }
         Config::load_config($config);
-
-        define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
-        define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
+        if (!defined('DEBUG')) {
+            define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
+        }
+        if (!defined('DBPREFIX')) {
+            define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
+        }
         date_default_timezone_set(Minifw\Config::get('main', 'timezone', 'UTC'));
 
         //设置错误处理函数
@@ -79,7 +82,9 @@ class System {
      */
     protected function _set_env() {
         ob_start();
-        define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
+        if (!defined('MAGIC_QUOTES_GPC')) {
+            define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
+        }
 
         $_GET = self::magic_gpc($_GET);
         $_POST = self::magic_gpc($_POST);

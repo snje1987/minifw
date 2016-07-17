@@ -17,19 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Test\Table;
+namespace Org\Snje\MinifwTest\Table;
 
-use Org\Snje\MinifwTest\Data\Table;
+use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
  * Description of ManageTest
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class DiffTest extends \PHPUnit_Framework_TestCase {
+class DiffTest extends Ts\TestCommon {
 
+    /**
+     * @covers Org\Snje\Minifw\Table::table_diff
+     */
     public function test_add() {
-        $table = Table\Diff\TableAdd::get();
+        $table = TableAdd::get();
         $diff = $table->table_diff();
         $this->assertEquals([
             [
@@ -85,8 +89,11 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
                 ], $diff);
     }
 
+    /**
+     * @covers Org\Snje\Minifw\Table::table_diff
+     */
     public function test_del() {
-        $table = Table\Diff\TableDel::get();
+        $table = TableDel::get();
         $diff = $table->table_diff();
         $this->assertEquals([
             [
@@ -142,8 +149,11 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
                 ], $diff);
     }
 
+    /**
+     * @covers Org\Snje\Minifw\Table::table_diff
+     */
     public function test_change() {
-        $table = Table\Diff\TableChange::get();
+        $table = TableChange::get();
         $diff = $table->table_diff();
         $this->assertEquals([
             [
@@ -209,8 +219,11 @@ class DiffTest extends \PHPUnit_Framework_TestCase {
                 ], $diff);
     }
 
+    /**
+     * @covers Org\Snje\Minifw\Table::table_diff
+     */
     public function test_move() {
-        $table = Table\Diff\TableMove::get();
+        $table = TableMove::get();
         $diff = $table->table_diff();
         $this->assertEquals([
             [

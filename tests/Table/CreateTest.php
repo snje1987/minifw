@@ -17,19 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Test\Table;
+namespace Org\Snje\MinifwTest\Table;
 
-use Org\Snje\MinifwTest\Data\Table;
+use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
  * Description of ManageTest
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class CreateTest extends \PHPUnit_Framework_TestCase {
+class CreateTest extends Ts\TestCommon {
 
+    /**
+     * @covers Org\Snje\Minifw\Table::create
+     * @covers Org\Snje\Minifw\Table::drop
+     */
     public function test_create() {
-        $table_create = Table\Diff\TableWithAll::get();
+        $table_create = TableWithAll::get();
         $table_create->drop();
         $table_create->create();
 
@@ -56,7 +61,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals($rightsql, $leftsql);
 
-        $table_create = Table\Diff\TableWithOne::get();
+        $table_create = TableWithOne::get();
         $table_create->drop();
         $table_create->create();
 

@@ -17,16 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Data\Table;
+namespace Org\Snje\MinifwTest\JsonCall;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
  * Description of TestTable
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class Table1 extends FW\Table {
+class Table extends FW\Table {
 
     public function func($args) {
         return $args;

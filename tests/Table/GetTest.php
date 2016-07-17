@@ -17,19 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Data\Table;
+namespace Org\Snje\MinifwTest\Table;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
- * Description of Test2
+ * Description of Get
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class Table2 extends FW\Table {
+class GetTest extends Ts\TestCommon {
 
-    protected function _prase($post, $type) {
+    /**
+     * @covers Org\Snje\Minifw\Table::get
+     */
+    public function test_get() {
+        $table1 = TableWithAll::get();
 
+        $this->assertEquals('Org\Snje\MinifwTest\Table\TableWithAll', get_class($table1));
+
+        $table2 = TableWithOne::get();
+
+        $this->assertEquals('Org\Snje\MinifwTest\Table\TableWithOne', get_class($table2));
+
+        $this->assertNotEquals($table2, $table1);
+
+        $table3 = TableWithAll::get();
+
+        $this->assertEquals($table1, $table3);
+
+        $table4 = TableWithAll::get(['id' => 'def']);
+
+        $this->assertEquals($table1, $table4);
     }
 
 }

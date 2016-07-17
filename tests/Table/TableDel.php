@@ -17,20 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest;
+namespace Org\Snje\MinifwTest\Table;
 
 use Org\Snje\Minifw as FW;
 
 /**
- * Description of Common
+ * Description of TableCreate
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class Common {
+class TableDel extends FW\Table {
 
-    public static function set_env() {
-        define("WEB_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
-        new FW\System();
+    const TBNAME = 'table_with_all';
+
+    protected function _prase($post, $type) {
+
     }
+
+    const COMMENT = 'Table To Create';
+    const FIELDS = [
+        'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
+    ];
+    const INDEXS = [
+    ];
 
 }

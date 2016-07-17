@@ -17,17 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Test\Table;
+namespace Org\Snje\MinifwTest\Table;
 
-use Org\Snje\Minifw\Text;
+use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
  * Description of Get
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class TestTest extends \PHPUnit_Framework_TestCase {
+class TextTest extends Ts\TestCommon {
 
+    /**
+     * @covers Org\Snje\Minifw\Text::strip_html
+     */
     public function test_strip_html() {
         $hash = [
             " 123456   \n  2345 \n" => "123456 2345",
@@ -37,10 +41,13 @@ class TestTest extends \PHPUnit_Framework_TestCase {
             ">\n12345 <" => ">12345<",
         ];
         foreach ($hash as $k => $v) {
-            $this->assertEquals($v, Text::strip_html($k));
+            $this->assertEquals($v, FW\Text::strip_html($k));
         }
     }
 
+    /**
+     * @covers Org\Snje\Minifw\Text::strip_tags
+     */
     public function test_strip_tag() {
         $hash = [
             "<p>123</p>" => "123",
@@ -50,7 +57,7 @@ class TestTest extends \PHPUnit_Framework_TestCase {
             "<?ss style=\"font-size:12px; color:red\" >123</p>" => "<?ss style=\"font-size:12px; color:red\" >123",
         ];
         foreach ($hash as $k => $v) {
-            $this->assertEquals($v, Text::strip_tags($k));
+            $this->assertEquals($v, FW\Text::strip_tags($k));
         }
     }
 

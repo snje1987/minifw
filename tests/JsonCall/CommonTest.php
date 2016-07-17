@@ -17,24 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Test\JsonCall;
+namespace Org\Snje\MinifwTest\JsonCall;
 
 use Org\Snje\Minifw as FW;
-use Org\Snje\MinifwTest;
-use Org\Snje\MinifwTest\Data\Functions;
+use Org\Snje\MinifwTest as Ts;
 
 /**
  * Description of CommonTest
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class CommonTest extends \PHPUnit_Framework_TestCase {
+class CommonTest extends Ts\TestCommon {
 
-    public static function setUpBeforeClass() {
-        parent::setUpBeforeClass();
-        MinifwTest\Common::set_env();
-    }
-
+    /**
+     * @covers Org\Snje\Minifw\Common::json_call
+     */
     public function test_json_call_static() {
         $obj = new Functions();
         $class = get_class($obj);
@@ -66,6 +63,9 @@ class CommonTest extends \PHPUnit_Framework_TestCase {
                 ], $ret);
     }
 
+    /**
+     * @covers Org\Snje\Minifw\Common::json_call
+     */
     public function test_json_call_func() {
         $obj = new Functions();
         $count = count(self::$input);

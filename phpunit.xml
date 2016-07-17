@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php">
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <file>src/defaults.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
     <testsuites>
         <testsuite name="all">
-            <file>tests/Test/JsonCall/CommonTest.php</file>
-            <file>tests/Test/JsonCall/TableTest.php</file>
-            <file>tests/Test/Table/GetTest.php</file>
-            <file>tests/Test/Table/CreateTest.php</file>
-            <file>tests/Test/Table/DiffTest.php</file>
-            <file>tests/Test/Text/TextTest.php</file>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

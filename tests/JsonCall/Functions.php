@@ -25,7 +25,7 @@
  * @Description
  */
 
-namespace Org\Snje\MinifwTest\Data;
+namespace Org\Snje\MinifwTest\JsonCall;
 
 class Functions {
 

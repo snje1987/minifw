@@ -17,28 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Data\Table\Diff;
+namespace Org\Snje\MinifwTest;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
 /**
- * Description of TableCreate
+ * Description of Common
  *
  * @author Yang Ming <yangming0116@163.com>
  */
-class TableDel extends FW\Table {
+class TestCommon extends \PHPUnit_Framework_TestCase {
 
-    const TBNAME = 'table_with_all';
-
-    protected function _prase($post, $type) {
-
+    /**
+     * @coversNothing
+     */
+    public static function setUpBeforeClass() {
+        if (!defined('WEB_ROOT')) {
+            define("WEB_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
+            new FW\System();
+        }
+        //parent::setUpBeforeClass();
     }
-
-    const COMMENT = 'Table To Create';
-    const FIELDS = [
-        'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
-    ];
-    const INDEXS = [
-    ];
 
 }
