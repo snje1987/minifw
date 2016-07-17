@@ -49,10 +49,10 @@ class Config {
      * 在键名不为空时，如果段中存在键则返回相应键的值，否则返回默认值
      */
     public static function get($key, $name = '', $default = false) {
-        if ($key == '' || !isset(self::$_data[$key])) {
+        if ($key === '' || !isset(self::$_data[$key])) {
             return false;
         }
-        if ($name == '') {
+        if ($name === '') {
             return self::$_data[$key];
         }
         if (!isset(self::$_data[$key][$name])) {
