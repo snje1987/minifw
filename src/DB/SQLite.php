@@ -111,11 +111,9 @@ class SQLite extends Minifw\DB {
      */
     protected function __construct($args = []) {
         parent::__construct();
-        $ini = [];
+        $ini = Minifw\Config::get('sqlite');
         if (!empty($args)) {
-            $ini = $args;
-        } else {
-            $ini = Minifw\Config::get('sqlite');
+            $ini['path'] = isset($args['path']) ? strval($args['path']) : $ini['path'];
         }
 
         if (empty($ini)) {

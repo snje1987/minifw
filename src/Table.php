@@ -102,7 +102,7 @@ abstract class Table {
      */
     public static function get($args = []) {
         $id = '';
-        if (!empty($args)) {
+        if (!empty($args) && isset($args['id'])) {
             $id = strval($args['id']);
         }
         if (!isset(self::$_instance[$id])) {

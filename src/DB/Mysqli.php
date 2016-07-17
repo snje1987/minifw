@@ -140,11 +140,13 @@ class Mysqli extends Minifw\DB {
      */
     protected function __construct($args = []) {
         parent::__construct();
-        $ini = [];
+        $ini = Minifw\Config::get('mysql');
         if (!empty($args)) {
-            $ini = $args;
-        } else {
-            $ini = Minifw\Config::get('mysql');
+            $ini['host'] = isset($args['host']) ? strval($args['host']) : $ini['host'];
+            $ini['username'] = isset($args['username']) ? strval($args['username']) : $ini['username'];
+            $ini['password'] = isset($args['password']) ? strval($args['password']) : $ini['password'];
+            $ini['dbname'] = isset($args['dbname']) ? strval($args['dbname']) : $ini['dbname'];
+            $ini['encoding'] = isset($args['encoding']) ? strval($args['encoding']) : $ini['encoding'];
         }
 
         if (empty($ini)) {
