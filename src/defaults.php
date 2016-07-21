@@ -39,7 +39,7 @@ $cfg['main'] = [
     'session' => 'session_id',
     'domain' => '',
     'err_404' => '/www/error/404.html',
-    'uri' => 'REQUEST_URI',
+    'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '/',
     'theme' => '',
     'cache' => 3600
 ];

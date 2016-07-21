@@ -67,7 +67,7 @@ class System {
      */
     public function run() {
         $this->_set_env();
-        $this->dispatch($_SERVER[Minifw\Config::get('main', 'uri', 'REQUEST_URI')]);
+        $this->dispatch(Minifw\Config::get('main', 'uri', '/'));
     }
 
     public function reg_call($reg, $callback) {
