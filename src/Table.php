@@ -124,7 +124,7 @@ abstract class Table {
      * @param bool $top 是否为第一级调用
      */
     public static function diff_all($ns = '', $path = '', $top = true) {
-        if (DEBUG != 1 || $path == '' || !is_dir($path)) {
+        if ($path == '' || !is_dir($path)) {
             return;
         }
         if ($top) {
