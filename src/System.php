@@ -220,7 +220,7 @@ class System {
             $func->setAccessible(true);
             $func->invoke($obj, $args);
             if ($die) {
-                Server::show_404();
+                die();
             }
             return true;
         } catch (Minifw\Exception $ex) {
