@@ -60,7 +60,7 @@ class Common {
             } else {
                 $ret['msg'] = '操作失败';
             }
-        } catch (Minifw\Exception $e) {
+        } catch (Exception $e) {
             $ret['msg'] = $e->getMessage();
         } catch (\Exception $e) {
             if (DEBUG) {
