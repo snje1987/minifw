@@ -64,7 +64,7 @@ class Common {
             $ret['msg'] = $e->getMessage();
         } catch (\Exception $e) {
             if (DEBUG) {
-                $ret['msg'] = $e->getMessage();
+                $ret['msg'] = 'Debug: ' . $e->getMessage();
             } else {
                 $ret['msg'] = '操作失败';
             }
