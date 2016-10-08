@@ -501,6 +501,9 @@ abstract class Table {
         if (!$this->_db->query($sql)) {
             throw new Exception($this->_db->last_error());
         }
+        if (!$this->init_table()) {
+            throw new Exception($this->_db->last_error());
+        }
         return true;
     }
 
@@ -529,6 +532,18 @@ abstract class Table {
         return $sql;
     }
 
+    public function init_table() {
+        $sql = $this->init_table_sql();
+        if ($sql !== '') {
+            return $this->_db->query($sql);
+        }
+        return true;
+    }
+
+    public function init_table_sql() {
+        return '';
+    }
+
     /**
      * 对比数据表的定义以及实际的数据库结构
      *
@@ -546,6 +561,14 @@ abstract class Table {
                 'diff' => '<p class="green">+&nbsp;' . $sql . '</p>',
                 'trans' => $sql1 . ';',
             ];
+            $init_sql = $this->init_table_sql();
+            if ($init_sql !== '') {
+                $diff[] = [
+                    'table' => static::TBNAME,
+                    'diff' => '<p class="green">+&nbsp;' . $init_sql . '</p>',
+                    'trans' => $init_sql . ';',
+                ];
+            }
             return $diff;
         }
         $fdiff = $this->fields_diff();
