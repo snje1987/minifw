@@ -160,34 +160,21 @@ abstract class Table {
             echo $ex->getMessage();
         }
         if ($top) {
-            echo '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml">'
-            . '<head>'
-            . '<title>数据库结构检查</title>'
-            . '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-            . '<style>'
-            . '*{padding:0;margin:0;}'
-            . 'table{width:80%;margin:20px auto;border-collapse:collapse;border:1px solid black;font-size:12px;line-height:16px;}'
-            . 'th{border:1px solid black;padding:4px;background-color:#DDDDDD;}'
-            . 'td{border:1px solid black;padding:4px;}'
-            . '.red{color:red;}'
-            . '.green{color:green;}'
-            . '.blue{color:blue;}'
-            . '.center{text-align:center;}'
-            . 'p{line-height:16px;}'
-            . '</style>'
-            . '</head>'
-            . '<body>'
-            . '<table>'
-            . '<tr><th>数据表</th><th>差异</th></tr>';
+            header("Content-Type:text/plain;charset=utf-8");
 
+            $otable = '';
             $trans = [];
             foreach (self::$_diff as $v) {
-                echo '<tr><th>' . $v['table'] . '</th><td>' . $v['diff'] . '</td></tr>';
+                if ($otable == '' || $otable != $v['table']) {
+                    echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+                    $otable = $v['table'];
+                    echo $otable . "\n\n";
+                }
+                echo $v['diff'] . "\n";
                 $trans[] = $v['trans'];
             }
-
-            echo '<tr><th>转换</th><td><p>' . implode('</p><p>', $trans) . '</p></td></tr>';
-            echo '</table></body></html>';
+            echo "\n\n================================================================\n\n";
+            echo implode("\n", $trans);
             die();
         }
     }
@@ -558,18 +545,18 @@ abstract class Table {
         try {
             $diff = $this->status_diff();
         } catch (Exception $ex) {
-            $sql = $this->create_sql('<br />+&nbsp;');
-            $sql1 = $this->create_sql('<br />');
+            $sql = $this->create_sql("\n+ ");
+            $sql1 = $this->create_sql("\n");
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class="green">+&nbsp;' . $sql . '</p>',
+                'diff' => '+ ' . $sql,
                 'trans' => $sql1 . ';',
             ];
             $init_sql = $this->init_table_sql();
             if ($init_sql !== '') {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="green">+&nbsp;' . $init_sql . '</p>',
+                    'diff' => '+ ' . $init_sql,
                     'trans' => $init_sql . ';',
                 ];
             }
@@ -604,14 +591,14 @@ abstract class Table {
         if ($data['Engine'] != static::ENGINE) {
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class = "red">-&nbsp;Engine=' . $data['Engine'] . '</p><p class = "green">+&nbsp;Engine=' . static::ENGINE . '</p>',
+                'diff' => '- Engine=' . $data['Engine'] . "\n" . '+ Engine=' . static::ENGINE,
                 'trans' => 'ALTER TABLE `' . static::TBNAME . '` ENGINE=' . static::ENGINE . ';',
             ];
         }
         if ($data['Comment'] != static::COMMENT) {
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class = "red">-&nbsp;Comment="' . $data['Comment'] . '"</p><p class = "green">+&nbsp;Comment="' . static::COMMENT . '"</p>',
+                'diff' => '- Comment="' . $data['Comment'] . "\"\n" . '+ Comment="' . static::COMMENT . '"',
                 'trans' => 'ALTER TABLE `' . static::TBNAME . '` COMMENT="' . static::COMMENT . '";',
             ];
         }
@@ -648,7 +635,7 @@ abstract class Table {
             if (!isset($fields[$k])) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="green">+[' . $i . ']&nbsp;' . $right_sql . '</p>',
+                    'diff' => '+[' . $i . '] ' . $right_sql,
                     'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . $tail . ';',
                 ];
                 self::move_no($fields, $i);
@@ -657,7 +644,7 @@ abstract class Table {
                 if ($left_sql != $right_sql || $i != $fields[$k]['no']) {
                     $diff[] = [
                         'table' => static::TBNAME,
-                        'diff' => '<p class="red">-[' . $fields[$k]['no'] . ']&nbsp;' . $left_sql . '</p><p class = "green">+[' . $i . ']&nbsp;' . $right_sql . '</p>',
+                        'diff' => '-[' . $fields[$k]['no'] . '] ' . $left_sql . "\n" . '+[' . $i . '] ' . $right_sql,
                         'trans' => 'ALTER TABLE `' . static::TBNAME . '` CHANGE `' . $k . '` ' . $right_sql . $tail . ';',
                     ];
                 }
@@ -674,7 +661,7 @@ abstract class Table {
             $left_sql = self::field_sql($k, $v);
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
+                'diff' => '- ' . $left_sql,
                 'trans' => 'ALTER TABLE `' . static::TBNAME . '` DROP `' . $k . '`;',
             ];
         }
@@ -696,7 +683,7 @@ abstract class Table {
             if (!isset($db_index[$k])) {
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="green">+&nbsp;' . $right_sql . '</p>',
+                    'diff' => '+ ' . $right_sql,
                     'trans' => 'ALTER TABLE `' . static::TBNAME . '` ADD ' . $right_sql . ';',
                 ];
                 continue;
@@ -712,7 +699,7 @@ abstract class Table {
                 $trans .= ', ADD ' . $right_sql . ';';
                 $diff[] = [
                     'table' => static::TBNAME,
-                    'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p><p class="green">+&nbsp;' . $right_sql . '</p>',
+                    'diff' => '- ' . $left_sql . "\n" . '+ ' . $right_sql,
                     'trans' => $trans,
                 ];
                 continue;
@@ -731,7 +718,7 @@ abstract class Table {
 
             $diff[] = [
                 'table' => static::TBNAME,
-                'diff' => '<p class="red">-&nbsp;' . $left_sql . '</p>',
+                'diff' => '- ' . $left_sql,
                 'trans' => $trans,
             ];
         }
