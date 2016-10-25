@@ -471,11 +471,15 @@ abstract class Table {
                 if ($in_create) {
                     if (isset($attr['unique']) && $attr['unique'] === true) {
                         $tmp = 'UNIQUE ';
+                    } else if (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                        $tmp = 'FULLTEXT ';
                     }
                     $tmp .= 'KEY ';
                 } else {
                     if (isset($attr['unique']) && $attr['unique'] === true) {
                         $tmp = 'UNIQUE ';
+                    } elseif (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                        $tmp = 'FULLTEXT ';
                     } else {
                         $tmp = 'INDEX ';
                     }
@@ -784,6 +788,8 @@ abstract class Table {
                     ];
                     if ($v['Non_unique'] == 0) {
                         $index[$name]['unique'] = true;
+                    } elseif ($v['Index_type'] == 'FULLTEXT') {
+                        $index[$name]['fulltext'] = true;
                     }
                 }
             } else {
