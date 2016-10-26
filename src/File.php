@@ -35,7 +35,18 @@ use Org\Snje\Minifw as Minifw;
  */
 class File {
 
+    /**
+     * 程序内部使用的编码
+     *
+     * @var string
+     */
     public static $encoding;
+
+    /**
+     * 保存错误信息
+     * @var string
+     */
+    private static $last_error = '';
 
     /**
      * 保存字符串到文件，会对字符串内容进行压缩
@@ -64,7 +75,7 @@ class File {
         $dirmap = Config::get('save');
 
         if (!isset($dirmap[$group])) {
-            throw new Minifw\Exception('分组错误');
+            return self::error('分组错误');
         }
 
         $base_dir = $dirmap[$group];
@@ -72,7 +83,7 @@ class File {
         $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
 
         if ($name == '') {
-            throw new Minifw\Exception('同一时间上传的文件过多');
+            return self::error('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
@@ -80,7 +91,7 @@ class File {
         if (file_put_contents($dest, $data) !== false) {
             return $base_dir . '/' . $name;
         } else {
-            throw new Minifw\Exception('文件写入出错');
+            return self::error('文件写入出错');
         }
     }
 
@@ -124,13 +135,13 @@ class File {
                 default:
                     $error = '未知错误。';
             }
-            throw new Minifw\Exception($error);
+            return self::error($error);
         }
 
         $dirmap = Config::get('upload');
 
         if (!isset($dirmap[$group])) {
-            throw new Minifw\Exception('文件分组错误');
+            return self::error('文件分组错误');
         }
 
         $allow = $dirmap[$group]['allow'];
@@ -140,11 +151,11 @@ class File {
         $ext = strtolower($pinfo['extension']);
 
         if (!in_array($ext, $allow)) {
-            throw new Minifw\Exception('不允许的文件类型');
+            return self::error('不允许的文件类型');
         }
         $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
         if ($name == '') {
-            throw new Minifw\Exception('同一时间上传的文件过多');
+            return self::error('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
@@ -152,7 +163,7 @@ class File {
         if (move_uploaded_file($file['tmp_name'], $dest)) {
             return $base_dir . '/' . $name;
         } else {
-            throw new Minifw\Exception('文件移动出错');
+            return self::error('文件移动出错');
         }
     }
 
@@ -502,6 +513,26 @@ class File {
             $str = iconv($fsencoding, self::$encoding, $str);
         }
         return $str;
+    }
+
+    /**
+     * 当文件上传／保存过程中发生错误时设置错误信息
+     *
+     * @param string $str 错误信息
+     * @return string　空字符串
+     */
+    public static function error($str) {
+        self::$last_error = $str;
+        return '';
+    }
+
+    /**
+     * 获取错误信息
+     *
+     * @return string
+     */
+    public static function last_error() {
+        return self::$last_error;
     }
 
 }
