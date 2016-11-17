@@ -311,15 +311,17 @@ abstract class DB {
             $farr[] = $k;
             if (is_array($v)) {
                 if ($v[0] == 'rich') {
-                    $varr[] = $this->_parse_richstr(strval($v[1]));
+                    $varr[] = '"' . $this->_parse_richstr(strval($v[1])) . '"';
+                } elseif ($v[0] == 'expr') {
+                    $varr[] = $v[1];
                 } else {
                     throw new Exception('参数错误');
                 }
             } else {
-                $varr[] = $this->_parse_str(strval($v));
+                $varr[] = '"' . $this->_parse_str(strval($v)) . '"';
             }
         }
-        return '(`' . implode('`,`', $farr) . '`) values ("' . implode('","', $varr) . '")';
+        return '(`' . implode('`,`', $farr) . '`) values (' . implode(',', $varr) . ')';
     }
 
     /**
