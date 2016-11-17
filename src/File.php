@@ -387,6 +387,7 @@ class File {
      */
     public static function put_content($full, $data, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
+        self::mkdir(dirname($full));
         return file_put_contents($full, $data);
     }
 
