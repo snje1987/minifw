@@ -70,7 +70,16 @@ abstract class DB {
     public function limit_query($tbname, $condition = [], $field = []) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
-        $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
+        if (is_array($tbname) && $tbname[0] == 'expr') {
+            if ($tbname[0] == 'expr') {
+                $sql = 'select ' . $fieldstr . ' from ' . $tbname[1] . $conditionstr;
+            } else {
+                $sql = 'select ' . $fieldstr . ' from `' . $tbname[1] . '`' . $conditionstr;
+            }
+        } else {
+            $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
+        }
+
         $res = $this->_query($sql);
         if ($res === false) {
             throw new Exception($this->last_error() . '<br />' . $sql);
