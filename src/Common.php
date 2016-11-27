@@ -61,10 +61,14 @@ class Common {
                 $ret['msg'] = '操作失败';
             }
         } catch (Exception $e) {
-            $ret['msg'] = $e->getMessage();
+            if (DEBUG) {
+                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
+            } else {
+                $ret['msg'] = $e->getMessage();
+            }
         } catch (\Exception $e) {
             if (DEBUG) {
-                $ret['msg'] = 'Debug: ' . $e->getMessage();
+                $ret['msg'] = 'Debug: [' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
             } else {
                 $ret['msg'] = '操作失败';
             }
