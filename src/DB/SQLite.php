@@ -75,7 +75,7 @@ class SQLite extends Minifw\DB {
     /**
      * 开启事务
      */
-    public function begin() {
+    protected function _begin() {
         $this->_query('begin');
         $this->_rollback = true;
     }
@@ -83,7 +83,7 @@ class SQLite extends Minifw\DB {
     /**
      * 提交事务
      */
-    public function commit() {
+    protected function _commit() {
         if ($this->_rollback) {
             $this->_query('COMMIT');
             $this->_rollback = false;
@@ -93,7 +93,7 @@ class SQLite extends Minifw\DB {
     /**
      * 回滚事务
      */
-    public function rollback() {
+    protected function _rollback() {
         if ($this->_rollback) {
             $this->_query('ROLLBACK');
             $this->_rollback = false;

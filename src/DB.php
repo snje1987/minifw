@@ -37,6 +37,12 @@ abstract class DB {
      */
 
     /**
+     *
+     * @var int 当前实务的嵌套级别
+     */
+    private $_transaction_lv = 0;
+
+    /**
      * 获取一个指定类型的数据库实例
      *
      * @return Minifw\DB 数据库唯一的实例
@@ -496,6 +502,38 @@ abstract class DB {
     }
 
     /**
+     * 开启事务
+     */
+    public function begin() {
+        ++$this->_transaction_lv;
+        if ($this->_transaction_lv == 1) {
+            $this->_begin();
+        }
+    }
+
+    /**
+     * 提交事务
+     */
+    public function commit() {
+        --$this->_transaction_lv;
+        if ($this->_transaction_lv <= 0) {
+            $this->_transaction_lv = 0;
+            $this->_commit();
+        }
+    }
+
+    /**
+     * 回滚事务
+     */
+    public function rollback() {
+        --$this->_transaction_lv;
+        if ($this->_transaction_lv <= 0) {
+            $this->_transaction_lv = 0;
+            $this->_rollback();
+        }
+    }
+
+    /**
      * 虚函数
      */
 
@@ -509,17 +547,17 @@ abstract class DB {
     /**
      * 开启事务
      */
-    abstract public function begin();
+    abstract protected function _begin();
 
     /**
      * 提交事务
      */
-    abstract public function commit();
+    abstract protected function _commit();
 
     /**
      * 回滚事务
      */
-    abstract public function rollback();
+    abstract protected function _rollback();
 
     abstract public function last_error();
 
