@@ -47,7 +47,7 @@ class CommonTest extends Ts\TestCommon {
             'output' => [
                 'succeed' => false,
                 'returl' => '',
-                'msg' => '测试消息',
+                'msg' => '[' . __DIR__ . '/Functions.php:41]测试消息',
             ],
                 ], $ret);
 
@@ -80,7 +80,7 @@ class CommonTest extends Ts\TestCommon {
             'output' => [
                 'succeed' => false,
                 'returl' => '',
-                'msg' => '测试消息',
+                'msg' => '[' . __DIR__ . '/Functions.php:49]测试消息',
             ],
                 ], $ret);
 
@@ -110,19 +110,19 @@ class CommonTest extends Ts\TestCommon {
         false,
         true,
         [],
-        [
+            [
             'returl' => 'testurl',
         ],
-        [
+            [
             'msg' => 'testmsg',
         ],
-        [
+            [
             'msg' => 'testmsg',
             'returl' => 'testurl',
         ]
     ];
     public static $expect = [
-        [
+            [
             'ret' => false,
             'output' => [
                 'succeed' => false,
@@ -130,28 +130,28 @@ class CommonTest extends Ts\TestCommon {
                 'returl' => '',
             ],
         ],
-        [
+            [
             'ret' => true,
             'output' => [
                 'succeed' => true,
                 'returl' => '',
             ],
         ],
-        [
+            [
             'ret' => true,
             'output' => [
                 'succeed' => true,
                 'returl' => '',
             ],
         ],
-        [
+            [
             'ret' => true,
             'output' => [
                 'succeed' => true,
                 'returl' => 'testurl',
             ],
         ],
-        [
+            [
             'ret' => true,
             'output' => [
                 'succeed' => true,
@@ -159,7 +159,7 @@ class CommonTest extends Ts\TestCommon {
                 'msg' => 'testmsg',
             ],
         ],
-        [
+            [
             'ret' => true,
             'output' => [
                 'succeed' => true,

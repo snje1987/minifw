@@ -45,7 +45,7 @@ class TableTest extends Ts\TestCommon {
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '测试消息',
+            'msg' => '[' . __DIR__ . '/Table.php:37]测试消息',
                 ], $ret);
 
         $ret = self::sync_call_test($obj, 'func_noexist', '测试消息');
@@ -72,7 +72,7 @@ class TableTest extends Ts\TestCommon {
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '测试消息',
+            'msg' => '[' . __DIR__ . '/Table.php:37]测试消息',
                 ], $ret);
 
         $ret = self::json_call_test($obj, 'func_noexist', '测试消息');
@@ -101,42 +101,41 @@ class TableTest extends Ts\TestCommon {
         false,
         true,
         [],
-        [
+            [
             'returl' => 'testurl',
         ],
-        [
+            [
             'msg' => 'testmsg',
         ],
-        [
+            [
             'msg' => 'testmsg',
             'returl' => 'testurl',
         ]
     ];
     public static $expect = [
-        [
+            [
             'succeed' => false,
             'msg' => '操作失败',
             'returl' => '',
         ],
-        [
+            [
             'succeed' => true,
             'returl' => '',
         ],
-        [
-
+            [
             'succeed' => true,
             'returl' => '',
         ],
-        [
+            [
             'succeed' => true,
             'returl' => 'testurl',
         ],
-        [
+            [
             'succeed' => true,
             'returl' => '',
             'msg' => 'testmsg',
         ],
-        [
+            [
             'succeed' => true,
             'returl' => 'testurl',
             'msg' => 'testmsg',
