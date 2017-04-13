@@ -38,7 +38,7 @@ class CreateTest extends Ts\TestCommon {
         $table_create->drop();
         $table_create->create();
 
-        $db = \Org\Snje\Minifw\DB::get();
+        $db = \Org\Snje\Minifw\DB::get_default();
 
         $sql = 'show create table `' . $table_create::TBNAME . '`';
         $ret = $db->get_query($sql);

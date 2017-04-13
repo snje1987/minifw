@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2016 Yang Ming <yangming0116@163.com>
+ * Copyright (C) 2013 Yang Ming <yangming0116@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,27 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest;
+namespace Org\Snje\Minifw\Traits;
 
-use Org\Snje\Minifw as FW;
-use Org\Snje\MinifwTest as Ts;
+use Org\Snje\Minifw as Minifw;
 
-/**
- * Description of Common
- *
- * @author Yang Ming <yangming0116@163.com>
- */
-class TestCommon extends \PHPUnit_Framework_TestCase {
+trait OneInstance {
 
     /**
-     * @coversNothing
+     * @var static 实例
      */
-    public static function setUpBeforeClass() {
-        FW\System::get([
-            'web_root' => str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)),
-            'cfg' => ['/config.php']
-        ]);
-        //parent::setUpBeforeClass();
+    protected static $_instance = [];
+
+    /**
+     * 获取实例
+     *
+     * @return static 实例
+     */
+    public static function get($args = []) {
+        if (!isset(self::$_instance[static::class])) {
+            self::$_instance[static::class] = new static($args);
+        }
+        return self::$_instance[static::class];
     }
 
 }

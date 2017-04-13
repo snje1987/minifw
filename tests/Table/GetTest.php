@@ -47,7 +47,7 @@ class GetTest extends Ts\TestCommon {
 
         $this->assertEquals($table1, $table3);
 
-        $table4 = TableWithAll::get(['id' => 'def']);
+        $table4 = TableWithAll::get([], 'def');
 
         $this->assertEquals($table1, $table4);
     }

@@ -17,24 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Mysqli.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-27 9:21:28
- * @version 1.0
- * @Description 定义Mysqli数据库的相关操作
- */
-
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as Minifw;
 
 abstract class DB {
+
     /**
      * 共有方法
      */
+    use Minifw\Traits\PublicInstance;
 
     /**
      *
@@ -47,7 +39,7 @@ abstract class DB {
      *
      * @return Minifw\DB 数据库唯一的实例
      */
-    public static function get($args = []) {
+    public static function get_default($args = [], $id = '') {
         $type = '';
         if (isset($args['type'])) {
             $type = strval($args['type']);
@@ -62,7 +54,7 @@ abstract class DB {
         if (!class_exists($class_name)) {
             throw new Minifw\Exception("类型不存在");
         }
-        return $class_name::get_instance($args);
+        return $class_name::get($args, $id);
     }
 
     /**

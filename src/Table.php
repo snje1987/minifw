@@ -87,33 +87,12 @@ abstract class Table {
      */
     const INDEXS = [];
 
-    protected static $_instance = [];
+    use Minifw\Traits\PublicInstance;
 
     /**
      * @var Minifw\DB 数据库的实例
      */
     protected $_db;
-
-    /**
-     * 获取数据表实例
-     *
-     * @param array args 实例参数
-     * @return static 数据表实例
-     */
-    public static function get($args = []) {
-        $id = '';
-        if (!empty($args) && isset($args['id'])) {
-            $id = strval($args['id']);
-        }
-        if (!isset(self::$_instance[$id])) {
-            self::$_instance[$id] = [];
-        }
-        if (!isset(self::$_instance[$id][static::class])) {
-            self::$_instance[$id][static::class] = new static($args);
-        }
-        return self::$_instance[$id][static::class];
-    }
-
     private static $_diff = [];
 
     /**
@@ -792,7 +771,7 @@ abstract class Table {
      * 私有构造函数
      */
     protected function __construct($args = []) {
-        $this->_db = DB::get($args);
+        $this->_db = DB::get_default($args);
     }
 
     /**

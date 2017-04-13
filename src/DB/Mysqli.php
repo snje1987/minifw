@@ -17,26 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Mysqli.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-27 9:21:28
- * @version 1.0
- * @Description 定义Mysqli数据库的相关操作
- */
-
 namespace Org\Snje\Minifw\DB;
 
 use Org\Snje\Minifw as Minifw;
 
 class Mysqli extends Minifw\DB {
-
-    /**
-     * @var Minifw\DB\Mysqli 唯一的实例
-     */
-    protected static $_instance = [];
 
     /**
      * @var \mysqli mysqli连接
@@ -72,22 +57,6 @@ class Mysqli extends Minifw\DB {
      * @var bool 标记数据库是否可以进行roolback
      */
     protected $_rollback = false;
-
-    /**
-     * 获取数据库唯一的实例
-     *
-     * @return Minifw\DB\Mysqli 数据库唯一的实例
-     */
-    public static function get_instance($args = []) {
-        $id = '';
-        if (!empty($args)) {
-            $id = strval($args['id']);
-        }
-        if (!isset(self::$_instance[$id])) {
-            self::$_instance[$id] = new Mysqli($args);
-        }
-        return self::$_instance[$id];
-    }
 
     /**
      * 返回上一条语句插入的数据的自增字段的数值

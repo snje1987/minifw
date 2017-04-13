@@ -17,15 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename System.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-12 11:11:57
- * @Description 系统的相关操作。
- */
-
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as Minifw;
@@ -35,17 +26,25 @@ use Org\Snje\Minifw as Minifw;
  */
 class System {
 
+    use Traits\OneInstance;
+
     protected $_calls = [];
 
-    public function __construct($config = ['/config.php']) {
+    protected function __construct($config = [
+        'web_root' => '',
+        'cfg' => ['/config.php']
+    ]) {
+
         if (!defined('WEB_ROOT')) {
-            if (isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT'] != '') {
+            if ($config['web_root'] != '') {
+                define('WEB_ROOT', $config['web_root']);
+            } elseif (isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT'] != '') {
                 define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
             } else {
                 die('"WEB_ROOT" is not define.');
             }
         }
-        Config::load_config($config);
+        Config::load_config($config['cfg']);
         if (!defined('DEBUG')) {
             define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
         }
@@ -82,9 +81,6 @@ class System {
      */
     protected function _set_env() {
         ob_start();
-        if (!defined('MAGIC_QUOTES_GPC')) {
-            define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
-        }
 
         $_GET = self::magic_gpc($_GET);
         $_POST = self::magic_gpc($_POST);
@@ -110,6 +106,7 @@ class System {
 
     /**
      * 处理用户发送的数据，执行trim和去除多余的转义
+     * 这里要求php版本>=5.6，已经移除的自动转义功能，所以不用再处理转义符
      *
      * @param mixed $string 要处理的数据
      * @return mixed 处理后的数据
@@ -120,11 +117,7 @@ class System {
                 $string[$key] = self::magic_gpc($val);
             }
         } else {
-            if (MAGIC_QUOTES_GPC) {
-                $string = stripslashes(trim($string));
-            } else {
-                $string = trim($string);
-            }
+            $string = trim($string);
         }
         return $string;
     }

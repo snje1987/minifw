@@ -17,25 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Sqlite.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@163.com>
- * @datetime 2015-10-2  14:04:47
- * @version 1.0
- * @Description 定义Sqlite数据库的相关操作
- */
-
 namespace Org\Snje\Minifw\DB;
 
 use Org\Snje\Minifw as Minifw;
 
 class SQLite extends Minifw\DB {
-
-    /**
-     * @var Minifw\DB\Sqlite 唯一的实例
-     */
-    protected static $_instance = [];
 
     /**
      * @var \SQLite3 sqlite连接
@@ -46,22 +32,6 @@ class SQLite extends Minifw\DB {
      * @var bool 标记数据库是否可以进行roolback
      */
     protected $_rollback = false;
-
-    /**
-     * 获取数据库唯一的实例
-     *
-     * @return Minifw\DB\Sqlite 数据库唯一的实例
-     */
-    public static function get_instance($args = []) {
-        $id = '';
-        if (!empty($args)) {
-            $id = strval($args['id']);
-        }
-        if (!isset(self::$_instance[$id])) {
-            self::$_instance[$id] = new Sqlite($args);
-        }
-        return self::$_instance[$id];
-    }
 
     /**
      * 返回上一条语句插入的数据的自增字段的数值
