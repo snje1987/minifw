@@ -230,4 +230,14 @@ class Mysqli extends Minifw\DB {
         return trim($str);
     }
 
+    /**
+     * 一次执行多条sql语句
+     *
+     * @param string $sql 要执行的查询
+     * @return mixed 查询的结果
+     */
+    protected function _multi_query($sql) {
+        return $this->_mysqli->multi_query($sql);
+    }
+
 }

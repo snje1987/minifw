@@ -214,6 +214,16 @@ abstract class DB {
     }
 
     /**
+     * 一次执行多条sql语句
+     *
+     * @param string $sql 要执行的语句
+     * @return mixed 返回的结果
+     */
+    public function multi_query($sql) {
+        return $this->_multi_query($sql);
+    }
+
+    /**
      * 将sql查询结果全部转化成数组
      *
      * @param \mysqli_result $res 要转化的查询
@@ -560,6 +570,14 @@ abstract class DB {
      * @return mixed 查询的结果
      */
     abstract protected function _query($sql);
+
+    /**
+     * 一次执行多条sql语句
+     *
+     * @param string $sql 要执行的查询
+     * @return mixed 查询的结果
+     */
+    abstract protected function _multi_query($sql);
 
     /**
      * 将sql查询结果全部转化成数组
