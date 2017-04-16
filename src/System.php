@@ -34,7 +34,12 @@ class System {
         'web_root' => '',
         'cfg' => ['/config.php']
     ]) {
-
+        if (!isset($config['web_root'])) {
+            $config['web_root'] = '';
+        }
+        if (!isset($config['cfg'])) {
+            $config['cfg'] = ['/config.php'];
+        }
         if (!defined('WEB_ROOT')) {
             if ($config['web_root'] != '') {
                 define('WEB_ROOT', $config['web_root']);
