@@ -198,7 +198,8 @@ class File {
     public static function copy($src, $dest, $fsencoding = '') {
         $src = self::conv_to($src, $fsencoding);
         $dest = self::conv_to($dest, $fsencoding);
-        self::mkdir($dest);
+        $dest_dir = self::conv_to(dirname($dest), $fsencoding);
+        self::mkdir($dest_dir);
         copy($src, $dest);
     }
 
