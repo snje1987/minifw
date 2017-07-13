@@ -26,13 +26,18 @@ namespace Org\Snje\Minifw;
  */
 class Common {
 
+    const JSON_CALL_DIE = 0;
+    const JSON_CALL_RETURN = 1;
+    const JSON_CALL_REDIRECT = 2;
+
     /**
      * 使用Ajax方式调用指定方法
      *
      * @param mixed $post 方法的参数
      * @param mixed $call 调用的方法
+     * @param boolean $mode 函数的执行方式
      */
-    public static function json_call($post, $call, $die = true) {
+    public static function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
         $ret = [
             'succeed' => false,
             'returl' => '',
@@ -73,13 +78,18 @@ class Common {
                 $ret['msg'] = '操作失败';
             }
         }
-        if ($die) {
+        if ($mode == self::JSON_CALL_REDIRECT) {
+            if ($ret['returl'] != '') {
+                Server::redirect($ret['returl']);
+            } else {
+                Server::redirect('/');
+            }
+        } elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
             die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
             // @codeCoverageIgnoreEnd
         } else {
-            echo \json_encode($ret, JSON_UNESCAPED_UNICODE);
-            return $ret['succeed'];
+            return $ret;
         }
     }
 

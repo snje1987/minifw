@@ -164,16 +164,27 @@ abstract class Table {
      * @param mixed $post 方法的参数
      * @param string $call 调用的方法
      */
-    public function sync_call($post, $call, $die = true) {
+    public function sync_call($post, $call, $mode = Common::JSON_CALL_DIE) {
         $call = strval($call);
         $this->_db->begin();
-        if (Common::json_call($post, [$this, $call], false)) {
+        $ret = Common::json_call($post, [$this, $call], Common::JSON_CALL_RETURN);
+        if ($ret['succeed'] == true) {
             $this->_db->commit();
         } else {
             $this->_db->rollback();
         }
-        if ($die) {
-            die(0);
+        if ($mode == Common::JSON_CALL_REDIRECT) {
+            if ($ret['returl'] != '') {
+                Server::redirect($ret['returl']);
+            } else {
+                Server::redirect('/');
+            }
+        } elseif ($mode == Common::JSON_CALL_DIE) {
+            // @codeCoverageIgnoreStart
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
+            // @codeCoverageIgnoreEnd
+        } else {
+            return $ret;
         }
     }
 
@@ -183,12 +194,9 @@ abstract class Table {
      * @param mixed $post 方法的参数
      * @param string $call 调用的方法
      */
-    public function json_call($post, $call, $die = true) {
+    public function json_call($post, $call, $mode = Common::JSON_CALL_DIE) {
         $call = strval($call);
-        Common::json_call($post, [$this, $call], $die);
-        if ($die) {
-            die(0);
-        }
+        return Common::json_call($post, [$this, $call], $mode);
     }
 
     /**

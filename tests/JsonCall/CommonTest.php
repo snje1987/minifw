@@ -43,23 +43,17 @@ class CommonTest extends Ts\TestCommon {
 
         $ret = self::func_test($class . '::static_except', '测试消息');
         $this->assertEquals([
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'returl' => '',
-                'msg' => '[' . __DIR__ . '/Functions.php:41]测试消息',
-            ],
+            'succeed' => false,
+            'returl' => '',
+            'msg' => '[' . __DIR__ . '/Functions.php:41]测试消息',
                 ], $ret);
 
         //不存在的方法
         $ret = self::func_test($class . '::static_noexist', '测试消息');
         $this->assertEquals([
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'returl' => '',
-                'msg' => '操作失败',
-            ],
+            'succeed' => false,
+            'returl' => '',
+            'msg' => '操作失败',
                 ], $ret);
     }
 
@@ -76,96 +70,66 @@ class CommonTest extends Ts\TestCommon {
 
         $ret = self::func_test([$obj, 'func_except'], '测试消息');
         $this->assertEquals([
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'returl' => '',
-                'msg' => '[' . __DIR__ . '/Functions.php:49]测试消息',
-            ],
+            'succeed' => false,
+            'returl' => '',
+            'msg' => '[' . __DIR__ . '/Functions.php:49]测试消息',
                 ], $ret);
 
         //不存在的方法
         $ret = self::func_test([$obj, 'func_noexist'], '测试消息');
         $this->assertEquals([
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'returl' => '',
-                'msg' => '操作失败',
-            ],
+            'succeed' => false,
+            'returl' => '',
+            'msg' => '操作失败',
                 ], $ret);
     }
 
     public static function func_test($func, $args) {
-        ob_start();
-        $ret = FW\Common::json_call($args, $func, false);
-        $output = ob_get_clean();
-        return [
-            'ret' => $ret,
-            'output' => \json_decode($output, true),
-        ];
+        return FW\Common::json_call($args, $func, FW\Common::JSON_CALL_RETURN);
     }
 
     public static $input = [
         false,
         true,
         [],
-            [
+        [
             'returl' => 'testurl',
         ],
-            [
+        [
             'msg' => 'testmsg',
         ],
-            [
+        [
             'msg' => 'testmsg',
             'returl' => 'testurl',
         ]
     ];
     public static $expect = [
-            [
-            'ret' => false,
-            'output' => [
-                'succeed' => false,
-                'msg' => '操作失败',
-                'returl' => '',
-            ],
+        [
+            'succeed' => false,
+            'msg' => '操作失败',
+            'returl' => '',
         ],
-            [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
+        [
+            'succeed' => true,
+            'returl' => '',
         ],
-            [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-            ],
+        [
+            'succeed' => true,
+            'returl' => '',
         ],
-            [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-            ],
+        [
+            'succeed' => true,
+            'returl' => 'testurl',
         ],
-            [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => '',
-                'msg' => 'testmsg',
-            ],
+        [
+            'succeed' => true,
+            'returl' => '',
+            'msg' => 'testmsg',
         ],
-            [
-            'ret' => true,
-            'output' => [
-                'succeed' => true,
-                'returl' => 'testurl',
-                'msg' => 'testmsg',
-            ],
+        [
+            'succeed' => true,
+            'returl' => 'testurl',
+            'msg' => 'testmsg',
         ],
     ];
 

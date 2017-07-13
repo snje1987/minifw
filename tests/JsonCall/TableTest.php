@@ -84,58 +84,52 @@ class TableTest extends Ts\TestCommon {
     }
 
     public static function json_call_test($obj, $func, $args) {
-        ob_start();
-        $obj->json_call($args, $func, false);
-        $output = ob_get_clean();
-        return \json_decode($output, true);
+        return $obj->json_call($args, $func, FW\Common::JSON_CALL_RETURN);
     }
 
     public static function sync_call_test($obj, $func, $args) {
-        ob_start();
-        $obj->sync_call($args, $func, false);
-        $output = ob_get_clean();
-        return \json_decode($output, true);
+        return $obj->sync_call($args, $func, FW\Common::JSON_CALL_RETURN);
     }
 
     public static $input = [
         false,
         true,
         [],
-            [
+        [
             'returl' => 'testurl',
         ],
-            [
+        [
             'msg' => 'testmsg',
         ],
-            [
+        [
             'msg' => 'testmsg',
             'returl' => 'testurl',
         ]
     ];
     public static $expect = [
-            [
+        [
             'succeed' => false,
             'msg' => '操作失败',
             'returl' => '',
         ],
-            [
+        [
             'succeed' => true,
             'returl' => '',
         ],
-            [
+        [
             'succeed' => true,
             'returl' => '',
         ],
-            [
+        [
             'succeed' => true,
             'returl' => 'testurl',
         ],
-            [
+        [
             'succeed' => true,
             'returl' => '',
             'msg' => 'testmsg',
         ],
-            [
+        [
             'succeed' => true,
             'returl' => 'testurl',
             'msg' => 'testmsg',
