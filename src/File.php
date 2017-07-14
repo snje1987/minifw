@@ -204,6 +204,47 @@ class File {
     }
 
     /**
+     * 复制指定目录的内容到目标目录中，目标不存在也会自动建立
+     *
+     * @param string $src 要复制的目录的绝对路径
+     * @param string $dest 复制到的目录的绝对路径
+     * @param boolean $hidden 是否复制隐藏文件
+     * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
+     */
+    public static function copy_dir($src, $dest, $hidden = false, $fsencoding = '') {
+        $src = self::conv_to($src, $fsencoding);
+        $dest = self::conv_to($dest, $fsencoding);
+        self::mkdir($dest);
+        if (!\is_dir($dest) || !\is_dir($src)) {
+            return;
+        }
+        if (substr($src, -1) !== '/') {
+            $src .= '/';
+        }
+        if (substr($dest, -1) !== '/') {
+            $dest .= '/';
+        }
+        if ($dh = opendir($src)) {
+            while (($file = readdir($dh)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                if ($file{0} == '.' && !$hidden) {
+                    continue;
+                }
+                $from = $src . $file;
+                $to = $dest . $file;
+                if (is_dir($from)) {
+                    self::copy_dir($from, $to, $hidden);
+                } else {
+                    self::copy($from, $to);
+                }
+            }
+            closedir($dh);
+        }
+    }
+
+    /**
      * 在指定的目录中依据当前时间生成唯一的文件名
      *
      * @param string $full 目录的绝对路径
@@ -257,6 +298,44 @@ class File {
             if (self::dir_empty($parent)) {
                 self::delete($parent, true);
             }
+        }
+    }
+
+    /**
+     * 清空指定的目录，不会删除目录本身
+     *
+     * @param string $path 要清空的目录的路径
+     * @param string $isfull 路径是否为完整路径
+     * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
+     */
+    public static function clear_dir($path, $isfull = false, $fsencoding = '') {
+        if ($path == '') {
+            return;
+        }
+        if (!$isfull) {
+            $path = WEB_ROOT . $path;
+        }
+        $path = self::conv_to($path, $fsencoding);
+        if (!is_dir($path)) {
+            return;
+        }
+        if (substr($path, -1) !== '/') {
+            $path .= '/';
+        }
+        if ($dh = opendir($path)) {
+            while (($file = readdir($dh)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                $full = $path . $file;
+                if (is_dir($full)) {
+                    self::clear_dir($full, true);
+                    rmdir($full);
+                } else {
+                    @unlink($full);
+                }
+            }
+            closedir($dh);
         }
     }
 

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\MinifwTest\Table;
+namespace Org\Snje\MinifwTest\Text;
 
 use Org\Snje\Minifw as FW;
 use Org\Snje\MinifwTest as Ts;
