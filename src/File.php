@@ -189,6 +189,21 @@ class File {
     }
 
     /**
+     * 移动文件到指定路径，目录不存在也会同时建立
+     *
+     * @param string $src 要移动的文件的绝对路径
+     * @param string $dest 移动到的位置的绝对路径
+     * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
+     */
+    public static function rename($src, $dest, $fsencoding = '') {
+        $src = self::conv_to($src, $fsencoding);
+        $dest = self::conv_to($dest, $fsencoding);
+        $dest_dir = self::conv_to(dirname($dest), $fsencoding);
+        self::mkdir($dest_dir);
+        \rename($src, $dest);
+    }
+
+    /**
      * 复制文件到指定路径，目录不存在也会同时建立
      *
      * @param string $src 要复制的文件的绝对路径
@@ -200,7 +215,7 @@ class File {
         $dest = self::conv_to($dest, $fsencoding);
         $dest_dir = self::conv_to(dirname($dest), $fsencoding);
         self::mkdir($dest_dir);
-        copy($src, $dest);
+        \copy($src, $dest);
     }
 
     /**

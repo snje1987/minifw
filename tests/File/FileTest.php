@@ -30,6 +30,17 @@ use Org\Snje\MinifwTest as Ts;
 class FileTest extends Ts\TestCommon {
 
     /**
+     * @coversNothing
+     */
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+        $base = str_replace('\\', '/', dirname(__FILE__));
+        $path = $base . '/to';
+        FW\File::clear_dir($path, true);
+        FW\File::delete($path, true);
+    }
+
+    /**
      * @covers Org\Snje\Minifw\Text::strip_html
      */
     public function test_copy() {
@@ -40,12 +51,20 @@ class FileTest extends Ts\TestCommon {
         $this->assertFileEquals($from, $to);
     }
 
+    public function test_rename_file() {
+        $base = str_replace('\\', '/', dirname(__FILE__));
+        $from = $base . '/to/file1';
+        $to = $base . '/to/newfile1';
+        FW\File::rename($from, $to);
+        $this->assertFileEquals($base . '/from/file1', $to);
+    }
+
     /**
      * @covers Org\Snje\Minifw\Text::strip_tags
      */
     public function test_delete() {
         $base = str_replace('\\', '/', dirname(__FILE__));
-        $path = $base . '/to/file1';
+        $path = $base . '/to/newfile1';
         FW\File::delete($path, true);
         $this->assertFileNotExists($path);
     }
@@ -59,9 +78,19 @@ class FileTest extends Ts\TestCommon {
         $this->assertFileEquals($from . '/sub/dirfile2', $to . '/sub/dirfile2');
     }
 
+    public function test_rename_dir() {
+        $base = str_replace('\\', '/', dirname(__FILE__));
+        $origin = $base . '/from/dir';
+        $from = $base . '/to/dir';
+        $to = $base . '/to/newdir';
+        FW\File::rename($from, $to);
+        $this->assertFileEquals($origin . '/dirfile1', $to . '/dirfile1');
+        $this->assertFileEquals($origin . '/sub/dirfile2', $to . '/sub/dirfile2');
+    }
+
     public function test_clear_dir() {
         $base = str_replace('\\', '/', dirname(__FILE__));
-        $path = $base . '/to/dir';
+        $path = $base . '/to/newdir';
         FW\File::clear_dir($path, true);
         $this->assertFileNotExists($path . '/sub');
         $this->assertFileNotExists($path . '/dirfile1');
