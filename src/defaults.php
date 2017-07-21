@@ -26,7 +26,7 @@
  */
 $cfg['path'] = [
     'theme' => '/theme', //网站的模板
-    'theme_res' => '/www/theme', //网站模板的资源文件的位置
+    'res' => '/www', //资源文件位置
     'compiled' => '/compiled', //编译后的模板
     'ttfs' => '/ttfs', //字体文件
 ];
