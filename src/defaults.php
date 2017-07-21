@@ -29,6 +29,7 @@ $cfg['path'] = [
     'res' => '/www', //资源文件位置
     'compiled' => '/compiled', //编译后的模板
     'ttfs' => '/ttfs', //字体文件
+    'web_root' => isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '',
 ];
 
 $cfg['main'] = [

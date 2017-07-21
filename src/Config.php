@@ -66,12 +66,11 @@ class Config {
      * @param arrsy $files 要加载的配置文件列表
      * @return array 如果文件存在则返回文件内容，否则返回空数组
      */
-    public static function load_config($files = []) {
+    public static function load_config($cfg_path) {
         $cfg = [];
         require_once __DIR__ . '/defaults.php';
-        foreach ($files as $file) {
-            require_once WEB_ROOT . $file;
-        }
+        require_once $cfg_path;
+
         self::$_data = $cfg;
     }
 

@@ -33,10 +33,7 @@ class TestCommon extends \PHPUnit_Framework_TestCase {
      * @coversNothing
      */
     public static function setUpBeforeClass() {
-        FW\System::get([
-            'web_root' => str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)),
-            'cfg' => ['/config.php']
-        ]);
+        FW\System::get(__DIR__ . '/config.php');
         //parent::setUpBeforeClass();
     }
 

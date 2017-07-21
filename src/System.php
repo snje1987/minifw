@@ -30,26 +30,19 @@ class System {
 
     protected $_calls = [];
 
-    protected function __construct($config = [
-        'web_root' => '',
-        'cfg' => ['/config.php']
-    ]) {
-        if (!isset($config['web_root'])) {
-            $config['web_root'] = '';
+    protected function __construct($cfg_path) {
+        if (!file_exists($cfg_path)) {
+            die('Config file not found.');
         }
-        if (!isset($config['cfg'])) {
-            $config['cfg'] = ['/config.php'];
-        }
+        Config::load_config($cfg_path);
         if (!defined('WEB_ROOT')) {
-            if ($config['web_root'] != '') {
-                define('WEB_ROOT', $config['web_root']);
-            } elseif (isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT'] != '') {
-                define('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
-            } else {
+            $web_root = Config::get('path', 'web_root', '');
+            $web_root = rtrim(str_replace('\\', '/', $web_root));
+            if ($web_root == '') {
                 die('"WEB_ROOT" is not define.');
             }
+            define('WEB_ROOT', $web_root);
         }
-        Config::load_config($config['cfg']);
         if (!defined('DEBUG')) {
             define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
         }
