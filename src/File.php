@@ -48,6 +48,44 @@ class File {
      */
     private static $last_error = '';
 
+    public static function format_path() {
+        $args = func_get_args();
+        $args = array_reverse($args);
+        $cur_path = [];
+        foreach ($args as $arg) {
+            if ($arg == '') {
+                continue;
+            }
+            $arg = str_replace('\\', '/', $arg);
+            $arg = rtrim($arg, '/');
+            $path_array = explode('/', $arg);
+            $cur_path = array_merge($path_array, $cur_path);
+            if ($cur_path[0] == '') {
+                break;
+            }
+        }
+        $parsed = [];
+        foreach ($cur_path as $v) {
+            if ($v == '.') {
+                continue;
+            }
+            if ($v == '..') {
+                if (count($parsed) < 1) {
+                    $parsed = [];
+                    break;
+                } else {
+                    unset($parsed[count($parsed) - 1]);
+                }
+            } else {
+                $parsed[] = $v;
+            }
+        }
+        if (count($parsed) == 1 && $parsed[0] == '') {
+            return '/';
+        }
+        return implode('/', $parsed);
+    }
+
     /**
      * 保存字符串到文件，会对字符串内容进行压缩
      *

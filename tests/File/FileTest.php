@@ -100,4 +100,49 @@ class FileTest extends Ts\TestCommon {
         $this->assertFileNotExists(dirname($path));
     }
 
+    public function test_format_path() {
+        $cases = [
+            [
+                'in' => ['/'],
+                'out' => '/',
+            ],
+            [
+                'in' => ['/', '/'],
+                'out' => '/',
+            ],
+            [
+                'in' => ['/12321/ddd/', '/', 'config.php'],
+                'out' => '/config.php',
+            ],
+            [
+                'in' => ['/', 'aaa', 'config.php'],
+                'out' => '/aaa/config.php',
+            ],
+            [
+                'in' => ['aaa', 'bbb', 'config.php'],
+                'out' => 'aaa/bbb/config.php',
+            ],
+            [
+                'in' => ['aaa/', './bbb/', 'config.php'],
+                'out' => 'aaa/bbb/config.php',
+            ],
+            [
+                'in' => ['aaa/', '', '../bbb/', 'config.php'],
+                'out' => 'bbb/config.php',
+            ],
+            [
+                'in' => ['a/b/c/', '../../v', 'config.php'],
+                'out' => 'a/v/config.php',
+            ],
+            [
+                'in' => ['a/b/c/', '../../../../v', 'config.php'],
+                'out' => '',
+            ],
+        ];
+        foreach ($cases as $case) {
+            $out = call_user_func_array('Org\Snje\Minifw\File::format_path', $case['in']);
+            $this->assertEquals($case['out'], $out);
+        }
+    }
+
 }
