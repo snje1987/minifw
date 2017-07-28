@@ -534,13 +534,10 @@ class File {
         $full = self::conv_to($full, $fsencoding);
         if (file_exists($full)) {
             $mtime = filemtime($full);
-            Server::show_304($mtime);
             $fi = new \finfo(FILEINFO_MIME_TYPE);
             $mime_type = $fi->file($full);
             header('Content-Type: ' . $mime_type);
             readfile($full);
-        } else {
-            Server::show_404();
         }
     }
 

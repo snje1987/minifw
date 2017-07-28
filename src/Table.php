@@ -164,7 +164,7 @@ abstract class Table {
      * @param mixed $post 方法的参数
      * @param string $call 调用的方法
      */
-    public function sync_call($post, $call, $mode = Common::JSON_CALL_DIE) {
+    public function sync_call($post, $call, $mode = Common::JSON_CALL_DIE, $controler = null) {
         $call = strval($call);
         $this->_db->begin();
         $ret = Common::json_call($post, [$this, $call], Common::JSON_CALL_RETURN);
@@ -174,11 +174,16 @@ abstract class Table {
             $this->_db->rollback();
         }
         if ($mode == Common::JSON_CALL_REDIRECT) {
-            if ($ret['returl'] != '') {
-                Server::redirect($ret['returl']);
-            } else {
-                Server::redirect('/');
+            // @codeCoverageIgnoreStart
+            if ($controler === null) {
+                die(0);
             }
+            if ($ret['returl'] != '') {
+                $controler->redirect($ret['returl']);
+            } else {
+                $controler->redirect('/');
+            }
+            // @codeCoverageIgnoreEnd
         } elseif ($mode == Common::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
             die(\json_encode($ret, JSON_UNESCAPED_UNICODE));

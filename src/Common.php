@@ -37,7 +37,7 @@ class Common {
      * @param mixed $call 调用的方法
      * @param boolean $mode 函数的执行方式
      */
-    public static function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
+    public static function json_call($post, $call, $mode = self::JSON_CALL_DIE, $controler = null) {
         $ret = [
             'succeed' => false,
             'returl' => '',
@@ -79,11 +79,16 @@ class Common {
             }
         }
         if ($mode == self::JSON_CALL_REDIRECT) {
-            if ($ret['returl'] != '') {
-                Server::redirect($ret['returl']);
-            } else {
-                Server::redirect('/');
+            // @codeCoverageIgnoreStart
+            if ($controler === null) {
+                die(0);
             }
+            if ($ret['returl'] != '') {
+                $controler->redirect($ret['returl']);
+            } else {
+                $controler->redirect('/');
+            }
+            // @codeCoverageIgnoreEnd
         } elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
             die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
