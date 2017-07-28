@@ -19,7 +19,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 系统的相关操作
@@ -30,13 +30,18 @@ class System {
 
     protected $_calls = [];
 
+    /**
+     * @var Org\Snje\Minifw\Config
+     */
+    protected $config;
+
     protected function __construct($cfg_path) {
         if (!file_exists($cfg_path)) {
             die('Config file not found.');
         }
-        Config::load_config($cfg_path);
+        $this->config = Config::get_new($cfg_path);
         if (!defined('WEB_ROOT')) {
-            $web_root = Config::get('path', 'web_root', '');
+            $web_root = $this->config->get_config('path', 'web_root', '');
             $web_root = rtrim(str_replace('\\', '/', $web_root));
             if ($web_root == '') {
                 die('"WEB_ROOT" is not define.');
@@ -44,12 +49,12 @@ class System {
             define('WEB_ROOT', $web_root);
         }
         if (!defined('DEBUG')) {
-            define('DEBUG', Minifw\Config::get('debug', 'debug', 0));
+            define('DEBUG', $this->config->get_config('debug', 'debug', 0));
         }
         if (!defined('DBPREFIX')) {
-            define('DBPREFIX', Minifw\Config::get('main', 'dbprefix', ''));
+            define('DBPREFIX', $this->config->get_config('main', 'dbprefix', ''));
         }
-        date_default_timezone_set(Minifw\Config::get('main', 'timezone', 'UTC'));
+        date_default_timezone_set($this->config->get_config('main', 'timezone', 'UTC'));
 
         //设置错误处理函数
         set_error_handler([__NAMESPACE__ . '\Error', 'captureNormal']);
@@ -64,7 +69,7 @@ class System {
      */
     public function run() {
         $this->_set_env();
-        $this->dispatch(Minifw\Config::get('main', 'uri', '/'));
+        $this->dispatch($this->config->get_config('main', 'uri', '/'));
     }
 
     public function reg_call($reg, $callback) {
@@ -84,11 +89,11 @@ class System {
         $_POST = self::magic_gpc($_POST);
         $_COOKIE = self::magic_gpc($_COOKIE);
 
-        header('Content-type:text/html;charset=' . Minifw\Config::get('main', 'encoding', 'utf-8'));
+        header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
 
-        $session_name = Minifw\Config::get('main', 'session', 'PHPSESSION');
+        $session_name = $this->config->get_config('main', 'session', 'PHPSESSION');
         session_name($session_name);
-        session_set_cookie_params(36000, '/', Minifw\Config::get('main', 'domain', ''));
+        session_set_cookie_params(36000, '/', $this->config->get_config('main', 'domain', ''));
 
         //处理Flash丢失cookie的问题
         $session_id = '';
@@ -134,7 +139,7 @@ class System {
                 return;
             }
         }
-        Minifw\Server::show_404();
+        FW\Server::show_404();
     }
 
     /**
@@ -214,7 +219,7 @@ class System {
                 die();
             }
             return true;
-        } catch (Minifw\Exception $ex) {
+        } catch (FW\Exception $ex) {
             if (DEBUG === 1) {
                 echo $ex->getMessage();
             }

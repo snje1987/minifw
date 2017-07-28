@@ -29,7 +29,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 定义一些常用的服务端功能
@@ -77,7 +77,7 @@ class Server {
     public static function show_404() {
         header("HTTP/1.1 404 Not Found");
         header("status: 404 not found");
-        die(readfile(WEB_ROOT . Minifw\Config::get('main', 'err_404')));
+        die(readfile(WEB_ROOT . FW\Config::get()->get_config('main', 'err_404')));
     }
 
     /**
@@ -126,4 +126,4 @@ class Server {
 
 }
 
-Server::$cache_time = Config::get('main', 'cache', 3600);
+Server::$cache_time = Config::get()->get_config('main', 'cache', 3600);

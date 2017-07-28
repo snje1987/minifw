@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2013 Yang Ming <yangming0116@gmail.com>
+ * Copyright (C) 2016 Yang Ming <yangming0116@163.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +17,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Org\Snje\Minifw\Traits;
+namespace Org\Snje\MinifwTest\File;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\MinifwTest as Ts;
 
-trait PublicInstance {
+/**
+ * Description of Get
+ *
+ * @author Yang Ming <yangming0116@163.com>
+ */
+class ConfigTest extends \PHPUnit_Framework_TestCase {
 
     /**
-     * @var static 实例列表
+     * @coversNothing
      */
-    protected static $_instance = [];
+    public static function setUpBeforeClass() {
 
-    /**
-     * 获取实例
-     *
-     * @return static 实例
-     */
-    public static function get($args = [], $id = '') {
-        if (!isset(self::$_instance[static::class])) {
-            self::$_instance[static::class] = [];
+    }
+
+    public function test_config() {
+        $cfg = [];
+        require __DIR__ . '/../../src/defaults.php';
+        require __DIR__ . '/config.php';
+        $config_obj = FW\Config::get_new(__DIR__ . '/config.php');
+        foreach ($cfg as $k => $v) {
+            $this->assertEquals($v, $config_obj->get_config($k));
         }
-        if (!isset(self::$_instance[static::class][$id])) {
-            self::$_instance[static::class][$id] = new static($args);
-        }
-        return self::$_instance[static::class][$id];
+        $this->assertNull($config_obj->get_config('sqlite', 'name'));
     }
 
 }

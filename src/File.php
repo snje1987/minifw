@@ -28,7 +28,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 定义常用的文件操作
@@ -110,7 +110,7 @@ class File {
      * @return string 保存的相对路径
      */
     public static function save($data, $group, $ext, $fsencoding = '') {
-        $dirmap = Config::get('save');
+        $dirmap = Config::get()->get_config('save');
 
         if (!isset($dirmap[$group])) {
             return self::error('分组错误');
@@ -176,7 +176,7 @@ class File {
             return self::error($error);
         }
 
-        $dirmap = Config::get('upload');
+        $dirmap = Config::get()->get_config('upload');
 
         if (!isset($dirmap[$group])) {
             return self::error('文件分组错误');
@@ -671,4 +671,4 @@ class File {
 
 }
 
-File::$encoding = Config::get('main', 'encoding', 'encoding');
+File::$encoding = Config::get()->get_config('main', 'encoding', '');

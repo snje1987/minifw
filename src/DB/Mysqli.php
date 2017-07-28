@@ -19,9 +19,9 @@
 
 namespace Org\Snje\Minifw\DB;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
-class Mysqli extends Minifw\DB {
+class Mysqli extends FW\DB {
 
     /**
      * @var \mysqli mysqli连接
@@ -109,7 +109,8 @@ class Mysqli extends Minifw\DB {
      */
     protected function __construct($args = []) {
         parent::__construct();
-        $ini = Minifw\Config::get('mysql');
+        $config = FW\Config::get();
+        $ini = $config->get_config('mysql');
         if (!empty($args)) {
             $ini['host'] = isset($args['host']) ? strval($args['host']) : $ini['host'];
             $ini['username'] = isset($args['username']) ? strval($args['username']) : $ini['username'];
@@ -119,7 +120,7 @@ class Mysqli extends Minifw\DB {
         }
 
         if (empty($ini)) {
-            throw new Minifw\Exception('数据库未配置');
+            throw new FW\Exception('数据库未配置');
         }
         $this->_host = $ini['host'];
         $this->_username = $ini['username'];
@@ -128,10 +129,10 @@ class Mysqli extends Minifw\DB {
         $this->_encoding = $ini['encoding'];
         $this->_mysqli = new \mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
         if ($this->_mysqli->connect_error) {
-            throw new Minifw\Exception('数据库连接失败');
+            throw new FW\Exception('数据库连接失败');
         }
         if (!$this->_mysqli->set_charset($this->_encoding)) {
-            throw new Minifw\Exception('数据库查询失败');
+            throw new FW\Exception('数据库查询失败');
         }
     }
 
@@ -148,10 +149,10 @@ class Mysqli extends Minifw\DB {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
             if ($this->_mysqli->connect_error) {
-                throw new Minifw\Exception('数据库连接失败');
+                throw new FW\Exception('数据库连接失败');
             }
             if (!$this->_mysqli->set_charset($this->_encoding)) {
-                throw new Minifw\Exception('数据库查询失败');
+                throw new FW\Exception('数据库查询失败');
             }
         }
         return $this->_mysqli->query($sql);

@@ -29,7 +29,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 基本的模板操作
@@ -149,7 +149,7 @@ class Tpl {
      */
     public static function display($tpl, $args, $theme = '', $die = true) {
         self::$render = true;
-        $theme = ($theme == '' ? Minifw\Config::get('main', 'theme') : $theme);
+        $theme = ($theme == '' ? FW\Config::get()->get_config('main', 'theme') : $theme);
 
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
@@ -211,7 +211,7 @@ class Tpl {
     protected static function _compile($src, $dest, $theme) {
         if (!file_exists($src)) {
             if (DEBUG) {
-                throw new Minifw\Exception('模板不存在：' . $src);
+                throw new FW\Exception('模板不存在：' . $src);
             } else {
                 return false;
             }
@@ -282,7 +282,7 @@ class Tpl {
             $str = preg_replace('/\?\>$/i', '', $str);
             /* 删除模板中多余的空行和空格——完成 */
 
-            Minifw\File::mkdir(dirname($dest));
+            FW\File::mkdir(dirname($dest));
             if (!file_put_contents($dest, $str)) {
                 return fasle;
             }
@@ -291,8 +291,8 @@ class Tpl {
     }
 
 }
-
-Tpl::$always_compile = Minifw\Config::get('debug', 'tpl_always_compile', 0);
-Tpl::$theme_path = Minifw\Config::get('path', 'theme');
-Tpl::$res_path = Minifw\Config::get('path', 'res');
-Tpl::$compiled_path = Minifw\Config::get('path', 'compiled');
+$config = Config::get();
+Tpl::$always_compile = $config->get_config('debug', 'tpl_always_compile', 0);
+Tpl::$theme_path = $config->get_config('path', 'theme');
+Tpl::$res_path = $config->get_config('path', 'res');
+Tpl::$compiled_path = $config->get_config('path', 'compiled');

@@ -17,61 +17,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Config.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-12 10:19:40
- * @version 1.0
- * @Description 网站的配置信息的加载与保存
- */
-
 namespace Org\Snje\Minifw;
 
 /**
- * 用于加载、缓存和保存配置数据
+ * Load config from config file
  */
 class Config {
 
-    /**
-     * @var array 缓存加载过的数据
-     */
-    protected static $_data;
+    use Traits\OneInstance;
 
     /**
-     * 获取指定的配数据
-     *
-     * @param string $key 要获取的配置段
-     * @param string $name 要获取的键名
-     * @param mixed $default 键不存在时返回的默认值
-     * @return mixed 如果配置段不存在,返回false;如果存在,那么在键名为空时返回整个段，
-     * 在键名不为空时，如果段中存在键则返回相应键的值，否则返回默认值
+     * @var array config data
      */
-    public static function get($key, $name = '', $default = false) {
-        if ($key === '' || !isset(self::$_data[$key])) {
-            return false;
-        }
-        if ($name === '') {
-            return self::$_data[$key];
-        }
-        if (!isset(self::$_data[$key][$name])) {
-            return $default;
-        }
-        return self::$_data[$key][$name];
+    protected $data;
+    protected $config_path;
+
+    public function __construct($config_path) {
+        $this->config_path = $config_path;
+        $this->load_config();
     }
 
     /**
-     * 加载相应的配置文件
-     * @param arrsy $files 要加载的配置文件列表
-     * @return array 如果文件存在则返回文件内容，否则返回空数组
+     * Get Config item
+     *
+     * @param string $section Config section
+     * @param string $key Config key
+     * @param mixed $default Default value when not exists
+     * @return mixed Config value
      */
-    public static function load_config($cfg_path) {
-        $cfg = [];
-        require_once __DIR__ . '/defaults.php';
-        require_once $cfg_path;
+    public function get_config($section, $key = '', $default = null) {
+        if ($section === '' || !isset($this->data[$section])) {
+            return null;
+        }
+        if ($key === '') {
+            return $this->data[$section];
+        }
+        if (!isset($this->data[$section][$key])) {
+            return $default;
+        }
+        return $this->data[$section][$key];
+    }
 
-        self::$_data = $cfg;
+    /**
+     * Load config data
+     */
+    public function load_config() {
+        $cfg = [];
+        require __DIR__ . '/defaults.php';
+        if (file_exists($this->config_path)) {
+            require $this->config_path;
+        }
+        $this->data = $cfg;
     }
 
 }

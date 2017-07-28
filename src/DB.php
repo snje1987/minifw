@@ -19,14 +19,14 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 abstract class DB {
 
     /**
      * 共有方法
      */
-    use Minifw\Traits\PublicInstance;
+    use FW\Traits\PublicInstance;
 
     /**
      *
@@ -37,7 +37,7 @@ abstract class DB {
     /**
      * 获取一个指定类型的数据库实例
      *
-     * @return Minifw\DB 数据库唯一的实例
+     * @return FW\DB 数据库唯一的实例
      */
     public static function get_default($args = [], $id = '') {
         $type = '';
@@ -45,14 +45,14 @@ abstract class DB {
             $type = strval($args['type']);
         }
         if ($type == '') {
-            $type = Minifw\Config::get('main', 'db', '');
+            $type = FW\Config::get()->get_config('main', 'db', '');
         }
         if ($type == '') {
-            throw new Minifw\Exception("未指定数据库类型");
+            throw new FW\Exception("未指定数据库类型");
         }
         $class_name = __NAMESPACE__ . "\\DB\\" . $type;
         if (!class_exists($class_name)) {
-            throw new Minifw\Exception("类型不存在");
+            throw new FW\Exception("类型不存在");
         }
         return $class_name::get($args, $id);
     }
@@ -178,7 +178,7 @@ abstract class DB {
      */
     public function delete($tbname, $condition = []) {
         if (empty($condition)) {
-            throw new Minifw\Exception('删除条件不能为空');
+            throw new FW\Exception('删除条件不能为空');
         }
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'delete from `' . $tbname . '`' . $conditionstr;
@@ -195,7 +195,7 @@ abstract class DB {
      */
     public function update($tbname, $value, $condition = []) {
         if (empty($condition)) {
-            throw new Minifw\Exception('更新条件不能为空');
+            throw new FW\Exception('更新条件不能为空');
         }
         $updatestr = $this->_parse_update($value);
         $conditionstr = $this->_parse_condition($condition);
@@ -452,7 +452,7 @@ abstract class DB {
                 $str .= ')';
                 break;
             default:
-                throw new Minifw\Exception('查询条件错误');
+                throw new FW\Exception('查询条件错误');
         }
         return $str;
     }

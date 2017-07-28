@@ -29,7 +29,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 定义数据表的基本操作
@@ -87,10 +87,10 @@ abstract class Table {
      */
     const INDEXS = [];
 
-    use Minifw\Traits\PublicInstance;
+    use FW\Traits\PublicInstance;
 
     /**
-     * @var Minifw\DB 数据库的实例
+     * @var FW\DB 数据库的实例
      */
     protected $_db;
     private static $_diff = [];

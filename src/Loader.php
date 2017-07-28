@@ -29,7 +29,7 @@
 
 namespace Org\Snje\Minifw;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
 /**
  * 用于动态加载类
@@ -67,5 +67,5 @@ class Loader {
 
 }
 
-Minifw\Loader::register();
-Minifw\Loader::$len = strlen(__NAMESPACE__ . '\\');
+FW\Loader::register();
+FW\Loader::$len = strlen(__NAMESPACE__ . '\\');

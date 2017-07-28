@@ -77,7 +77,7 @@ class Text {
      * @return string 截取的结果
      */
     public static function sub_text($str, $len) {
-        $encoding = Config::get('main', 'encoding');
+        $encoding = Config::get()->get_config('main', 'encoding');
         $str = self::strip_tags($str);
         $str = preg_replace('/(\s|&nbsp;)+/i', ' ', $str);
         return mb_substr($str, 0, $len, $encoding);
@@ -91,7 +91,7 @@ class Text {
      * @return string 截取的结果
      */
     public static function sub_rich($str, $len) {
-        $encoding = Config::get('main', 'encoding');
+        $encoding = Config::get()->get_config('main', 'encoding');
         if (self::is_rich($str)) {
             $str = self::strip_html($str);
             $str = preg_replace('/\r/i', '', preg_replace('/\n/i', '', $str));
@@ -111,7 +111,7 @@ class Text {
      * @return int 长度
      */
     public static function str_len($str) {
-        $encoding = Config::get('main', 'encoding');
+        $encoding = Config::get()->get_config('main', 'encoding');
         return mb_strlen($str, $encoding);
     }
 

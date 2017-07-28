@@ -19,9 +19,9 @@
 
 namespace Org\Snje\Minifw\DB;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
-class SQLite extends Minifw\DB {
+class SQLite extends FW\DB {
 
     /**
      * @var \SQLite3 sqlite连接
@@ -81,13 +81,14 @@ class SQLite extends Minifw\DB {
      */
     protected function __construct($args = []) {
         parent::__construct();
-        $ini = Minifw\Config::get('sqlite');
+        $config = FW\Config::get();
+        $ini = $config->get_config('sqlite');
         if (!empty($args)) {
             $ini['path'] = isset($args['path']) ? strval($args['path']) : $ini['path'];
         }
 
         if (empty($ini)) {
-            throw new Minifw\Exception('数据库未配置');
+            throw new FW\Exception('数据库未配置');
         }
         $this->_sqlite = new \SQLite3(WEB_ROOT . $ini['path'], SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
     }
