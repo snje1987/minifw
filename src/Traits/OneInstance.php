@@ -19,25 +19,40 @@
 
 namespace Org\Snje\Minifw\Traits;
 
-use Org\Snje\Minifw as Minifw;
+use Org\Snje\Minifw as FW;
 
+/**
+ * This class can have only one instance
+ */
 trait OneInstance {
 
     /**
-     * @var static 实例
+     * @var static the instance
      */
     protected static $_instance = [];
 
     /**
-     * 获取实例
-     *
-     * @return static 实例
+     * get instance,create if not exists
+     * @param mixed $args args pass to construct
+     * @return static the instance
      */
     public static function get($args = []) {
         if (!isset(self::$_instance[static::class])) {
             self::$_instance[static::class] = new static($args);
         }
         return self::$_instance[static::class];
+    }
+
+    /**
+     * delete the old instance and get a new one
+     * @param mixed $args args pass to construct
+     * @return static the instance
+     */
+    public static function get_new($args = []) {
+        if (isset(self::$_instance[static::class])) {
+            unset(self::$_instance[static::class]);
+        }
+        return self::get($args);
     }
 
 }
