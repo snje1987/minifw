@@ -41,8 +41,8 @@ $cfg['main'] = [
     'cache' => 3600
 ];
 
-if ($cfg['uri'] === '' && isset($_GET['uri'])) {
-    $cfg['uri'] = strval($_GET['uri']);
+if ($cfg['main']['uri'] === '' && isset($_GET['uri'])) {
+    $cfg['main']['uri'] = strval($_GET['uri']);
 }
 
 $cfg['debug'] = [
