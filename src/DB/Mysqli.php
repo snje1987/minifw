@@ -20,93 +20,21 @@
 namespace Org\Snje\Minifw\DB;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\Minifw\Exception;
 
 class Mysqli extends FW\DB {
 
     /**
-     * @var \mysqli mysqli连接
+     * @var \mysqli
      */
     protected $_mysqli;
-
-    /**
-     * @var string 数据库连接的字符编码
-     */
     protected $_encoding;
-
-    /**
-     * @var string 数据库的地址
-     */
     protected $_host;
-
-    /**
-     * @var string 数据库用户名
-     */
     protected $_username;
-
-    /**
-     * @var string 数据库密码
-     */
     protected $_password;
-
-    /**
-     * @var stirng 数据库名称
-     */
     protected $_dbname;
-
-    /**
-     * @var bool 标记数据库是否可以进行roolback
-     */
     protected $_rollback = false;
 
-    /**
-     * 返回上一条语句插入的数据的自增字段的数值
-     *
-     * @return int 自增字段的数值
-     */
-    public function last_insert_id() {
-        return $this->_mysqli->insert_id;
-    }
-
-    /**
-     * 开启事务
-     */
-    protected function _begin() {
-        $this->_query('SET AUTOCOMMIT=0');
-        $this->_query('BEGIN');
-        $this->_rollback = true;
-    }
-
-    /**
-     * 提交事务
-     */
-    protected function _commit() {
-        if ($this->_rollback) {
-            $this->_query('COMMIT');
-            $this->_query('SET AUTOCOMMIT=1');
-            $this->_rollback = false;
-        }
-    }
-
-    /**
-     * 回滚事务
-     */
-    protected function _rollback() {
-        if ($this->_rollback) {
-            $this->_query('ROLLBACK');
-            $this->_query('SET AUTOCOMMIT=1');
-            $this->_rollback = false;
-        }
-    }
-
-    public function last_error() {
-        return $this->_mysqli->error;
-    }
-
-    /*     * ********************************************************** */
-
-    /**
-     * 私有构造函数
-     */
     protected function __construct($args = []) {
         parent::__construct();
         $config = FW\Config::get();
@@ -120,7 +48,7 @@ class Mysqli extends FW\DB {
         }
 
         if (empty($ini)) {
-            throw new FW\Exception('数据库未配置');
+            throw new Exception('数据库未配置');
         }
         $this->_host = $ini['host'];
         $this->_username = $ini['username'];
@@ -129,42 +57,38 @@ class Mysqli extends FW\DB {
         $this->_encoding = $ini['encoding'];
         $this->_mysqli = new \mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
         if ($this->_mysqli->connect_error) {
-            throw new FW\Exception('数据库连接失败');
+            throw new Exception('数据库连接失败');
         }
         if (!$this->_mysqli->set_charset($this->_encoding)) {
-            throw new FW\Exception('数据库查询失败');
+            throw new Exception('数据库查询失败');
         }
     }
 
-    /**
-     * 执行sql查询，返回结果
-     *
-     * @param string $sql 要执行的查询
-     * @return mixed 查询的结果
-     */
-    protected function _query($sql) {
+    public function last_insert_id() {
+        return $this->_mysqli->insert_id;
+    }
+
+    public function last_error() {
+        return $this->_mysqli->error;
+    }
+
+    public function query($sql) {
         //echo $sql.'<br />';
         //$sql .= 'ddd';
         if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
             if ($this->_mysqli->connect_error) {
-                throw new FW\Exception('数据库连接失败');
+                throw new Exception('数据库连接失败');
             }
             if (!$this->_mysqli->set_charset($this->_encoding)) {
-                throw new FW\Exception('数据库查询失败');
+                throw new Exception('数据库查询失败');
             }
         }
         return $this->_mysqli->query($sql);
     }
 
-    /**
-     * 将sql查询结果全部转化成数组
-     *
-     * @param \mysqli_result $res 要转化的查询
-     * @return array 查询的结果
-     */
-    protected function _fetch_all($res) {
+    public function fetch_all($res) {
         if (method_exists('mysqli_result', 'fetch_all')) {
             $data = $res->fetch_all(MYSQLI_ASSOC);
         } else {
@@ -175,70 +99,56 @@ class Mysqli extends FW\DB {
         return $data;
     }
 
-    /**
-     * 从sql查询的结果中获取一条数据
-     *
-     * @param \mysqli_result $res sql查询结果
-     * @return array 获取的数据，或者false
-     */
-    protected function _fetch($res) {
+    public function fetch($res) {
         return $res->fetch_array(MYSQLI_ASSOC);
     }
 
-    /**
-     * 释放sql查询结果
-     *
-     * @param \mysqli_result $res 要释放的结果
-     * @return bool 成功返回true，失败返回false
-     */
-    protected function _free($res) {
+    public function free($res) {
         return $res->free();
     }
 
-    /**
-     * 转义用于sql查询的字符串，转义所有html特殊字符和sql特殊字符
-     *
-     * @param string $str 要转义的字符串
-     * @return string 转义的结果
-     */
-    protected function _parse_str($str) {
+    public function parse_str($str) {
         $str = htmlspecialchars(trim($str));
         $str = $this->_mysqli->escape_string($str);
         return $str;
     }
 
-    /**
-     * 转义sql特殊字符串
-     *
-     * @param string $str 要转义的字符串
-     * @return string 转义的结果
-     */
-    protected function _parse_richstr($str) {
+    public function parse_richstr($str) {
         $str = $this->_mysqli->escape_string($str);
         return trim($str);
     }
 
-    /**
-     * 转义用于执行like查询的字符串
-     *
-     * @param string $str 要转义的字符串
-     * @return string 转义的结果
-     */
-    protected function _parse_like($str) {
+    public function parse_like($str) {
         $str = $this->_mysqli->escape_string($str);
         $str = str_replace("_", "\_", $str);
         $str = str_replace("%", "\%", $str);
         return trim($str);
     }
 
-    /**
-     * 一次执行多条sql语句
-     *
-     * @param string $sql 要执行的查询
-     * @return mixed 查询的结果
-     */
-    protected function _multi_query($sql) {
+    public function multi_query($sql) {
         return $this->_mysqli->multi_query($sql);
+    }
+
+    protected function _begin() {
+        $this->query('SET AUTOCOMMIT=0');
+        $this->query('BEGIN');
+        $this->_rollback = true;
+    }
+
+    protected function _commit() {
+        if ($this->_rollback) {
+            $this->query('COMMIT');
+            $this->query('SET AUTOCOMMIT=1');
+            $this->_rollback = false;
+        }
+    }
+
+    protected function _rollback() {
+        if ($this->_rollback) {
+            $this->query('ROLLBACK');
+            $this->query('SET AUTOCOMMIT=1');
+            $this->_rollback = false;
+        }
     }
 
 }
