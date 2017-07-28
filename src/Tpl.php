@@ -256,9 +256,9 @@ class Tpl {
             /* 处理模板中的处理逻辑语句——完成 */
 
             //处理相对路径："/xxxx/yyyy"
-            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/theme/' . $theme . '/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/theme/' . $theme . '/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/theme/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3>', $str);
+            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
 
             //处理绝对路径："|xxx/yyy"
             $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $str);
