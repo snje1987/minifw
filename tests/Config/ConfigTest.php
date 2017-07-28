@@ -44,6 +44,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
         foreach ($cfg as $k => $v) {
             $this->assertEquals($v, $config_obj->get_config($k));
         }
+        $this->assertEquals('Mysqli', $config_obj->get_config('main', 'db'));
+        $this->assertNull($config_obj->get_config('sqlite12'));
         $this->assertNull($config_obj->get_config('sqlite', 'name'));
     }
 
