@@ -1,5 +1,8 @@
-#ABOUT
-简单的PHP框架
+ABOUT
+-------------
 
-v1.x要求php>=5.5
-v2.x要求php>=5.6
+A mini php framework.
+
+v1.x require php>=5.5
+
+v2.x require php>=5.6
