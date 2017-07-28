@@ -36,6 +36,11 @@ class System {
     protected $config;
 
     protected function __construct($cfg_path) {
+
+        $_GET = self::magic_gpc($_GET);
+        $_POST = self::magic_gpc($_POST);
+        $_COOKIE = self::magic_gpc($_COOKIE);
+
         if (!file_exists($cfg_path)) {
             die('Config file not found.');
         }
@@ -84,10 +89,6 @@ class System {
      */
     protected function _set_env() {
         ob_start();
-
-        $_GET = self::magic_gpc($_GET);
-        $_POST = self::magic_gpc($_POST);
-        $_COOKIE = self::magic_gpc($_COOKIE);
 
         header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
 

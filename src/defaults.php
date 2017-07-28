@@ -18,32 +18,32 @@
  */
 
 /**
- * @filename defaults.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @datetime 2014-10-18  22:55:03
- * @Description 网站的默认配置,不要修改此文件,请修改根目录下的config.php
+ * Default config of the framework. DO NOT MODIFY!!
  */
 $cfg['path'] = [
-    'theme' => '/theme', //网站的模板
-    'res' => '/www', //资源文件位置
-    'compiled' => '/compiled', //编译后的模板
-    'ttfs' => '/ttfs', //字体文件
-    'web_root' => isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '',
+    'theme' => '/theme', //template path
+    'res' => '/www', //resource path
+    'compiled' => '/compiled', //compiled template
+    'ttfs' => '/ttfs', //fonts
+    'web_root' => isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '', //web site's root
 ];
 
 $cfg['main'] = [
-    'db' => 'mysql',
+    'db' => '', //Mysqli or SQLite (not tested)
     'timezone' => 'PRC',
     'dbprefix' => '',
     'encoding' => 'utf-8',
     'session' => 'session_id',
     'domain' => '',
     'err_404' => '/www/error/404.html',
-    'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '/',
+    'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '',
     'theme' => '',
     'cache' => 3600
 ];
+
+if ($cfg['uri'] === '' && isset($_GET['uri'])) {
+    $cfg['uri'] = strval($_GET['uri']);
+}
 
 $cfg['debug'] = [
     'debug' => 0,
@@ -52,27 +52,27 @@ $cfg['debug'] = [
 
 $cfg['mysql'] = [
     'host' => 'localhost',
-    'username' => 'root',
+    'username' => '',
     'password' => '',
-    'dbname' => 'minifw',
+    'dbname' => '',
     'encoding' => 'utf8',
 ];
 
 $cfg['sqlite'] = [
-    'path' => '/web.db'
+//    'path' => '/web.db'
 ];
 
 $cfg['save'] = [
-    'html' => '/html',
+//    'html' => '/html',
 ];
 
 $cfg['upload'] = [
-    'attach' => [
-        'path' => '/attach',
-        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
-    ],
-    'upload' => [
-        'path' => '/www/upload',
-        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
-    ],
+//    'attach' => [
+//        'path' => '/attach',
+//        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
+//    ],
+//    'upload' => [
+//        'path' => '/www/upload',
+//        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
+//    ],
 ];
