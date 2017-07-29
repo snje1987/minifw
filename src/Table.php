@@ -95,6 +95,10 @@ abstract class Table {
     protected $_db;
     private static $_diff = [];
 
+    public function get_db() {
+        return $this->_db;
+    }
+
     /**
      * 对比指定目录中所有的数据表
      *
@@ -156,52 +160,6 @@ abstract class Table {
             echo implode("\n", $trans);
             die();
         }
-    }
-
-    /**
-     * 启用事务处理，执行指定的方法
-     *
-     * @param mixed $post 方法的参数
-     * @param string $call 调用的方法
-     */
-    public function sync_call($post, $call, $mode = Common::JSON_CALL_DIE, $controler = null) {
-        $call = strval($call);
-        $this->_db->begin();
-        $ret = Common::json_call($post, [$this, $call], Common::JSON_CALL_RETURN);
-        if ($ret['succeed'] == true) {
-            $this->_db->commit();
-        } else {
-            $this->_db->rollback();
-        }
-        if ($mode == Common::JSON_CALL_REDIRECT) {
-            // @codeCoverageIgnoreStart
-            if ($controler === null) {
-                die(0);
-            }
-            if ($ret['returl'] != '') {
-                $controler->redirect($ret['returl']);
-            } else {
-                $controler->redirect('/');
-            }
-            // @codeCoverageIgnoreEnd
-        } elseif ($mode == Common::JSON_CALL_DIE) {
-            // @codeCoverageIgnoreStart
-            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
-            // @codeCoverageIgnoreEnd
-        } else {
-            return $ret;
-        }
-    }
-
-    /**
-     * 使用Ajax方式调用指定方法
-     *
-     * @param mixed $post 方法的参数
-     * @param string $call 调用的方法
-     */
-    public function json_call($post, $call, $mode = Common::JSON_CALL_DIE) {
-        $call = strval($call);
-        return Common::json_call($post, [$this, $call], $mode);
     }
 
     /**

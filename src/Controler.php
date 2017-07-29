@@ -30,6 +30,9 @@ use Org\Snje\Minifw\Exception;
 class Controler {
 
     const DEFAULT_FUNCTION = '';
+    const JSON_CALL_DIE = 0;
+    const JSON_CALL_RETURN = 1;
+    const JSON_CALL_REDIRECT = 2;
 
     public static $cache_time;
     protected $config;
@@ -113,6 +116,98 @@ class Controler {
             $url = $default;
         }
         return $url;
+    }
+
+    public function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
+        $ret = [
+            'succeed' => false,
+            'returl' => '',
+        ];
+        try {
+            $value = false;
+            if (is_callable($call)) {
+                $value = call_user_func($call, $post);
+            }
+            if (is_array($value)) {
+                $ret['succeed'] = true;
+                if (isset($value['returl'])) {
+                    $ret['returl'] = $value['returl'];
+                } elseif (isset($post['returl'])) {
+                    $ret['returl'] = urldecode(strval($post['returl']));
+                }
+                if (isset($value['msg'])) {
+                    $ret['msg'] = $value['msg'];
+                }
+            } elseif ($value === true) {
+                $ret['succeed'] = true;
+                if (isset($post['returl'])) {
+                    $ret['returl'] = urldecode(strval($post['returl']));
+                }
+            } else {
+                $ret['msg'] = 'Action failed';
+            }
+        } catch (Exception $e) {
+            if (DEBUG === 1) {
+                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
+            } else {
+                $ret['msg'] = $e->getMessage();
+            }
+        } catch (\Exception $e) {
+            if (DEBUG === 1) {
+                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
+            } else {
+                $ret['msg'] = 'Action failed';
+            }
+        }
+        if ($mode == self::JSON_CALL_REDIRECT) {
+            // @codeCoverageIgnoreStart
+            if ($ret['returl'] != '') {
+                $this->redirect($ret['returl']);
+            } else {
+                $this->redirect($this->referer('/'));
+            }
+            die(0);
+            // @codeCoverageIgnoreEnd
+        } elseif ($mode == self::JSON_CALL_DIE) {
+            // @codeCoverageIgnoreStart
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
+            // @codeCoverageIgnoreEnd
+        } else {
+            return $ret;
+        }
+    }
+
+    /**
+     *
+     * @param FW\DB $db
+     * @param array $post
+     * @param callback $call
+     * @param int $mode
+     */
+    public function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
+        $db->begin();
+        $ret = $this->json_call($post, $call, self::JSON_CALL_RETURN);
+        if ($ret['succeed'] === true) {
+            $db->commit();
+        } else {
+            $db->rollback();
+        }
+        if ($mode == self::JSON_CALL_REDIRECT) {
+            // @codeCoverageIgnoreStart
+            if ($ret['returl'] != '') {
+                $this->redirect($ret['returl']);
+            } else {
+                $this->redirect('/');
+            }
+            die(0);
+            // @codeCoverageIgnoreEnd
+        } elseif ($mode == self::JSON_CALL_DIE) {
+            // @codeCoverageIgnoreStart
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
+            // @codeCoverageIgnoreEnd
+        } else {
+            return $ret;
+        }
     }
 
 }

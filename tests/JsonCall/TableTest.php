@@ -29,66 +29,41 @@ use Org\Snje\MinifwTest as Ts;
  */
 class TableTest extends Ts\TestCommon {
 
-    /**
-     * @covers Org\Snje\Minifw\Table::sync_call
-     */
     public function test_sync_call() {
         $obj = Table::get();
-
+        $db = $obj->get_db();
+        $controler = new FW\Controler();
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
-            $ret = self::sync_call_test($obj, 'func', self::$input[$i]);
+            $ret = $controler->sync_call(
+                    $db
+                    , self::$input[$i]
+                    , [$obj, 'func']
+                    , FW\Controler::JSON_CALL_RETURN);
             $this->assertEquals(self::$expect[$i], $ret);
         }
 
-        $ret = self::sync_call_test($obj, 'func_except', '测试消息');
+        $ret = $controler->sync_call(
+                $db
+                , 'test msg'
+                , [$obj, 'func_except']
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Table.php:37]测试消息',
+            'msg' => '[' . __DIR__ . '/Table.php:37]test msg',
                 ], $ret);
 
-        $ret = self::sync_call_test($obj, 'func_noexist', '测试消息');
+        $ret = $controler->sync_call(
+                $db
+                , 'test msg'
+                , [$obj, 'func_noexist']
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '操作失败',
+            'msg' => 'Action failed',
                 ], $ret);
-    }
-
-    /**
-     * @covers Org\Snje\Minifw\Table::json_call
-     */
-    public function test_json_call() {
-        $obj = Table::get();
-
-        $count = count(self::$input);
-        for ($i = 0; $i < $count; $i++) {
-            $ret = self::json_call_test($obj, 'func', self::$input[$i]);
-            $this->assertEquals(self::$expect[$i], $ret);
-        }
-
-        $ret = self::json_call_test($obj, 'func_except', '测试消息');
-        $this->assertEquals([
-            'succeed' => false,
-            'returl' => '',
-            'msg' => '[' . __DIR__ . '/Table.php:37]测试消息',
-                ], $ret);
-
-        $ret = self::json_call_test($obj, 'func_noexist', '测试消息');
-        $this->assertEquals([
-            'succeed' => false,
-            'returl' => '',
-            'msg' => '操作失败',
-                ], $ret);
-    }
-
-    public static function json_call_test($obj, $func, $args) {
-        return $obj->json_call($args, $func, FW\Common::JSON_CALL_RETURN);
-    }
-
-    public static function sync_call_test($obj, $func, $args) {
-        return $obj->sync_call($args, $func, FW\Common::JSON_CALL_RETURN);
     }
 
     public static $input = [
@@ -109,7 +84,7 @@ class TableTest extends Ts\TestCommon {
     public static $expect = [
         [
             'succeed' => false,
-            'msg' => '操作失败',
+            'msg' => 'Action failed',
             'returl' => '',
         ],
         [

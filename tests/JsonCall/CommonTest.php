@@ -29,63 +29,70 @@ use Org\Snje\MinifwTest as Ts;
  */
 class CommonTest extends Ts\TestCommon {
 
-    /**
-     * @covers Org\Snje\Minifw\Common::json_call
-     */
     public function test_json_call_static() {
         $obj = new Functions();
+        $controler = new FW\Controler();
         $class = get_class($obj);
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
-            $ret = self::func_test($class . '::static_func', self::$input[$i]);
+            $ret = $controler->json_call(
+                    self::$input[$i]
+                    , $class . '::static_func'
+                    , FW\Controler::JSON_CALL_RETURN);
             $this->assertEquals(self::$expect[$i], $ret);
         }
-
-        $ret = self::func_test($class . '::static_except', '测试消息');
+        $ret = $controler->json_call(
+                'test msg'
+                , $class . '::static_except'
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Functions.php:41]测试消息',
+            'msg' => '[' . __DIR__ . '/Functions.php:41]test msg',
                 ], $ret);
 
-        //不存在的方法
-        $ret = self::func_test($class . '::static_noexist', '测试消息');
+        $ret = $controler->json_call(
+                'test msg'
+                , $class . '::static_noexist'
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '操作失败',
+            'msg' => 'Action failed',
                 ], $ret);
     }
 
-    /**
-     * @covers Org\Snje\Minifw\Common::json_call
-     */
     public function test_json_call_func() {
         $obj = new Functions();
+        $controler = new FW\Controler();
         $count = count(self::$input);
         for ($i = 0; $i < $count; $i++) {
-            $ret = self::func_test([$obj, 'func'], self::$input[$i]);
+            $ret = $controler->json_call(
+                    self::$input[$i]
+                    , [$obj, 'func']
+                    , FW\Controler::JSON_CALL_RETURN);
             $this->assertEquals(self::$expect[$i], $ret);
         }
 
-        $ret = self::func_test([$obj, 'func_except'], '测试消息');
+        $ret = $controler->json_call(
+                'test msg'
+                , [$obj, 'func_except']
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Functions.php:49]测试消息',
+            'msg' => '[' . __DIR__ . '/Functions.php:49]test msg',
                 ], $ret);
 
-        //不存在的方法
-        $ret = self::func_test([$obj, 'func_noexist'], '测试消息');
+        $ret = $controler->json_call(
+                'test msg'
+                , [$obj, 'func_noexist']
+                , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => '操作失败',
+            'msg' => 'Action failed',
                 ], $ret);
-    }
-
-    public static function func_test($func, $args) {
-        return FW\Common::json_call($args, $func, FW\Common::JSON_CALL_RETURN);
     }
 
     public static $input = [
@@ -106,7 +113,7 @@ class CommonTest extends Ts\TestCommon {
     public static $expect = [
         [
             'succeed' => false,
-            'msg' => '操作失败',
+            'msg' => 'Action failed',
             'returl' => '',
         ],
         [

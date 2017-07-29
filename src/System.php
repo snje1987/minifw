@@ -64,11 +64,11 @@ class System {
         date_default_timezone_set($this->config->get_config('main', 'timezone', 'UTC'));
 
         //设置错误处理函数
-        set_error_handler([__CLASS__, 'captureNormal']);
+        set_error_handler([$this, 'captureNormal']);
         //设置异常处理函数
-        set_exception_handler([__CLASS__, 'captureException']);
+        set_exception_handler([$this, 'captureException']);
         //设置停机处理函数
-        register_shutdown_function([__CLASS__, 'captureShutdown']);
+        register_shutdown_function([$this, 'captureShutdown']);
     }
 
     /**
@@ -126,13 +126,13 @@ class System {
         return $string;
     }
 
-    public static function captureNormal($number, $message, $file, $line) {
+    public function captureNormal($number, $message, $file, $line) {
         if (DEBUG === 1) {
             $this->errors[] = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
         }
     }
 
-    public static function captureException($exception) {
+    public function captureException($exception) {
         @ob_end_clean();
         if (DEBUG === 1) {
             header('Content-type:text/plain;');
@@ -142,7 +142,7 @@ class System {
         }
     }
 
-    public static function captureShutdown() {
+    public function captureShutdown() {
         $error = error_get_last();
         if ($error) {
             @ob_end_clean();
