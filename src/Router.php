@@ -19,6 +19,7 @@
 
 namespace Org\Snje\Minifw;
 
+use Org\Snje\Minifw as FW;
 use Org\Snje\Minifw\Exception;
 
 /**
@@ -63,34 +64,19 @@ class Router {
      * @param string $prefix Namespace of the controler.
      * @param string $die If true, shutdown after called the controler.
      */
-    public function default_route($url, $prefix = '', $die = true) {
-        try {
-            list($classname, $funcname, $args, $nouse) = self::path_info($url);
-            $classname = str_replace('/', '\\', $classname);
-            $classname = $prefix . ucwords($classname, '\\');
-            if (!class_exists($classname)) {
-                throw new Exception('Controler ' . $classname . ' don\'t exists.');
-            }
-            $controler = new $classname();
-            if (!$controler instanceof Controler) {
-                throw new Exception($classname . ' is not a Controler');
-            }
-            $controler->dispatch($funcname, $args);
-            if ($die) {
-                die(0);
-            }
-            return true;
-        } catch (FW\Exception $ex) {
-            if (DEBUG === 1) {
-                echo $ex->getMessage();
-            }
-        } catch (\Exception $ex) {
-
+    public function default_route($url, $prefix = '') {
+        list($classname, $funcname, $args, $nouse) = self::path_info($url);
+        $classname = str_replace('/', '\\', $classname);
+        $classname = $prefix . ucwords($classname, '\\');
+        if (!class_exists($classname)) {
+            throw new Exception('Controler ' . $classname . ' don\'t exists.');
         }
-        if ($die) {
-            $controler = new Controler();
-            $controler->show_404();
+        $controler = new $classname();
+        if (!$controler instanceof Controler) {
+            throw new Exception($classname . ' is not a Controler');
         }
+        $controler->dispatch($funcname, $args);
+        return;
     }
 
 }

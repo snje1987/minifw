@@ -17,76 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Tpl.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-26 10:46:01
- * @version 1.0
- * @Description 定义模板系统
- */
-
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\Minifw\Exception;
 
-/**
- * 基本的模板操作
- */
 class Tpl {
 
-    /**
-     * @var bool 是否处于渲染状态
-     */
-    public static $render = false;
-
-    /**
-     * @var string 主题的保存路径
-     */
     public static $theme_path;
-
-    /**
-     * @var string 主题资源的保存路径
-     */
     public static $res_path;
-
-    /**
-     * @var string 编译后模板的保存路径
-     */
     public static $compiled_path;
-
-    /**
-     * @var array 已关联的变量
-     */
     protected static $_varis = [];
-    protected static $_error = [];
-
-    /**
-     * @var int 是否每次都重新编译模板
-     */
     public static $always_compile;
 
-    public static function error($error) {
-        self::$_error[] = $error;
-    }
-
-    /**
-     * 将变量关联到模板
-     *
-     * @param string $name 变量名
-     * @param mixed $value 变量值
-     */
     public static function assign($name, $value) {
         self::$_varis[$name] = $value;
     }
 
-    /**
-     * 获取关联到模板的变量值
-     *
-     * @param string $name 变量名
-     * @return mixed 变量的值，不存在则返回null
-     */
     public static function get($name) {
         if (isset(self::$_varis[$name])) {
             return self::$_varis[$name];
@@ -94,12 +41,6 @@ class Tpl {
         return null;
     }
 
-    /**
-     * 将字符串拼接到变量后面
-     *
-     * @param string $name 变量名
-     * @param string $value 变量值
-     */
     public static function append($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] .= $value;
@@ -108,12 +49,6 @@ class Tpl {
         }
     }
 
-    /**
-     * 将字符串拼接到变量前面
-     *
-     * @param string $name 变量名
-     * @param string $value 变量值
-     */
     public static function prepend($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] = $value . self::$_varis[$name];
@@ -122,14 +57,6 @@ class Tpl {
         }
     }
 
-    /**
-     * 判断模板是否存在
-     *
-     * @param string $tpl 模板路径
-     * @param string $theme 主题名称
-     * @param bool $is_block 模板的类型是否为block
-     * @return bool
-     */
     public static function exist($tpl, $theme, $is_block = false) {
         $path = '';
         if ($is_block) {
@@ -140,58 +67,28 @@ class Tpl {
         return file_exists($path);
     }
 
-    /**
-     * 显示指定的页面模板
-     *
-     * @param string $tpl 页面模板
-     * @param string $args 页面参数
-     * @param string $theme 模板的主题
-     */
-    public static function display($tpl, $args, $theme = '', $die = true) {
-        self::$render = true;
+    public static function display($tpl, $args, $theme = '', $return = false) {
         $theme = ($theme == '' ? FW\Config::get()->get_config('main', 'theme') : $theme);
 
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
-
+        ob_start();
         try {
-            if (self::_compile($tpl_src, $tpl_dest, $theme)) {
-                extract(self::$_varis);
-                include($tpl_dest);
+            self::_compile($tpl_src, $tpl_dest, $theme);
+            extract(self::$_varis);
+            include($tpl_dest);
+            if ($return) {
+                return ob_get_clean();
+            } else {
+                ob_end_flush();
+                return;
             }
         } catch (\Exception $ex) {
             ob_end_clean();
-            if (DEBUG) {
-                throw $ex;
-            }
-            if ($die) {
-                die();
-            } else {
-                return false;
-            }
-        }
-        if (DEBUG && !empty(self::$_error)) {
-            $content = ob_get_clean();
-            echo '<pre>';
-            print_r(self::$_error);
-            echo '</pre>' . $content;
-        } else {
-            ob_end_flush();
-        }
-        if ($die) {
-            die();
-        } else {
-            return true;
+            throw $ex;
         }
     }
 
-    /**
-     * 包含指定模块
-     *
-     * @param string $tpl 模块名称
-     * @param string $args 页面参数
-     * @param string $theme 模板的主题
-     */
     protected static function _inc($tpl, $args, $theme) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
@@ -201,23 +98,15 @@ class Tpl {
         }
     }
 
-    /**
-     * 编译指定的模板
-     *
-     * @param string $src 源文件
-     * @param string $dest 目标文件
-     * @param string $theme 模板的主题
-     */
     protected static function _compile($src, $dest, $theme) {
         if (!file_exists($src)) {
-            if (DEBUG) {
-                throw new FW\Exception('模板不存在：' . $src);
+            if (DEBUG === 1) {
+                throw new Exception('Template not exists：' . $src);
             } else {
-                return false;
+                throw new Exception('Template not exists');
             }
         }
 
-        //global $config;
         $srctime = filemtime($src);
         $desttime = 0;
         if (file_exists($dest)) {
@@ -226,7 +115,6 @@ class Tpl {
         if (self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime) {
             $str = file_get_contents($src);
 
-            /* 处理模板中的处理逻辑语句——开始 */
             $str = preg_replace(
                     '/\<{inc (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",[],"' . $theme . '"); ?>', $str);
 
@@ -253,26 +141,23 @@ class Tpl {
             $str = preg_replace('/\<{\/foreach}\>/', '<?php } ?>', $str);
             $str = preg_replace('/\<{(\S.*?)}\>/', '<?php $1; ?>', $str);
             $str = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $str);
-            /* 处理模板中的处理逻辑语句——完成 */
 
-            //处理相对路径："/xxxx/yyyy"
+            //path relate to theme："/xxxx/yyyy"
             $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
             $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3>', $str);
             $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
 
-            //处理绝对路径："|xxx/yyy"
+            //path relate to resource root："|xxx/yyy"
             $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $str);
             $str = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/$2" $3>', $str);
             $str = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/$2" $3 />', $str);
-            /* 处理绝对路径——完成 */
 
-            //处理原始路径："\xxx/yyy"
+            //path keep original："\xxx/yyy"
             $str = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1 href="/$2" $3 />', $str);
             $str = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1 src="/$2" $3>', $str);
             $str = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1 src="/$2" $3 />', $str);
-            /* 处理原始路径——完成 */
 
-            /* 删除模板中多余的空行和空格——开始 */
+            //remove empty character
             $str = preg_replace('/^\s*(.*?)\s*$/im', '$1', $str);
             $str = preg_replace('/\r|\n/', '', $str);
             $str = preg_replace('/\>\s*\</', '>$1<', $str);
@@ -280,17 +165,16 @@ class Tpl {
             $str = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $str);
             $str = preg_replace('/\s{2,}/i', ' ', $str);
             $str = preg_replace('/\?\>$/i', '', $str);
-            /* 删除模板中多余的空行和空格——完成 */
 
             FW\File::mkdir(dirname($dest));
             if (!file_put_contents($dest, $str)) {
-                return fasle;
+                throw new Exception('Failed to write file: ' . $dest);
             }
         }
-        return true;
     }
 
 }
+
 $config = Config::get();
 Tpl::$always_compile = $config->get_config('debug', 'tpl_always_compile', 0);
 Tpl::$theme_path = $config->get_config('path', 'theme');

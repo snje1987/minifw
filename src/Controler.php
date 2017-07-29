@@ -19,6 +19,7 @@
 
 namespace Org\Snje\Minifw;
 
+use Org\Snje\Minifw as FW;
 use Org\Snje\Minifw\Exception;
 
 /**
@@ -63,10 +64,17 @@ class Controler {
         $func->invoke($obj, $args);
     }
 
+    public function show_msg($content, $title = '', $link = '') {
+        Tpl::assign('content', $content);
+        Tpl::assign('title', $title);
+        Tpl::assign('link', $link);
+        Tpl::display('/msg', $this);
+    }
+
     public function show_404() {
         header("HTTP/1.1 404 Not Found");
         header("status: 404 not found");
-        die(readfile(WEB_ROOT . $this->config->get_config('main', 'err_404')));
+        readfile(WEB_ROOT . $this->config->get_config('main', 'err_404'));
     }
 
     public function redirect($url) {
@@ -75,13 +83,11 @@ class Controler {
         } else {
             echo '<script type="text/javascript">window.location="' . $url . '";</script>';
         }
-        die(0);
     }
 
     public function show_301($url) {
         header('HTTP/1.1 301 Moved Permanently');
         header('Location: ' . $url);
-        die(0);
     }
 
     public function readfile_with_304($file, $fsencoding) {
@@ -98,7 +104,6 @@ class Controler {
         } else {
             File::readfile($full);
         }
-        die(0);
     }
 
     public function referer($default = null) {

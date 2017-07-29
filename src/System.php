@@ -20,6 +20,7 @@
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\Minifw\Exception;
 
 /**
  * 系统的相关操作
@@ -34,6 +35,7 @@ class System {
      * @var Org\Snje\Minifw\Config
      */
     protected $config;
+    protected $errors = [];
 
     protected function __construct($cfg_path) {
 
@@ -88,8 +90,6 @@ class System {
      * 配置系统的主要参数
      */
     protected function _set_env() {
-        ob_start();
-
         header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
 
         $session_name = $this->config->get_config('main', 'session', 'PHPSESSION');
@@ -127,19 +127,14 @@ class System {
     }
 
     public static function captureNormal($number, $message, $file, $line) {
-        if (DEBUG == 1) {
-            $error = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
-            if (Tpl::$render) {
-                Tpl::error($error);
-            } else {
-                print_r($error);
-            }
+        if (DEBUG === 1) {
+            $this->errors[] = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
         }
     }
 
     public static function captureException($exception) {
         @ob_end_clean();
-        if (DEBUG == 1) {
+        if (DEBUG === 1) {
             header('Content-type:text/plain;');
             print_r($exception);
         } else {
@@ -168,16 +163,38 @@ class System {
      * @param string $path 请求的路径
      */
     public function dispatch($path) {
-        foreach ($this->_calls as $v) {
-            $matches = [];
-            if (preg_match($v['reg'], $path, $matches) === 1) {
-                array_shift($matches);
-                call_user_func_array($v['callback'], $matches);
+        ob_start();
+        try {
+            foreach ($this->_calls as $v) {
+                $matches = [];
+                if (preg_match($v['reg'], $path, $matches) === 1) {
+                    array_shift($matches);
+                    call_user_func_array($v['callback'], $matches);
+                    if (DEBUG === 1 && !empty($this->errors)) {
+                        $content = ob_get_clean();
+                        print_r($this->errors);
+                        echo $content;
+                    } else {
+                        @ob_end_flush();
+                    }
+                    return;
+                }
+            }
+        } catch (\Exception $ex) {
+            if (DEBUG === 1) {
+                @ob_end_clean();
+                $controler = new Controler();
+                $controler->show_msg($ex->getMessage(), 'Error');
                 return;
             }
         }
+        @ob_end_clean();
         $controler = new Controler();
-        $controler->show_404();
+        if (DEBUG === 1) {
+            $controler->show_msg('No route match.', 'Error');
+        } else {
+            $controler->show_404();
+        }
     }
 
 }
