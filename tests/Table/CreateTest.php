@@ -29,10 +29,6 @@ use Org\Snje\MinifwTest as Ts;
  */
 class CreateTest extends Ts\TestCommon {
 
-    /**
-     * @covers Org\Snje\Minifw\Table::create
-     * @covers Org\Snje\Minifw\Table::drop
-     */
     public function test_create() {
         $table_create = TableWithAll::get();
         $table_create->drop();

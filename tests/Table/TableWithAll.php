@@ -34,8 +34,12 @@ class TableWithAll extends FW\Table {
 
     }
 
-    const COMMENT = 'Table To Create';
-    const FIELDS = [
+    const STATUS = [
+        'engine' => 'InnoDB',
+        'charset' => 'utf8',
+        'comment' => 'Table To Create',
+    ];
+    const FIELD = [
         'id' => ['type' => 'int(10) unsigned', 'extra' => 'auto_increment', 'comment' => 'ID'],
         'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
         'charfield' => ['type' => 'varchar(200)', 'comment' => 'A varchar field'],
@@ -43,7 +47,7 @@ class TableWithAll extends FW\Table {
         'intfield_def' => ['type' => 'int(11)', 'default' => '0', 'comment' => 'A int field'],
         'charfield_def' => ['type' => 'varchar(200)', 'default' => '', 'comment' => 'A varchar field'],
     ];
-    const INDEXS = [
+    const INDEX = [
         'PRIMARY' => ['fields' => ['id']],
         'charfield' => ['fields' => ['charfield']],
         'intfield' => ['fields' => ['intfield', 'charfield']],

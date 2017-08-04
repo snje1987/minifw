@@ -34,11 +34,15 @@ class TableWithOne extends FW\Table {
 
     }
 
-    const COMMENT = 'Table To Create';
-    const FIELDS = [
+    const STATUS = [
+        'engine' => 'InnoDB',
+        'charset' => 'utf8',
+        'comment' => 'Table To Create',
+    ];
+    const FIELD = [
         'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
     ];
-    const INDEXS = [
+    const INDEX = [
     ];
 
 }

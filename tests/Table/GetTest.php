@@ -29,9 +29,6 @@ use Org\Snje\MinifwTest as Ts;
  */
 class GetTest extends Ts\TestCommon {
 
-    /**
-     * @covers Org\Snje\Minifw\Table::get
-     */
     public function test_get() {
         $table1 = TableWithAll::get();
 

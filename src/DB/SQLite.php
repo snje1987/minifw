@@ -110,4 +110,36 @@ class SQLite extends FW\DB {
         }
     }
 
+    public function get_table_field($tbname) {
+        throw new Exception('function not implemented');
+    }
+
+    public function get_table_index($tbname) {
+        throw new Exception('function not implemented');
+    }
+
+    public function get_table_status($tbname) {
+        throw new Exception('function not implemented');
+    }
+
+    public static function create_table_sql($tbname, $tbinfo, $field, $index) {
+        throw new Exception('function not implemented');
+    }
+
+    public static function get_field_diff($tbname, $from, $to) {
+        throw new Exception('function not implemented');
+    }
+
+    public static function get_index_diff($tbname, $from, $to) {
+        throw new Exception('function not implemented');
+    }
+
+    public static function get_status_diff($tbname, $from, $to) {
+        throw new Exception('function not implemented');
+    }
+
+    public static function drop_table_sql($tbname) {
+        throw new Exception('function not implemented');
+    }
+
 }

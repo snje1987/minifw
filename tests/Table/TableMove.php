@@ -34,8 +34,12 @@ class TableMove extends FW\Table {
 
     }
 
-    const COMMENT = 'Table To Create';
-    const FIELDS = [
+    const STATUS = [
+        'engine' => 'InnoDB',
+        'charset' => 'utf8',
+        'comment' => 'Table To Create',
+    ];
+    const FIELD = [
         'charfield_def' => ['type' => 'varchar(200)', 'default' => '', 'comment' => 'A varchar field'],
         'intfield_def' => ['type' => 'int(11)', 'default' => '0', 'comment' => 'A int field'],
         'textfield' => ['type' => 'text', 'comment' => 'A text field'],
@@ -43,7 +47,7 @@ class TableMove extends FW\Table {
         'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
         'id' => ['type' => 'int(10) unsigned', 'extra' => 'auto_increment', 'comment' => 'ID'],
     ];
-    const INDEXS = [
+    const INDEX = [
         'PRIMARY' => ['fields' => ['id']],
         'charfield' => ['fields' => ['charfield']],
         'intfield' => ['fields' => ['intfield', 'charfield']],

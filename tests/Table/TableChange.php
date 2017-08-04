@@ -34,10 +34,12 @@ class TableChange extends FW\Table {
 
     }
 
-    const ENGINE = 'MyISAM';
-    const CHARSET = 'GBK';
-    const COMMENT = 'Table To Change';
-    const FIELDS = [
+    const STATUS = [
+        'engine' => 'MyISAM',
+        'charset' => 'GBK',
+        'comment' => 'Table To Change',
+    ];
+    const FIELD = [
         'id' => ['type' => 'int(10) unsigned', 'comment' => 'ID'],
         'intfield' => ['type' => 'int(10) unsigned', 'comment' => 'A int field'],
         'charfield' => ['type' => 'varchar(100)', 'default' => '#', 'comment' => 'A varchar field'],
@@ -45,7 +47,7 @@ class TableChange extends FW\Table {
         'intfield_def' => ['type' => 'int(11)', 'comment' => 'A int field'],
         'charfield_def' => ['type' => 'int(11)', 'default' => '0', 'comment' => 'A varchar field'],
     ];
-    const INDEXS = [
+    const INDEX = [
         'PRIMARY' => ['fields' => ['intfield']],
         'intfield' => ['fields' => ['charfield']],
         'charfield' => ['fields' => ['intfield', 'charfield']],

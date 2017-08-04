@@ -35,6 +35,9 @@ class Mysqli extends FW\DB {
     protected $_dbname;
     protected $_rollback = false;
 
+    const DEFAULT_ENGINE = 'InnoDB';
+    const DEFAULT_CHARSET = 'utf8';
+
     protected function __construct($args = []) {
         parent::__construct();
         $config = FW\Config::get();
@@ -149,6 +152,292 @@ class Mysqli extends FW\DB {
             $this->query('SET AUTOCOMMIT=1');
             $this->_rollback = false;
         }
+    }
+
+    public function get_table_field($tbname) {
+        $sql = 'SHOW FULL FIELDS FROM `' . $tbname . '`';
+        $data = $this->get_query($sql);
+        if ($data === false) {
+            throw new Exception('table not exists');
+        }
+        $fields = [];
+        foreach ($data as $k => $v) {
+            $fields[$v['Field']] = [
+                'no' => $k,
+                'type' => $v['Type'],
+                'null' => $v['Null'],
+                'extra' => $v['Extra'],
+                'default' => $v['Default'],
+                'comment' => $v['Comment'],
+            ];
+        }
+        return $fields;
+    }
+
+    public function get_table_index($tbname) {
+        $sql = 'SHOW INDEX FROM `' . $tbname . '`';
+        $data = $this->get_query($sql);
+        if ($data === false) {
+            throw new Exception('table not exists');
+        }
+        $index = [];
+        foreach ($data as $v) {
+            $name = $v['Key_name'];
+            if (!isset($index[$name])) {
+                $index[$name] = [
+                    'fields' => [
+                        $v['Column_name']
+                    ]
+                ];
+                if ($name !== 'PRIMARY') {
+                    if ($v['Non_unique'] == 0) {
+                        $index[$name]['unique'] = true;
+                    } elseif ($v['Index_type'] == 'FULLTEXT') {
+                        $index[$name]['fulltext'] = true;
+                    }
+                }
+            } else {
+                $index[$name]['fields'][] = $v['Column_name'];
+            }
+        }
+        return $index;
+    }
+
+    public function get_table_status($tbname) {
+        $sql = 'SHOW CREATE TABLE `' . $tbname . '`';
+        $data = $this->get_query($sql);
+        if ($data === false || count($data) !== 1) {
+            throw new Exception('table not exists');
+        }
+        $create_sql = $data[0]['Create Table'];
+        $matches = [];
+        if (preg_match('/ENGINE=(\w+)( AUTO_INCREMENT=\d+)? DEFAULT CHARSET=(\w+)( COMMENT=\'([^\']*)\')?$/', $create_sql, $matches)) {
+            $ret = [
+                'engine' => $matches[1],
+                'charset' => $matches[3],
+                'comment' => '',
+            ];
+            if (isset($matches[5]) && $matches[5] != '') {
+                $ret['comment'] = $matches[5];
+            }
+            return $ret;
+        }
+        throw new Exception('parse sql error');
+    }
+
+    public static function create_table_sql($tbname, $tbinfo, $field, $index, $dim = '') {
+        $engine = isset($tbinfo['engine']) ? $tbinfo['engine'] : self::DEFAULT_ENGINE;
+        $charset = isset($tbinfo['charset']) ? $tbinfo['charset'] : self::DEFAULT_CHARSET;
+        $comment = isset($tbinfo['comment']) ? $tbinfo['comment'] : '';
+
+        if ($tbname === '' || $engine === '' || $charset == '') {
+            throw new Exception('parameter error');
+        }
+
+        $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . "` (" . $dim;
+        $lines = [];
+        foreach ($field as $k => $v) {
+            $lines[] = self::field_to_sql($k, $v);
+        }
+
+        foreach ($index as $k => $v) {
+            $lines[] = self::index_to_sql($k, $v);
+        }
+
+        $sql .= implode("," . $dim, $lines) . $dim;
+        $sql .= ') ENGINE=' . $engine . ' DEFAULT CHARSET=' . $charset;
+        if ($comment != '') {
+            $sql .= ' COMMENT="' . $comment . '"';
+        }
+        return $sql;
+    }
+
+    private static function move_field_no(&$fields, $from, $to = -1) {
+        foreach ($fields as $k => $v) {
+            if ($v['no'] >= $from && ($to < 0 || $v['no'] < $to)) {
+                $fields[$k]['no'] ++;
+            }
+        }
+    }
+
+    public static function get_field_diff($tbname, $from, $to) {
+        $diff = [];
+        $tail = ' first';
+        $i = 0;
+        foreach ($to as $k => $v) {
+            $to_sql = self::field_to_sql($k, $v);
+            if (!isset($from[$k])) {
+                $diff[] = [
+                    'table' => $tbname,
+                    'diff' => '+[' . $i . '] ' . $to_sql,
+                    'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . $tail . ';',
+                ];
+                self::move_field_no($from, $i);
+            } else {
+                $from_sql = self::field_to_sql($k, $from[$k]);
+                if ($from_sql != $to_sql || $i != $from[$k]['no']) {
+                    $diff[] = [
+                        'table' => $tbname,
+                        'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql . "\n" . '+[' . $i . '] ' . $to_sql,
+                        'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql . $tail . ';',
+                    ];
+                }
+                self::move_field_no($from, $i, $from[$k]['no']);
+            }
+            $tail = ' after `' . $k . '`';
+            $i ++;
+        }
+
+        foreach ($from as $k => $v) {
+            if (array_key_exists($k, $to)) {
+                continue;
+            }
+            $from_sql = self::field_to_sql($k, $v);
+            $diff[] = [
+                'table' => $tbname,
+                'diff' => '- ' . $from_sql,
+                'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
+            ];
+        }
+
+        return $diff;
+    }
+
+    public static function get_index_diff($tbname, $from, $to) {
+        $diff = [];
+        foreach ($to as $k => $v) {
+            $to_sql = self::index_to_sql($k, $v, false);
+            if (!isset($from[$k])) {
+                $diff[] = [
+                    'table' => $tbname,
+                    'diff' => '+ ' . $to_sql,
+                    'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . ';',
+                ];
+                continue;
+            }
+            $from_sql = self::index_to_sql($k, $from[$k], false);
+            if ($from_sql != $to_sql) {
+                $trans = 'ALTER TABLE `' . $tbname . '` DROP';
+                if ($k == 'PRIMARY') {
+                    $trans .= ' PRIMARY KEY';
+                } else {
+                    $trans .= ' INDEX `' . $k . '`';
+                }
+                $trans .= ', ADD ' . $to_sql . ';';
+                $diff[] = [
+                    'table' => $tbname,
+                    'diff' => '- ' . $from_sql . "\n" . '+ ' . $to_sql,
+                    'trans' => $trans,
+                ];
+                continue;
+            }
+        }
+
+        foreach ($from as $k => $v) {
+            if (array_key_exists($k, $to)) {
+                continue;
+            }
+            $from_sql = self::index_to_sql($k, $v, false);
+            $trans = 'ALTER TABLE `' . $tbname . '` DROP INDEX `' . $k . '`;';
+            if ($k == 'PRIMARY') {
+                $trans = 'ALTER TABLE `' . $tbname . '` DROP PRIMARY KEY;';
+            }
+
+            $diff[] = [
+                'table' => $tbname,
+                'diff' => '- ' . $from_sql,
+                'trans' => $trans,
+            ];
+        }
+
+        return $diff;
+    }
+
+    public static function get_status_diff($tbname, $from, $to) {
+        $diff = [];
+        if ($from['engine'] != $to['engine']) {
+            $diff[] = [
+                'table' => $tbname,
+                'diff' => '- Engine=' . $from['engine'] . "\n" . '+ Engine=' . $to['engine'],
+                'trans' => 'ALTER TABLE `' . $tbname . '` ENGINE=' . $to['engine'] . ';',
+            ];
+        }
+        if ($from['comment'] != $to['comment']) {
+            $diff[] = [
+                'table' => $tbname,
+                'diff' => '- Comment="' . $from['comment'] . "\"\n" . '+ Comment="' . $to['comment'] . '"',
+                'trans' => 'ALTER TABLE `' . $tbname . '` COMMENT="' . $to['comment'] . '";',
+            ];
+        }
+        if ($from['charset'] != $to['charset']) {
+            $diff[] = [
+                'table' => $tbname,
+                'diff' => '- Charset="' . $from['charset'] . "\"\n" . '+ Charset="' . $to['charset'] . '"',
+                'trans' => 'ALTER TABLE `' . $tbname . '` DEFAULT CHARSET="' . $to['charset'] . '";',
+            ];
+        }
+        return $diff;
+    }
+
+    protected static function field_to_sql($name, $attr) {
+        $sql = '';
+        switch ($attr['type']) {
+            case 'text':
+                $sql = '`' . $name . '` text';
+                if (!isset($attr['null']) || $attr['null'] === 'NO') {
+                    $sql .= ' NOT NULL';
+                }
+                break;
+            default :
+                $sql = '`' . $name . '` ' . $attr['type'];
+                if (!isset($attr['null']) || $attr['null'] === 'NO') {
+                    $sql .= ' NOT NULL';
+                }
+                if (isset($attr['extra']) && $attr['extra'] !== null && $attr['extra'] !== '') {
+                    $sql .= ' ' . $attr['extra'];
+                }
+                if (isset($attr['default']) && $attr['default'] !== null) {
+                    $sql .= ' DEFAULT "' . $attr['default'] . '"';
+                }
+                break;
+        }
+        if (isset($attr['comment']) && $attr['comment'] !== null) {
+            $sql .= ' COMMENT "' . $attr['comment'] . '"';
+        }
+        return $sql;
+    }
+
+    protected static function index_to_sql($name, $attr, $in_create = true) {
+        $sql = '';
+        switch ($name) {
+            case 'PRIMARY':
+                $sql = 'PRIMARY KEY (`' . implode('`,`', $attr['fields']) . '`)';
+                break;
+            default :
+                if ($in_create) {
+                    if (isset($attr['unique']) && $attr['unique'] === true) {
+                        $sql = 'UNIQUE ';
+                    } else if (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                        $sql = 'FULLTEXT ';
+                    }
+                    $sql .= 'KEY ';
+                } else {
+                    if (isset($attr['unique']) && $attr['unique'] === true) {
+                        $sql = 'UNIQUE ';
+                    } elseif (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                        $sql = 'FULLTEXT ';
+                    } else {
+                        $sql = 'INDEX ';
+                    }
+                }
+                $sql .= '`' . $name . '` (`' . implode('`,`', $attr['fields']) . '`)';
+                break;
+        }
+        return $sql;
+    }
+
+    public static function drop_table_sql($tbname) {
+        return 'DROP TABLE IF EXISTS `' . $tbname . '`';
     }
 
 }

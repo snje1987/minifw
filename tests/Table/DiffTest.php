@@ -29,9 +29,6 @@ use Org\Snje\MinifwTest as Ts;
  */
 class DiffTest extends Ts\TestCommon {
 
-    /**
-     * @covers Org\Snje\Minifw\Table::table_diff
-     */
     public function test_add() {
         $table = TableAdd::get();
         $diff = $table->table_diff();
@@ -89,9 +86,6 @@ class DiffTest extends Ts\TestCommon {
                 ], $diff);
     }
 
-    /**
-     * @covers Org\Snje\Minifw\Table::table_diff
-     */
     public function test_del() {
         $table = TableDel::get();
         $diff = $table->table_diff();
@@ -149,9 +143,6 @@ class DiffTest extends Ts\TestCommon {
                 ], $diff);
     }
 
-    /**
-     * @covers Org\Snje\Minifw\Table::table_diff
-     */
     public function test_change() {
         $table = TableChange::get();
         $diff = $table->table_diff();
@@ -165,6 +156,11 @@ class DiffTest extends Ts\TestCommon {
                 'table' => 'table_with_all',
                 'diff' => '- Comment="Table To Create"' . "\n" . '+ Comment="Table To Change"',
                 'trans' => 'ALTER TABLE `table_with_all` COMMENT="Table To Change";',
+            ],
+            [
+                'table' => 'table_with_all',
+                'diff' => '- Charset="utf8"' . "\n" . '+ Charset="GBK"',
+                'trans' => 'ALTER TABLE `table_with_all` DEFAULT CHARSET="GBK";',
             ],
             [
                 'table' => 'table_with_all',
@@ -219,9 +215,6 @@ class DiffTest extends Ts\TestCommon {
                 ], $diff);
     }
 
-    /**
-     * @covers Org\Snje\Minifw\Table::table_diff
-     */
     public function test_move() {
         $table = TableMove::get();
         $diff = $table->table_diff();
