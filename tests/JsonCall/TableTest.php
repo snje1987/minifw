@@ -62,7 +62,7 @@ class TableTest extends Ts\TestCommon {
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => 'Action failed',
+            'msg' => '操作失败',
                 ], $ret);
     }
 
@@ -84,7 +84,7 @@ class TableTest extends Ts\TestCommon {
     public static $expect = [
         [
             'succeed' => false,
-            'msg' => 'Action failed',
+            'msg' => '操作失败',
             'returl' => '',
         ],
         [

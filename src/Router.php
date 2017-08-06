@@ -43,7 +43,7 @@ class Router {
 
         $matches = [];
         if (preg_match('/^(\/[_a-z0-9\/]*)?\/([_a-z\.0-9]*)(-(.*))?$/', $url, $matches) == 0) {
-            throw new Exception('Url not correct.');
+            throw new Exception('URL不正确.');
         }
 
         $dir = $matches[1];
@@ -69,11 +69,11 @@ class Router {
         $classname = str_replace('/', '\\', $classname);
         $classname = $prefix . ucwords($classname, '\\');
         if (!class_exists($classname)) {
-            throw new Exception('Controler ' . $classname . ' don\'t exists.');
+            throw new Exception('Controler ' . $classname . '不存在.');
         }
         $controler = new $classname();
         if (!$controler instanceof Controler) {
-            throw new Exception($classname . ' is not a Controler');
+            throw new Exception($classname . '不是一个Controler对象.');
         }
         $controler->dispatch($funcname, $args);
         return;

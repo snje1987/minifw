@@ -44,14 +44,14 @@ class System {
         $_COOKIE = self::magic_gpc($_COOKIE);
 
         if (!file_exists($cfg_path)) {
-            die('Config file not found.');
+            die('配置文件不存在');
         }
         $this->config = Config::get_new($cfg_path);
         if (!defined('WEB_ROOT')) {
             $web_root = $this->config->get_config('path', 'web_root', '');
             $web_root = rtrim(str_replace('\\', '/', $web_root));
             if ($web_root == '') {
-                die('"WEB_ROOT" is not define.');
+                die('未指定WEB_ROOT.');
             }
             define('WEB_ROOT', $web_root);
         }
@@ -191,7 +191,7 @@ class System {
         @ob_end_clean();
         $controler = new Controler();
         if (DEBUG === 1) {
-            $controler->show_msg('No route match.', 'Error');
+            $controler->show_msg('路由未指定.', 'Error');
         } else {
             $controler->show_404();
         }

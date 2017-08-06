@@ -144,7 +144,7 @@ class Controler {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
             } else {
-                $ret['msg'] = 'Action failed';
+                $ret['msg'] = '操作失败';
             }
         } catch (Exception $e) {
             if (DEBUG === 1) {
@@ -156,7 +156,7 @@ class Controler {
             if (DEBUG === 1) {
                 $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
             } else {
-                $ret['msg'] = 'Action failed';
+                $ret['msg'] = '操作失败';
             }
         }
         if ($mode == self::JSON_CALL_REDIRECT) {

@@ -58,7 +58,7 @@ class CommonTest extends Ts\TestCommon {
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => 'Action failed',
+            'msg' => '操作失败',
                 ], $ret);
     }
 
@@ -91,7 +91,7 @@ class CommonTest extends Ts\TestCommon {
         $this->assertEquals([
             'succeed' => false,
             'returl' => '',
-            'msg' => 'Action failed',
+            'msg' => '操作失败',
                 ], $ret);
     }
 
@@ -113,7 +113,7 @@ class CommonTest extends Ts\TestCommon {
     public static $expect = [
         [
             'succeed' => false,
-            'msg' => 'Action failed',
+            'msg' => '操作失败',
             'returl' => '',
         ],
         [

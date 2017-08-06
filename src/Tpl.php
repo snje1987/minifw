@@ -101,9 +101,9 @@ class Tpl {
     protected static function _compile($src, $dest, $theme) {
         if (!file_exists($src)) {
             if (DEBUG === 1) {
-                throw new Exception('Template not exists：' . $src);
+                throw new Exception('模板不存在：' . $src);
             } else {
-                throw new Exception('Template not exists');
+                throw new Exception('模板不存在');
             }
         }
 
@@ -168,7 +168,11 @@ class Tpl {
 
             FW\File::mkdir(dirname($dest));
             if (!file_put_contents($dest, $str)) {
-                throw new Exception('Failed to write file: ' . $dest);
+                if (DEBUG === 1) {
+                    throw new Exception('写入模板失败: ' . $dest);
+                } else {
+                    throw new Exception('写入模板失败');
+                }
             }
         }
     }

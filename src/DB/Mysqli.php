@@ -158,7 +158,7 @@ class Mysqli extends FW\DB {
         $sql = 'SHOW FULL FIELDS FROM `' . $tbname . '`';
         $data = $this->get_query($sql);
         if ($data === false) {
-            throw new Exception('table not exists');
+            throw new Exception('数据表不存在:' . $tbname);
         }
         $fields = [];
         foreach ($data as $k => $v) {
@@ -178,7 +178,7 @@ class Mysqli extends FW\DB {
         $sql = 'SHOW INDEX FROM `' . $tbname . '`';
         $data = $this->get_query($sql);
         if ($data === false) {
-            throw new Exception('table not exists');
+            throw new Exception('数据表不存在:' . $tbname);
         }
         $index = [];
         foreach ($data as $v) {
@@ -207,7 +207,7 @@ class Mysqli extends FW\DB {
         $sql = 'SHOW CREATE TABLE `' . $tbname . '`';
         $data = $this->get_query($sql);
         if ($data === false || count($data) !== 1) {
-            throw new Exception('table not exists');
+            throw new Exception('数据表不存在:' . $tbname);
         }
         $create_sql = $data[0]['Create Table'];
         $matches = [];
@@ -222,7 +222,7 @@ class Mysqli extends FW\DB {
             }
             return $ret;
         }
-        throw new Exception('parse sql error');
+        throw new Exception('返回信息处理失败');
     }
 
     public static function create_table_sql($tbname, $tbinfo, $field, $index, $dim = '') {
@@ -231,7 +231,7 @@ class Mysqli extends FW\DB {
         $comment = isset($tbinfo['comment']) ? $tbinfo['comment'] : '';
 
         if ($tbname === '' || $engine === '' || $charset == '') {
-            throw new Exception('parameter error');
+            throw new Exception('参数错误');
         }
 
         $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . "` (" . $dim;
