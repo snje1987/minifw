@@ -24,8 +24,11 @@ $cfg['path'] = [
     'theme' => '/theme', //template path
     'res' => '/www', //resource path
     'compiled' => '/compiled', //compiled template
-    'ttfs' => '/ttfs', //fonts
     'web_root' => isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '', //web site's root
+];
+
+$cfg['fonts'] = [
+    'secode' => [],
 ];
 
 $cfg['main'] = [
