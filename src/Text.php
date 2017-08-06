@@ -17,21 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @filename Text.php
- * @encoding UTF-8
- * @author Yang Ming <yangming0116@gmail.com>
- * @copyright Copyright (C) 2013 杨明
- * @datetime 2013-3-27 15:04:41
- * @version 1.0
- * @Description 定义一些字符串的操作
- */
-
 namespace Org\Snje\Minifw;
 
-/**
- * 定义常用的字符串操作
- */
 class Text {
 
     /**
@@ -113,6 +100,48 @@ class Text {
     public static function str_len($str) {
         $encoding = Config::get()->get_config('main', 'encoding');
         return mb_strlen($str, $encoding);
+    }
+
+    public static function is_email($str) {
+        if (!filter_var($str, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function is_phone($str) {
+        if (!preg_match("/^(13[0-9]{9})|(15[0-9]{9})|(18[0-9]{9})$/", $str)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function is_tel($str) {
+        if (!preg_match("/^\d{3,4}-\d{7,8}(-\d{1,6})?$/", $str)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function is_num($str) {
+        if (!preg_match("/^-?\d+(\.\d+)?$/", $str)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function is_expr($str) {
+        if (!preg_match("/^[-(]*\d+(\.\d+)?[)]*$/", $str)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function is_positive($str) {
+        if (!preg_match("/^\d+(\.\d+)?$/", $str)) {
+            return false;
+        }
+        return true;
     }
 
 }
