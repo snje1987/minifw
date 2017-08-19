@@ -27,7 +27,24 @@ use Org\Snje\Minifw\Exception;
  */
 class System {
 
-    use Traits\OneInstance;
+    /**
+     * @var static the instance
+     */
+    protected static $_instance = null;
+
+    public static function get($args = []) {
+        if (self::$_instance === null) {
+            self::$_instance = new static($args);
+        }
+        return self::$_instance;
+    }
+
+    public static function get_new($args = []) {
+        if (self::$_instance !== null) {
+            self::$_instance = null;
+        }
+        return self::get($args);
+    }
 
     protected $_calls = [];
 

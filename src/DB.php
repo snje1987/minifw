@@ -24,7 +24,21 @@ use Org\Snje\Minifw\Exception;
 
 abstract class DB implements TableAnalysis {
 
-    use FW\Traits\PublicInstance;
+    protected static $_instance = [];
+
+    /**
+     * 获取实例
+     * @return static 实例
+     */
+    public static function get($args = [], $id = '') {
+        if (!isset(static::$_instance[static::class])) {
+            static::$_instance[static::class] = [];
+        }
+        if (!isset(static::$_instance[static::class][$id])) {
+            static::$_instance[static::class][$id] = new static($args);
+        }
+        return static::$_instance[static::class][$id];
+    }
 
     private $_transaction_lv = 0;
 

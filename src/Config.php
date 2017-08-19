@@ -24,7 +24,29 @@ namespace Org\Snje\Minifw;
  */
 class Config {
 
-    use Traits\OneInstance;
+    /**
+     * @var static the instance
+     */
+    protected static $_instance = null;
+
+    /**
+     *
+     * @param array $args
+     * @return Config
+     */
+    public static function get($args = array()) {
+        if (self::$_instance === null) {
+            self::$_instance = new static($args);
+        }
+        return self::$_instance;
+    }
+
+    public static function get_new($args = array()) {
+        if (self::$_instance !== null) {
+            self::$_instance = null;
+        }
+        return self::get($args);
+    }
 
     /**
      * @var array config data
