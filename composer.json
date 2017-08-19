@@ -1,0 +1,32 @@
+{
+    "name": "snje1987/minifw",
+    "type": "library",
+    "description": "A simple php framework",
+    "keywords": ["php", "framework"],
+    "homepage": "https://github.com/snje1987/minifw",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Yang Ming",
+            "email": "root@snje.org",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "php": ">=5.6.0",
+        "phpunit/phpunit": "4.8.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Org\\Snje\\Minifw\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Org\\Snje\\MinifwTest\\": "tests/"
+        }
+    }
+}
