@@ -59,15 +59,21 @@ class Router {
     }
 
     /**
-     * Default route function.
+     * 默认的路由函数.
      * @param string $url Url
-     * @param string $prefix Namespace of the controler.
-     * @param string $die If true, shutdown after called the controler.
+     * @param string $namespace 处理器所属的名空间.
+     * @param string $default_controler 默认的处理器
      */
-    public function default_route($url, $prefix = '') {
+    public function default_route($url, $namespace = '', $default_controler = '') {
         list($classname, $funcname, $args, $nouse) = self::path_info($url);
         $classname = str_replace('/', '\\', $classname);
-        $classname = $prefix . ucwords($classname, '\\');
+        if ($classname == '') {
+            $classname = '\\' . $default_controler;
+        }
+        if ($classname == '') {
+            throw new Exception('未指定Controler.');
+        }
+        $classname = $namespace . ucwords($classname, '\\');
         if (!class_exists($classname)) {
             throw new Exception('Controler ' . $classname . '不存在.');
         }

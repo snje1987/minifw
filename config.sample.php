@@ -17,7 +17,7 @@ $cfg['path'] = [
     'theme' => '/theme',
     'theme_res' => '/www',
     'compiled' => '/compiled',
-    'ttfs' => '/ttfs',
+    'ttfs' => [],
     'web_root' => __DIR__,
 ];
 

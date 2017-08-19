@@ -32,7 +32,7 @@ $app = FW\System::get(dirname(__DIR__) . '/config.php');
 
 $app->reg_call('/^(.*)$/', function($path) {
     $router = new FW\Router();
-    $router->default_route($path, 'Site\\Controler', true);
+    $router->default_route($path, 'Site\\Controler', 'Default');
 });
 
 $app->run();

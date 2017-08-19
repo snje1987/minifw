@@ -1,8 +1,8 @@
 ABOUT
 -------------
 
-A mini php framework.
+一个微型php开发框架
 
-v1.x require php>=5.5
+v1.x 要求 php>=5.3
 
-v2.x require php>=5.6
+v2.x 要求 php>=5.6
