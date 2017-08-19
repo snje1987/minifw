@@ -22,7 +22,7 @@ namespace Org\Snje\Minifw;
 use Org\Snje\Minifw as FW;
 use Org\Snje\Minifw\Exception;
 
-abstract class DB {
+abstract class DB implements TableAnalysis {
 
     use FW\Traits\PublicInstance;
 
@@ -359,43 +359,6 @@ abstract class DB {
     abstract public function last_insert_id();
 
     abstract public function last_error();
-
-    /**
-     * get info of the table(comment, engine ...)
-     */
-    abstract public function get_table_status($tbname);
-
-    /**
-     * get indexs info of the table
-     */
-    abstract public function get_table_index($tbname);
-
-    /**
-     * get fields info of the table
-     */
-    abstract public function get_table_field($tbname);
-
-    /**
-     * get diff info to convert table status
-     */
-    abstract public static function get_status_diff($tbname, $from, $to);
-
-    /**
-     * get diff info to convert table indexs
-     */
-    abstract public static function get_index_diff($tbname, $from, $to);
-
-    /**
-     * get diff info to convert table fields
-     */
-    abstract public static function get_field_diff($tbname, $from, $to);
-
-    /**
-     * get sql to create table
-     */
-    abstract public static function create_table_sql($tbname, $tbinfo, $field, $index);
-
-    abstract public static function drop_table_sql($tbname);
 
     abstract protected function _begin();
 
