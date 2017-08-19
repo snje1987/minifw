@@ -37,7 +37,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function test_config() {
-        $cfg = [];
+        $cfg = array();
         require __DIR__ . '/../../src/defaults.php';
         require __DIR__ . '/config.php';
         $config_obj = FW\Config::get_new(__DIR__ . '/config.php');
