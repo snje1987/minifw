@@ -218,7 +218,7 @@ class User extends Table {
         'truename' => ['type' => 'varchar(20)', 'comment' => '姓名',],
         'login' => ['type' => 'varchar(64)', 'default' => '', 'comment' => '登录秘钥',],
         'ip' => ['type' => 'varchar(20)', 'default' => '', 'comment' => '登录IP',],
-        'last_time' => ['type' => 'int(11)', 'default' => '0', 'comment' => '最后活动时间',],
+        'last_time' => ['type' => 'bigint(11)', 'default' => '0', 'comment' => '最后活动时间',],
         'disable' => ['type' => 'tinyint(4)', 'default' => '0', 'comment' => '是否停用',],
     ];
     const INDEX = [

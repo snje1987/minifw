@@ -35,6 +35,11 @@ class Controler {
     const JSON_CALL_REDIRECT = 2;
 
     public static $cache_time;
+
+    /**
+     *
+     * @var FW\Config
+     */
     protected $config;
     protected $theme;
 
@@ -49,7 +54,6 @@ class Controler {
      * @param type $args args.
      */
     public function dispatch($function, $args) {
-
         $class = new \ReflectionClass(static::class);
         if ($function == '') {
             $function = $class->getConstant('DEFAULT_FUNCTION');

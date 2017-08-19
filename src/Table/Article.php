@@ -105,7 +105,7 @@ class Article extends Table {
         'title' => ['type' => 'varchar(255)', 'comment' => '标题',],
         'path' => ['type' => 'varchar(255)', 'comment' => '保存路径',],
         'image' => ['type' => 'varchar(255)', 'comment' => '图片路径',],
-        'time' => ['type' => 'int(11)', 'comment' => '添加时间',],
+        'time' => ['type' => 'bigint(11)', 'comment' => '添加时间',],
         'kws' => ['type' => 'varchar(255)', 'default' => '', 'comment' => '关键词',],
         'desc' => ['type' => 'varchar(255)', 'default' => '', 'comment' => '描述',],
         'click' => ['type' => 'int(11)', 'default' => '0', 'comment' => '点击次数',],
