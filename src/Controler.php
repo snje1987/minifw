@@ -36,9 +36,11 @@ class Controler {
 
     public static $cache_time;
     protected $config;
+    protected $theme;
 
     public function __construct() {
         $this->config = Config::get();
+        $this->theme = $this->config->get_config('main', 'theme', '');
     }
 
     /**
@@ -71,7 +73,7 @@ class Controler {
         Tpl::assign('content', $content);
         Tpl::assign('title', $title);
         Tpl::assign('link', $link);
-        Tpl::display('/msg', $this);
+        Tpl::display('/msg', $this, $this->theme);
     }
 
     public function show_404() {
@@ -132,7 +134,7 @@ class Controler {
                 $ret['succeed'] = true;
                 if (isset($value['returl'])) {
                     $ret['returl'] = $value['returl'];
-                } elseif (isset($post['returl'])) {
+                } elseif (is_array($post) && isset($post['returl'])) {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
                 if (isset($value['msg'])) {
@@ -140,7 +142,7 @@ class Controler {
                 }
             } elseif ($value === true) {
                 $ret['succeed'] = true;
-                if (isset($post['returl'])) {
+                if (is_array($post) && isset($post['returl'])) {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
             } else {
@@ -197,7 +199,7 @@ class Controler {
             if ($ret['returl'] != '') {
                 $this->redirect($ret['returl']);
             } else {
-                $this->redirect('/');
+                $this->redirect($this->referer('/'));
             }
             die(0);
             // @codeCoverageIgnoreEnd

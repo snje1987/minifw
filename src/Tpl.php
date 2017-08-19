@@ -67,9 +67,7 @@ class Tpl {
         return file_exists($path);
     }
 
-    public static function display($tpl, $args, $theme = '', $return = false) {
-        $theme = ($theme == '' ? FW\Config::get()->get_config('main', 'theme') : $theme);
-
+    public static function display($tpl, $args, $theme, $return = false) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
         ob_start();
