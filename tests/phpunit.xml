@@ -10,7 +10,17 @@
     </filter>
     <testsuites>
         <testsuite name="all">
-            <directory>.</directory>
+            <testsuite name="money">
+                <file>Text/TextTest.php</file>
+                <file>Table/CreateTest.php</file>
+                <file>Table/GetTest.php</file>
+                <file>Table/DiffTest.php</file>
+                <file>JsonCall/CommonTest.php</file>
+                <file>JsonCall/TableTest.php</file>
+                <file>File/FileTest.php</file>
+                <file>Config/ConfigTest.php</file>
+                <file>Router/RouterTest.php</file>
+            </testsuite>
         </testsuite>
     </testsuites>
 </phpunit>
