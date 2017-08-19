@@ -29,6 +29,7 @@ class Tpl {
     public static $compiled_path;
     protected static $_varis = [];
     public static $always_compile;
+    protected static $tpl_dest = null;
 
     public static function assign($name, $value) {
         self::$_varis[$name] = $value;
@@ -69,12 +70,12 @@ class Tpl {
 
     public static function display($tpl, $args, $theme, $return = false) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
-        $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
+        self::$tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/page' . $tpl . '.php';
         ob_start();
         try {
-            self::_compile($tpl_src, $tpl_dest, $theme);
+            self::_compile($tpl_src, self::$tpl_dest, $theme);
             extract(self::$_varis);
-            include($tpl_dest);
+            include(self::$tpl_dest);
             if ($return) {
                 return ob_get_clean();
             } else {
@@ -89,10 +90,10 @@ class Tpl {
 
     protected static function _inc($tpl, $args, $theme) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
-        $tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
-        if (self::_compile($tpl_src, $tpl_dest, $theme)) {
+        self::$tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
+        if (self::_compile($tpl_src, self::$tpl_dest, $theme)) {
             extract(self::$_varis);
-            include($tpl_dest);
+            include(self::$tpl_dest);
         }
     }
 
@@ -141,9 +142,9 @@ class Tpl {
             $str = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $str);
 
             //path relate to theme："/xxxx/yyyy"
-            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/' . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
+            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3>', $str);
+            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
 
             //path relate to resource root："|xxx/yyy"
             $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $str);
