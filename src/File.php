@@ -48,6 +48,12 @@ class File {
      */
     private static $last_error = '';
 
+    const MIME_HASH = [
+        'css' => 'text/css',
+        'html' => 'text/html',
+        'js' => 'text/javascript',
+    ];
+
     public static function format_path() {
         $args = func_get_args();
         $args = array_reverse($args);
@@ -184,6 +190,11 @@ class File {
 
         $allow = $dirmap[$group]['allow'];
         $base_dir = $dirmap[$group]['path'];
+        $maxsize = isset($dirmap[$group]['maxsize']) ? intval($dirmap[$group]['maxsize']) : 0;
+        $filesize = intval($file['size']);
+        if ($maxsize > 0 && $filesize > $maxsize) {
+            return self::error('文件大小超过限制');
+        }
 
         $pinfo = pathinfo($file['name']);
         $ext = strtolower($pinfo['extension']);
@@ -524,6 +535,23 @@ class File {
         return file_put_contents($full, $data);
     }
 
+    public static function get_mime($full, $fsencoding = '') {
+        $full = self::conv_to($full, $fsencoding);
+        if (file_exists($full)) {
+            $pinfo = pathinfo($full);
+            $ext = isset($pinfo['extension']) ? strtolower($pinfo['extension']) : '';
+            $mime_type = 'application/octet-stream';
+            if (array_key_exists($ext, self::MIME_HASH)) {
+                $mime_type = self::MIME_HASH[$ext];
+            } else {
+                $fi = new \finfo(FILEINFO_MIME_TYPE);
+                $mime_type = $fi->file($full);
+            }
+            return $mime_type;
+        }
+        return null;
+    }
+
     /**
      * 读取文件并输出到浏览器
      *
@@ -532,10 +560,8 @@ class File {
      */
     public static function readfile($full, $fsencoding = '') {
         $full = self::conv_to($full, $fsencoding);
-        if (file_exists($full)) {
-            $mtime = filemtime($full);
-            $fi = new \finfo(FILEINFO_MIME_TYPE);
-            $mime_type = $fi->file($full);
+        $mime_type = self::get_mime($full);
+        if ($mime_type !== null) {
             header('Content-Type: ' . $mime_type);
             readfile($full);
         }
