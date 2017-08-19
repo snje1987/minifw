@@ -36,6 +36,7 @@ class System {
      */
     protected $config;
     protected $errors = [];
+    protected $use_buffer = false;
 
     protected function __construct($cfg_path) {
 
@@ -69,29 +70,71 @@ class System {
         set_exception_handler([$this, 'captureException']);
         //设置停机处理函数
         register_shutdown_function([$this, 'captureShutdown']);
+        header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
     }
 
-    /**
-     * 初始化系统
-     */
     public function run() {
-        $this->_set_env();
-        $this->dispatch($this->config->get_config('main', 'uri', '/'));
+        $path = $this->config->get_config('main', 'uri', '/');
+        try {
+            foreach ($this->_calls as $v) {
+                $matches = [];
+                if (preg_match($v['reg'], $path, $matches) === 1) {
+                    if (!isset($v['option']['session']) || $v['option']['session']) {
+                        $this->_set_seesion();
+                    }
+                    if (!isset($v['option']['buffer']) || $v['option']['buffer']) {
+                        ob_start();
+                        $this->use_buffer = true;
+                    }
+                    array_shift($matches);
+                    call_user_func_array($v['callback'], $matches);
+                    if ($this->use_buffer) {
+                        if (DEBUG === 1 && !empty($this->errors)) {
+                            $content = ob_get_clean();
+                            print_r($this->errors);
+                            echo $content;
+                        } else {
+                            @ob_end_flush();
+                        }
+                    } else {
+                        if (DEBUG === 1 && !empty($this->errors)) {
+                            print_r($this->errors);
+                        }
+                    }
+                    return;
+                }
+            }
+        } catch (\Exception $ex) {
+            if ($this->use_buffer) {
+                @ob_end_clean();
+            }
+            if (DEBUG === 1) {
+                $controler = new Controler();
+                $controler->show_msg($ex->getMessage(), 'Error');
+                return;
+            }
+            return;
+        }
+        if ($this->use_buffer) {
+            @ob_end_clean();
+        }
+        $controler = new Controler();
+        if (DEBUG === 1) {
+            $controler->show_msg('路由未指定.', 'Error');
+        } else {
+            $controler->show_404();
+        }
     }
 
-    public function reg_call($reg, $callback) {
+    public function reg_call($reg, $callback, $option = []) {
         $this->_calls[] = [
             'reg' => $reg,
             'callback' => $callback,
+            'option' => $option,
         ];
     }
 
-    /**
-     * 配置系统的主要参数
-     */
-    protected function _set_env() {
-        header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
-
+    protected function _set_seesion() {
         $session_name = $this->config->get_config('main', 'session', 'PHPSESSION');
         session_name($session_name);
         session_set_cookie_params(36000, '/', $this->config->get_config('main', 'domain', ''));
@@ -133,9 +176,11 @@ class System {
     }
 
     public function captureException($exception) {
-        @ob_end_clean();
+        if ($this->use_buffer) {
+            @ob_end_clean();
+        }
         if (DEBUG === 1) {
-            header('Content-type:text/plain;');
+            header('Content-type:text/plain;charset=utf-8');
             print_r($exception);
         } else {
             echo 'Runtime Error';
@@ -145,55 +190,17 @@ class System {
     public function captureShutdown() {
         $error = error_get_last();
         if ($error) {
-            @ob_end_clean();
-            if (DEBUG == 1) {
-                header('Content-type:text/plain;');
+            if ($this->use_buffer) {
+                @ob_end_clean();
+            }
+            if (DEBUG === 1) {
+                header('Content-type:text/plain;charset=utf-8');
                 print_r($error);
             } else {
                 echo 'Runtime Error';
             }
         } else {
             return true;
-        }
-    }
-
-    /**
-     * 分发请求到对应的回调函数
-     *
-     * @param string $path 请求的路径
-     */
-    public function dispatch($path) {
-        ob_start();
-        try {
-            foreach ($this->_calls as $v) {
-                $matches = [];
-                if (preg_match($v['reg'], $path, $matches) === 1) {
-                    array_shift($matches);
-                    call_user_func_array($v['callback'], $matches);
-                    if (DEBUG === 1 && !empty($this->errors)) {
-                        $content = ob_get_clean();
-                        print_r($this->errors);
-                        echo $content;
-                    } else {
-                        @ob_end_flush();
-                    }
-                    return;
-                }
-            }
-        } catch (\Exception $ex) {
-            if (DEBUG === 1) {
-                @ob_end_clean();
-                $controler = new Controler();
-                $controler->show_msg($ex->getMessage(), 'Error');
-                return;
-            }
-        }
-        @ob_end_clean();
-        $controler = new Controler();
-        if (DEBUG === 1) {
-            $controler->show_msg('路由未指定.', 'Error');
-        } else {
-            $controler->show_404();
         }
     }
 
