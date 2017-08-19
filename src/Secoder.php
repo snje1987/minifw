@@ -20,12 +20,12 @@ class Secoder {
         $image = imagecreate($image_l, $image_h);
         imagecolorallocate($image, $bg[0], $bg[1], $bg[2]);
         $_color = imagecolorallocate($image, mt_rand(1, 120), mt_rand(1, 120), mt_rand(1, 120));
-        $ttfs = WEB_ROOT . Config::get()->get_config('fonts', 'secode');
+        $ttfs = Config::get()->get_config('fonts', 'secode');
         if (!is_array($ttfs) || count($ttfs) < 1) {
             throw new Exception('字体未指定');
         }
         $key = array_rand($ttfs);
-        $ttf = $ttfs[$key];
+        $ttf = WEB_ROOT . $ttfs[$key];
 
         $last_index = strlen(self::CODE_SET) - 1;
         for ($i = 0; $i < 10; $i++) {
