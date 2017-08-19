@@ -88,7 +88,11 @@ class Mysqli extends FW\DB {
                 throw new Exception('数据库查询失败');
             }
         }
-        return $this->_mysqli->query($sql);
+        $ret = $this->_mysqli->query($sql);
+        if ($ret === false && DEBUG == 1) {
+            throw new Exception($this->_mysqli->error . "\n" . $sql);
+        }
+        return $ret;
     }
 
     public function fetch_all($res) {
@@ -189,6 +193,7 @@ class Mysqli extends FW\DB {
                         $v['Column_name']
                     ]
                 ];
+                $index[$name]['comment'] = $v['Index_comment'];
                 if ($name !== 'PRIMARY') {
                     if ($v['Non_unique'] == 0) {
                         $index[$name]['unique'] = true;
@@ -432,6 +437,9 @@ class Mysqli extends FW\DB {
                 }
                 $sql .= '`' . $name . '` (`' . implode('`,`', $attr['fields']) . '`)';
                 break;
+        }
+        if (isset($attr['comment']) && $attr['comment'] != '') {
+            $sql .= ' COMMENT "' . $attr['comment'] . '"';
         }
         return $sql;
     }
