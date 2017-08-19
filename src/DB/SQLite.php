@@ -39,7 +39,7 @@ class SQLite extends FW\DB {
         if (empty($ini)) {
             throw new Exception('数据库未配置');
         }
-        $this->_sqlite = new SQLite3(WEB_ROOT . $ini['path'], SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+        $this->_sqlite = new \SQLite3(WEB_ROOT . $ini['path'], SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
     }
 
     public function last_insert_id() {
