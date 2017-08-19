@@ -65,7 +65,7 @@ class TableUtils {
                     }
                     $classname = $ns . '\\' . substr($file, 0, strlen($file) - 4);
                     if (class_exists($classname)) {
-                        $obj = new $classname();
+                        $obj = $classname::get();
                         if ($obj instanceof Table) {
                             $ndiff = $obj->table_diff();
                         }

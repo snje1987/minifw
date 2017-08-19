@@ -180,7 +180,7 @@ class System {
             @ob_end_clean();
         }
         if (DEBUG === 1) {
-            header('Content-type:text/plain;charset=utf-8');
+            header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
             print_r($exception);
         } else {
             echo 'Runtime Error';
@@ -194,7 +194,7 @@ class System {
                 @ob_end_clean();
             }
             if (DEBUG === 1) {
-                header('Content-type:text/plain;charset=utf-8');
+                header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
                 print_r($error);
             } else {
                 echo 'Runtime Error';
