@@ -68,9 +68,8 @@ class Controler {
         }
 
         $func = $class->getMethod($function);
-        $obj = $class->newInstance();
         $func->setAccessible(true);
-        $func->invoke($obj, $args);
+        $func->invoke($this, $args);
     }
 
     public function show_msg($content, $title = '', $link = '') {
