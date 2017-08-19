@@ -91,10 +91,9 @@ class Tpl {
     protected static function _inc($tpl, $args, $theme) {
         $tpl_src = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
         self::$tpl_dest = WEB_ROOT . self::$compiled_path . '/' . $theme . '/block' . $tpl . '.php';
-        if (self::_compile($tpl_src, self::$tpl_dest, $theme)) {
-            extract(self::$_varis);
-            include(self::$tpl_dest);
-        }
+        self::_compile($tpl_src, self::$tpl_dest, $theme);
+        extract(self::$_varis);
+        include(self::$tpl_dest);
     }
 
     protected static function _compile($src, $dest, $theme) {
