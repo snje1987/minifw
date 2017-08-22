@@ -101,22 +101,22 @@ abstract class Table {
         return $this->db->delete(static::$tbname, $condition);
     }
 
-    public function get_by_id($id) {
+    public function get_by_id($id, $field = array(), $lock = false) {
         $condition = array();
         $condition['id'] = intval($id);
-        return $this->db->one_query(static::$tbname, $condition);
+        return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
-    public function get_one($condition, $field = array()) {
-        return $this->db->one_query(static::$tbname, $condition, $field);
+    public function get_one($condition, $field = array(), $lock = false) {
+        return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
-    public function get_by_field($field, $value) {
-        $field = strval($field);
+    public function get_by_field($name, $value, $field = array(), $lock = false) {
+        $name = strval($name);
         $value = strval($value);
         $condition = array();
-        $condition[$field] = $value;
-        return $this->db->one_query(static::$tbname, $condition);
+        $condition[$name] = $value;
+        return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
     public function gets_by_field($field, $value) {
