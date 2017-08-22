@@ -92,10 +92,13 @@ abstract class DB implements TableAnalysis {
         return $data;
     }
 
-    public function one_query($tbname, $condition = [], $field = []) {
+    public function one_query($tbname, $condition = [], $field = [], $lock = false) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr . ' limit 1';
+        if ($lock === true && $this->_transaction_lv > 0) {
+            $sql .= ' for update';
+        }
         $res = $this->query($sql);
         if ($res === false) {
             throw new Exception($this->last_error() . '<br />' . $sql);
