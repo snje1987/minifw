@@ -256,7 +256,6 @@ class Mysqli extends FW\DB {
             $to_sql = self::field_to_sql($k, $v);
             if (!isset($from[$k])) {
                 $diff[] = array(
-                    'table' => $tbname,
                     'diff' => '+[' . $i . '] ' . $to_sql,
                     'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . $tail . ';',
                 );
@@ -265,7 +264,6 @@ class Mysqli extends FW\DB {
                 $from_sql = self::field_to_sql($k, $from[$k]);
                 if ($from_sql != $to_sql || $i != $from[$k]['no']) {
                     $diff[] = array(
-                        'table' => $tbname,
                         'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql . "\n" . '+[' . $i . '] ' . $to_sql,
                         'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql . $tail . ';',
                     );
@@ -282,7 +280,6 @@ class Mysqli extends FW\DB {
             }
             $from_sql = self::field_to_sql($k, $v);
             $diff[] = array(
-                'table' => $tbname,
                 'diff' => '- ' . $from_sql,
                 'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
             );
@@ -297,7 +294,6 @@ class Mysqli extends FW\DB {
             $to_sql = self::index_to_sql($k, $v, false);
             if (!isset($from[$k])) {
                 $diff[] = array(
-                    'table' => $tbname,
                     'diff' => '+ ' . $to_sql,
                     'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . ';',
                 );
@@ -313,7 +309,6 @@ class Mysqli extends FW\DB {
                 }
                 $trans .= ', ADD ' . $to_sql . ';';
                 $diff[] = array(
-                    'table' => $tbname,
                     'diff' => '- ' . $from_sql . "\n" . '+ ' . $to_sql,
                     'trans' => $trans,
                 );
@@ -332,7 +327,6 @@ class Mysqli extends FW\DB {
             }
 
             $diff[] = array(
-                'table' => $tbname,
                 'diff' => '- ' . $from_sql,
                 'trans' => $trans,
             );
@@ -345,21 +339,18 @@ class Mysqli extends FW\DB {
         $diff = array();
         if ($from['engine'] != $to['engine']) {
             $diff[] = array(
-                'table' => $tbname,
                 'diff' => '- Engine=' . $from['engine'] . "\n" . '+ Engine=' . $to['engine'],
                 'trans' => 'ALTER TABLE `' . $tbname . '` ENGINE=' . $to['engine'] . ';',
             );
         }
         if ($from['comment'] != $to['comment']) {
             $diff[] = array(
-                'table' => $tbname,
                 'diff' => '- Comment="' . $from['comment'] . "\"\n" . '+ Comment="' . $to['comment'] . '"',
                 'trans' => 'ALTER TABLE `' . $tbname . '` COMMENT="' . $to['comment'] . '";',
             );
         }
         if ($from['charset'] != $to['charset']) {
             $diff[] = array(
-                'table' => $tbname,
                 'diff' => '- Charset="' . $from['charset'] . "\"\n" . '+ Charset="' . $to['charset'] . '"',
                 'trans' => 'ALTER TABLE `' . $tbname . '` DEFAULT CHARSET="' . $to['charset'] . '";',
             );

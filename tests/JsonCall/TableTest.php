@@ -29,7 +29,7 @@ class TableTest extends Ts\TestCommon {
         $this->assertEquals(array(
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Table.php:37]test msg',
+            'msg' => '[' . __DIR__ . '/Table.php:15]test msg',
                 ), $ret);
 
         $ret = $controler->sync_call(

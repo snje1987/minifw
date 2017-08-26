@@ -180,14 +180,12 @@ abstract class Table {
                     , static::$index
                     , "\n");
             $diff[] = array(
-                'table' => static::$tbname,
                 'diff' => '+' . $sql_display,
                 'trans' => $sql_exec . ';',
             );
             $init_sql = $this->init_table_sql();
             if ($init_sql !== '') {
                 $diff[] = array(
-                    'table' => static::$tbname,
                     'diff' => '+' . $init_sql,
                     'trans' => $init_sql . ';',
                 );

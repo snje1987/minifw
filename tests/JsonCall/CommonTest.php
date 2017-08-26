@@ -26,7 +26,7 @@ class CommonTest extends Ts\TestCommon {
         $this->assertEquals(array(
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Functions.php:41]test msg',
+            'msg' => '[' . __DIR__ . '/Functions.php:16]test msg',
                 ), $ret);
 
         $ret = $controler->json_call(
@@ -59,7 +59,7 @@ class CommonTest extends Ts\TestCommon {
         $this->assertEquals(array(
             'succeed' => false,
             'returl' => '',
-            'msg' => '[' . __DIR__ . '/Functions.php:49]test msg',
+            'msg' => '[' . __DIR__ . '/Functions.php:24]test msg',
                 ), $ret);
 
         $ret = $controler->json_call(

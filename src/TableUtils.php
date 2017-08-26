@@ -10,17 +10,16 @@ class TableUtils {
         header("Content-Type:text/plain;charset=utf-8");
         $otable = '';
         $trans = array();
-        foreach ($diff as $v) {
-            if ($otable == '' || $otable != $v['table']) {
-                echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-                $otable = $v['table'];
-                echo $otable . "\n\n";
+        foreach ($diff as $class => $info) {
+            echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+            echo $class . ' ' . $info['tbname'] . "\n\n";
+            foreach ($info['diff'] as $line) {
+                echo $line['diff'] . "\n";
+                $trans[] = $line['trans'];
             }
-            echo $v['diff'] . "\n";
-            $trans[] = $v['trans'];
         }
         echo "\n\n================================================================\n\n";
-        echo implode("\n", $trans);
+        echo implode("\n", $trans) . "\n";
     }
 
     public static function get_all_diff($ns = '', $path = '') {
@@ -42,10 +41,17 @@ class TableUtils {
                         continue;
                     }
                     $classname = $ns . '\\' . substr($file, 0, strlen($file) - 4);
-                    if (class_exists($classname)) {
+                    if (class_exists($classname) && is_callable($classname . '::get')) {
                         $obj = $classname::get();
                         if ($obj instanceof Table) {
-                            $ndiff = $obj->table_diff();
+                            $table_diff = $obj->table_diff();
+                            if (empty($table_diff)) {
+                                continue;
+                            }
+                            $ndiff[$classname] = array(
+                                'tbname' => $classname::$tbname,
+                                'diff' => $table_diff
+                            );
                         }
                     }
                 }
