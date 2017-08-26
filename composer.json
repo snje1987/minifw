@@ -4,7 +4,7 @@
     "description": "A simple php framework",
     "keywords": ["php", "framework"],
     "homepage": "https://github.com/snje1987/minifw",
-    "license": "GPLv3",
+    "license": "LGPLv3",
     "authors": [
         {
             "name": "Yang Ming",
