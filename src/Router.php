@@ -104,4 +104,19 @@ class Router {
         return;
     }
 
+    public function resource_route($url, $base) {
+        $path = $base . $url;
+        $resource_obj = new Resource();
+        if (!$resource_obj->compile($path)) {
+            return;
+        }
+        $controler = new Controler();
+        if (file_exists(WEB_ROOT . $path)) {
+            $controler->readfile_with_304(WEB_ROOT . $path);
+            return;
+        }
+        $controler->show_404();
+        return;
+    }
+
 }
