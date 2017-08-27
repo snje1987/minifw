@@ -77,7 +77,7 @@ class Controler {
         header('Location: ' . $url);
     }
 
-    public function readfile_with_304($file, $fsencoding) {
+    public function readfile_with_304($file, $fsencoding = '') {
         $full = File::conv_to($file, $fsencoding);
         $mtime = \filemtime($full);
         $expire = gmdate('D, d M Y H:i:s', time() + self::$cache_time) . ' GMT';

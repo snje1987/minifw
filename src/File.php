@@ -499,10 +499,10 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      * @return int
      */
-    public static function put_content($full, $data, $fsencoding = '') {
+    public static function put_content($full, $data, $fsencoding = '', $flags = 0) {
         $full = self::conv_to($full, $fsencoding);
         self::mkdir(dirname($full));
-        return file_put_contents($full, $data);
+        return file_put_contents($full, $data, $flags);
     }
 
     public static function get_mime($full, $fsencoding = '') {
