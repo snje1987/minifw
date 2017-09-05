@@ -10,8 +10,12 @@ class Resource {
     protected $map;
     protected $map_path;
 
-    public function __construct() {
-        $this->map_path = WEB_ROOT . Config::get()->get_config('main', 'resource_map');
+    public function __construct($map_path = null) {
+        if ($map_path === null) {
+            $this->map_path = WEB_ROOT . Config::get()->get_config('main', 'resource_map');
+        } else {
+            $this->map_path = $map_path;
+        }
         $this->load_map();
     }
 
@@ -22,13 +26,13 @@ class Resource {
     }
 
     public function compile_all() {
-        foreach ($this->map as $dest => $cfg) {
+        foreach ($this->map as $cfg) {
             if ($cfg['type'] === 'file') {
-                if (!$this->compile($dest)) {
+                if (!$this->compile($cfg['to'])) {
                     return false;
                 }
             } elseif ($cfg['type'] === 'dir') {
-                if (!$this->compile_dir($cfg['dep'], $dest)) {
+                if (!$this->compile_dir($cfg['from'], $cfg['to'])) {
                     return false;
                 }
             } else {
@@ -70,19 +74,42 @@ class Resource {
     }
 
     public function get_match_rule($dest) {
-        foreach ($this->map as $src => $cfg) {
+        foreach ($this->map as $cfg) {
             if ($cfg['type'] === 'file') {
-                if ($src === $dest) {
+                if ($cfg['to'] === $dest) {
+                    if (!is_array($cfg['from'])) {
+                        $cfg['from'] = array(
+                            $cfg['from'],
+                        );
+                    }
                     return $cfg;
                 }
             } elseif ($cfg['type'] === 'dir') {
-                $len = strlen($src);
-                if (strncmp($src, $dest, $len) === 0) {
-                    $cfg['dep'] = array(
-                        $cfg['dep'] . substr($dest, $len),
-                    );
-                    return $cfg;
+                $len = strlen($cfg['to']);
+                if (strncmp($cfg['to'], $dest, $len) !== 0) {
+                    continue;
                 }
+                if (isset($cfg['tail'])) {
+                    if (!is_array($cfg['tail'])) {
+                        $cfg['tail'] = array(
+                            $cfg['tail'],
+                        );
+                    }
+                    $match = false;
+                    foreach ($cfg['tail'] as $v) {
+                        if (substr($dest, -1 * strlen($v)) === $v) {
+                            $match = true;
+                            break;
+                        }
+                    }
+                    if (!$match) {
+                        continue;
+                    }
+                }
+                $cfg['from'] = array(
+                    $cfg['from'] . substr($dest, $len),
+                );
+                return $cfg;
             }
         }
         return null;
@@ -96,7 +123,7 @@ class Resource {
             return true;
         }
         $dtime = \filemtime(WEB_ROOT . $dest);
-        foreach ($cfg['dep'] as $file) {
+        foreach ($cfg['from'] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $stime = \filemtime($full);
@@ -110,7 +137,7 @@ class Resource {
 
     protected function compile_uglify($dest, $cfg) {
         $content = '';
-        foreach ($cfg['dep'] as $file) {
+        foreach ($cfg['from'] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content .= \file_get_contents($full);
@@ -125,7 +152,7 @@ class Resource {
 
     protected function compile_cssmin($dest, $cfg) {
         $content = '';
-        foreach ($cfg['dep'] as $file) {
+        foreach ($cfg['from'] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content .= \file_get_contents($full);
@@ -140,7 +167,7 @@ class Resource {
     protected function compile_copy($dest, $cfg) {
         $dest = WEB_ROOT . $dest;
         File::delete($dest, true);
-        foreach ($cfg['dep'] as $file) {
+        foreach ($cfg['from'] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content = \file_get_contents($full);
