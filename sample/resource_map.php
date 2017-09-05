@@ -1,13 +1,16 @@
 <?php
 $value = [];
-$value['/www/theme/default/script'] = [
+$value[] = [
+    'from' => '/theme/default/script',
+    'to' => '/www/theme/default/script',
     'method' => 'uglify',
     'type' => 'dir',
-    'dep' => '/theme/default/script',
+    'tail' => '.js',
 ];
-$value['/www/theme/default/style/common.js'] = [
+$value[] = [
+    'from' => '/theme/default/style/common.css',
+    'to' => '/www/theme/default/style/common.css',
     'method' => 'cssmin',
     'type' => 'file',
-    'dep' => '/theme/default/style/common.js',
 ];
 return $value;

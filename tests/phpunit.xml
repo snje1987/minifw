@@ -20,6 +20,7 @@
                 <file>File/FileTest.php</file>
                 <file>Config/ConfigTest.php</file>
                 <file>Router/RouterTest.php</file>
+                <file>Resource/ResourceTest.php</file>
             </testsuite>
         </testsuite>
     </testsuites>
