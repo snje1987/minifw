@@ -24,10 +24,6 @@ class TableDel extends FW\Table {
     ];
     const DIFF = [
         [
-            'diff' => '-[1] `intfield` int(11) NOT NULL COMMENT "A int field"' . "\n" . '+[0] `intfield` int(11) NOT NULL COMMENT "A int field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(11) NOT NULL COMMENT "A int field" first;',
-        ],
-        [
             'diff' => '- `id` int(10) unsigned NOT NULL auto_increment COMMENT "ID"',
             'trans' => 'ALTER TABLE `table_with_all` DROP `id`;',
         ],

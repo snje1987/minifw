@@ -277,10 +277,10 @@ class Mysqli extends FW\DB {
         return $sql;
     }
 
-    private static function move_field_no(&$fields, $from, $to = -1) {
+    private static function move_field_no(&$fields, $from, $to = -1, $offset = 1) {
         foreach ($fields as $k => $v) {
             if ($v['no'] >= $from && ($to < 0 || $v['no'] < $to)) {
-                $fields[$k]['no'] ++;
+                $fields[$k]['no'] += $offset;
             }
         }
     }
@@ -289,6 +289,8 @@ class Mysqli extends FW\DB {
         $diff = [];
         $tail = ' first';
         $i = 0;
+
+        //计算增加的列
         foreach ($to as $k => $v) {
             $to_sql = self::field_to_sql($k, $v);
             if (!isset($from[$k])) {
@@ -297,7 +299,32 @@ class Mysqli extends FW\DB {
                     'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . $tail . ';',
                 ];
                 self::move_field_no($from, $i);
-            } else {
+            }
+            $tail = ' after `' . $k . '`';
+            $i ++;
+        }
+
+        //计算删除的列
+        $i = 0;
+        foreach ($from as $k => $v) {
+            $i ++;
+            if (array_key_exists($k, $to)) {
+                continue;
+            }
+            $from_sql = self::field_to_sql($k, $v);
+            $diff[] = [
+                'diff' => '- ' . $from_sql,
+                'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
+            ];
+            self::move_field_no($from, $i - 1, -1, -1);
+        }
+
+        //计算变化的列
+        $i = 0;
+        $tail = ' first';
+        foreach ($to as $k => $v) {
+            $to_sql = self::field_to_sql($k, $v);
+            if (isset($from[$k])) {
                 $from_sql = self::field_to_sql($k, $from[$k]);
                 if ($from_sql != $to_sql || $i != $from[$k]['no']) {
                     $diff[] = [
@@ -309,17 +336,6 @@ class Mysqli extends FW\DB {
             }
             $tail = ' after `' . $k . '`';
             $i ++;
-        }
-
-        foreach ($from as $k => $v) {
-            if (array_key_exists($k, $to)) {
-                continue;
-            }
-            $from_sql = self::field_to_sql($k, $v);
-            $diff[] = [
-                'diff' => '- ' . $from_sql,
-                'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
-            ];
         }
 
         return $diff;
