@@ -27,7 +27,7 @@ class TableAdd extends FW\Table {
         'charfield_def' => array('type' => 'varchar(200)', 'default' => '', 'comment' => 'A varchar field'),
     );
     public static $index = array(
-        'PRIMARY' => array('fields' => array('id')),
+        'PRIMARY' => array('fields' => array('id'), 'comment' => '主键'),
         'intfield' => array('fields' => array('intfield', 'charfield')),
         'uniqueindex' => array('unique' => true, 'fields' => array('intfield')),
         'addfield' => array('fields' => array('charfield')),
@@ -58,8 +58,8 @@ class TableAdd extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_one` ADD `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field" after `intfield_def`;',
         ),
         array(
-            'diff' => '+ PRIMARY KEY (`id`)',
-            'trans' => 'ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`);',
+            'diff' => '+ PRIMARY KEY (`id`) COMMENT "主键"',
+            'trans' => 'ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`) COMMENT "主键";',
         ),
         array(
             'diff' => '+ INDEX `intfield` (`intfield`,`charfield`)',

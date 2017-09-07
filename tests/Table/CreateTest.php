@@ -27,7 +27,7 @@ class CreateTest extends Ts\TestCommon {
   `textfield` text NOT NULL COMMENT \'A text field\',
   `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\',
   `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`) COMMENT \'主键\',
   UNIQUE KEY `uniqueindex` (`intfield`),
   KEY `charfield` (`charfield`),
   KEY `intfield` (`intfield`,`charfield`)

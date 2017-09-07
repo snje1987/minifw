@@ -26,7 +26,7 @@ class TableWithAll extends FW\Table {
         'charfield_def' => array('type' => 'varchar(200)', 'default' => '', 'comment' => 'A varchar field'),
     );
     public static $index = array(
-        'PRIMARY' => array('fields' => array('id')),
+        'PRIMARY' => array('fields' => array('id'), 'comment' => '主键'),
         'charfield' => array('fields' => array('charfield')),
         'intfield' => array('fields' => array('intfield', 'charfield')),
         'uniqueindex' => array('unique' => true, 'fields' => array('intfield'))

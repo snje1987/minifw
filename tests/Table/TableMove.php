@@ -26,7 +26,7 @@ class TableMove extends FW\Table {
         'id' => array('type' => 'int(10) unsigned', 'extra' => 'auto_increment', 'comment' => 'ID'),
     );
     public static $index = array(
-        'PRIMARY' => array('fields' => array('id')),
+        'PRIMARY' => array('fields' => array('id'), 'comment' => '主键'),
         'charfield' => array('fields' => array('charfield')),
         'intfield' => array('fields' => array('intfield', 'charfield')),
         'uniqueindex' => array('unique' => true, 'fields' => array('intfield'))

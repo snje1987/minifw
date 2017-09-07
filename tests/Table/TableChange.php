@@ -69,7 +69,7 @@ class TableChange extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A varchar field" after `intfield_def`;',
         ),
         array(
-            'diff' => '- PRIMARY KEY (`id`)' . "\n" . '+ PRIMARY KEY (`intfield`)',
+            'diff' => '- PRIMARY KEY (`id`) COMMENT "主键"' . "\n" . '+ PRIMARY KEY (`intfield`)',
             'trans' => 'ALTER TABLE `table_with_all` DROP PRIMARY KEY, ADD PRIMARY KEY (`intfield`);',
         ),
         array(
