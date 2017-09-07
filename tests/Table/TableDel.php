@@ -48,7 +48,7 @@ class TableDel extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_all` DROP `charfield_def`;',
         ],
         [
-            'diff' => '- PRIMARY KEY (`id`)',
+            'diff' => '- PRIMARY KEY (`id`) COMMENT "主键"',
             'trans' => 'ALTER TABLE `table_with_all` DROP PRIMARY KEY;',
         ],
         [

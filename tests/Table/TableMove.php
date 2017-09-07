@@ -26,7 +26,7 @@ class TableMove extends FW\Table {
         'id' => ['type' => 'int(10) unsigned', 'extra' => 'auto_increment', 'comment' => 'ID'],
     ];
     const INDEX = [
-        'PRIMARY' => ['fields' => ['id']],
+        'PRIMARY' => ['fields' => ['id'], 'comment' => '主键'],
         'charfield' => ['fields' => ['charfield']],
         'intfield' => ['fields' => ['intfield', 'charfield']],
         'uniqueindex' => ['unique' => true, 'fields' => ['intfield']]

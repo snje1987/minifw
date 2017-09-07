@@ -21,6 +21,7 @@
                 <file>Config/ConfigTest.php</file>
                 <file>Router/RouterTest.php</file>
                 <file>Resource/ResourceTest.php</file>
+                <file>DB/MysqliTest.php</file>
             </testsuite>
         </testsuite>
     </testsuites>

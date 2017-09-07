@@ -8,6 +8,7 @@ use Org\Snje\Minifw\Exception;
 abstract class DB implements TableAnalysis {
 
     protected static $_instance = [];
+    public static $test_mode = false;
 
     /**
      * 获取实例
@@ -55,10 +56,12 @@ abstract class DB implements TableAnalysis {
         } else {
             $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
         }
-
+        if (static::$test_mode) {
+            return $sql;
+        }
         $res = $this->query($sql);
         if ($res === false) {
-            throw new Exception($this->last_error() . '<br />' . $sql);
+            return false;
         }
         $data = $this->fetch_all($res);
         $this->free($res);
@@ -66,9 +69,12 @@ abstract class DB implements TableAnalysis {
     }
 
     public function get_query($sql) {
+        if (static::$test_mode) {
+            return $sql;
+        }
         $res = $this->query($sql);
         if ($res === false) {
-            throw new Exception($this->last_error() . '<br />' . $sql);
+            return false;
         }
         $data = $this->fetch_all($res);
         $this->free($res);
@@ -82,9 +88,12 @@ abstract class DB implements TableAnalysis {
         if ($lock === true && $this->_transaction_lv > 0) {
             $sql .= ' for update';
         }
+        if (static::$test_mode) {
+            return $sql;
+        }
         $res = $this->query($sql);
         if ($res === false) {
-            throw new Exception($this->last_error() . '<br />' . $sql);
+            return false;
         }
         $data = $this->fetch($res);
         $this->free($res);
@@ -94,9 +103,12 @@ abstract class DB implements TableAnalysis {
     public function count($tbname, $condition = []) {
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'select count(*) as "count" from `' . $tbname . '` ' . $conditionstr;
+        if (static::$test_mode) {
+            return $sql;
+        }
         $res = $this->query($sql);
         if ($res === false) {
-            throw new Exception($this->last_error() . '<br />' . $sql);
+            return false;
         }
         $data = $this->fetch($res);
         $this->free($res);
@@ -106,12 +118,18 @@ abstract class DB implements TableAnalysis {
     public function insert($tbname, $value) {
         $valuestr = $this->_parse_value($value);
         $sql = 'insert into `' . $tbname . '`' . $valuestr;
+        if (static::$test_mode) {
+            return $sql;
+        }
         return $this->query($sql);
     }
 
     public function replace($tbname, $value) {
         $valuestr = $this->_parse_value($value);
         $sql = 'replace into `' . $tbname . '`' . $valuestr;
+        if (static::$test_mode) {
+            return $sql;
+        }
         return $this->query($sql);
     }
 
@@ -121,6 +139,9 @@ abstract class DB implements TableAnalysis {
         }
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'delete from `' . $tbname . '`' . $conditionstr;
+        if (static::$test_mode) {
+            return $sql;
+        }
         return $this->query($sql);
     }
 
@@ -131,6 +152,9 @@ abstract class DB implements TableAnalysis {
         $updatestr = $this->_parse_update($value);
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'update `' . $tbname . '` set ' . $updatestr . $conditionstr;
+        if (static::$test_mode) {
+            return $sql;
+        }
         return $this->query($sql);
     }
 
@@ -340,7 +364,7 @@ abstract class DB implements TableAnalysis {
         return $str;
     }
 
-    abstract public function query($sql);
+    abstract public function query($sql, $field = [], $value = []);
 
     abstract public function multi_query($sql);
 

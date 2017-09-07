@@ -27,7 +27,7 @@ class TableAdd extends FW\Table {
         'charfield_def' => ['type' => 'varchar(200)', 'default' => '', 'comment' => 'A varchar field'],
     ];
     const INDEX = [
-        'PRIMARY' => ['fields' => ['id']],
+        'PRIMARY' => ['fields' => ['id'], 'comment' => '主键'],
         'intfield' => ['fields' => ['intfield', 'charfield']],
         'uniqueindex' => ['unique' => true, 'fields' => ['intfield']],
         'addfield' => ['fields' => ['charfield']],
@@ -58,8 +58,8 @@ class TableAdd extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_one` ADD `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field" after `intfield_def`;',
         ],
         [
-            'diff' => '+ PRIMARY KEY (`id`)',
-            'trans' => 'ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`);',
+            'diff' => '+ PRIMARY KEY (`id`) COMMENT "主键"',
+            'trans' => 'ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`) COMMENT "主键";',
         ],
         [
             'diff' => '+ INDEX `intfield` (`intfield`,`charfield`)',

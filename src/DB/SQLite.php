@@ -33,8 +33,12 @@ class SQLite extends FW\DB {
         return $this->_sqlite->lastErrorMsg();
     }
 
-    public function query($sql) {
-        return $this->_sqlite->query($sql);
+    public function query($sql, $field = [], $value = []) {
+        $ret = $this->_sqlite->query($sql);
+        if ($ret === false && DEBUG == 1) {
+            throw new Exception($this->last_error() . "\n" . $sql);
+        }
+        return $ret;
     }
 
     public function fetch_all($res) {

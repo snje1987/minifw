@@ -58,9 +58,7 @@ class Mysqli extends FW\DB {
         return $this->_mysqli->error;
     }
 
-    public function query($sql) {
-        //echo $sql.'<br />';
-        //$sql .= 'ddd';
+    public function query($sql, $field = [], $value = []) {
         if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
@@ -71,9 +69,10 @@ class Mysqli extends FW\DB {
                 throw new Exception('数据库查询失败');
             }
         }
+        $sql = $this->compile_sql($sql, $field, $value);
         $ret = $this->_mysqli->query($sql);
         if ($ret === false && DEBUG == 1) {
-            throw new Exception($this->_mysqli->error . "\n" . $sql);
+            throw new Exception($this->last_error() . "\n" . $sql);
         }
         return $ret;
     }
@@ -211,6 +210,44 @@ class Mysqli extends FW\DB {
             return $ret;
         }
         throw new Exception('返回信息处理失败');
+    }
+
+    public function compile_sql($sql, $field = [], $value = []) {
+        foreach ($field as $k => $v) {
+            if (is_array($v)) {
+                if ($v[0] === 'expr') {
+                    $sql = str_replace("{{$k}}", $v[1], $sql);
+                } else {
+                    $sql = str_replace("{{$k}}", "`{$v[1]}`", $sql);
+                }
+            } else {
+                $sql = str_replace("{{$k}}", "`{$v}`", $sql);
+            }
+        }
+        foreach ($value as $k => $v) {
+            if (is_array($v)) {
+                switch ($v[0]) {
+                    case 'expr':
+                        $sql = str_replace("{{$k}}", $v[1], $sql);
+                        break;
+                    case 'rich':
+                        $v[1] = $this->parse_richstr($v[1]);
+                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                        break;
+                    case 'like':
+                        $v[1] = $this->parse_like($v[1]);
+                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                        break;
+                    default :
+                        $v[1] = $this->parse_str($v[1]);
+                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                }
+            } else {
+                $v = $this->parse_str($v);
+                $sql = str_replace("{{$k}}", "\"{$v}\"", $sql);
+            }
+        }
+        return $sql;
     }
 
     public static function create_table_sql($tbname, $tbinfo, $field, $index, $dim = '') {
