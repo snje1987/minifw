@@ -14,8 +14,6 @@ Org\Snje\MinifwTest\Table\TableAdd table_with_one
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Org\Snje\MinifwTest\Table\TableDel table_with_all
 
--[1] `intfield` int(11) NOT NULL COMMENT "A int field"
-+[0] `intfield` int(11) NOT NULL COMMENT "A int field"
 - `id` int(10) unsigned NOT NULL auto_increment COMMENT "ID"
 - `charfield` varchar(200) NOT NULL COMMENT "A varchar field"
 - `textfield` text NOT NULL COMMENT "A text field"
@@ -67,6 +65,10 @@ Org\Snje\MinifwTest\Table\TableMove table_with_all
 +[3] `charfield` varchar(200) NOT NULL COMMENT "A varchar field"
 -[5] `intfield` int(11) NOT NULL COMMENT "A int field"
 +[4] `intfield` int(11) NOT NULL COMMENT "A int field"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Org\Snje\MinifwTest\Table\TableDel1 table_with_all
+
+- `intfield` int(11) NOT NULL COMMENT "A int field"
 
 
 ================================================================
@@ -81,7 +83,6 @@ ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`) COMMENT "主键";
 ALTER TABLE `table_with_one` ADD INDEX `intfield` (`intfield`,`charfield`);
 ALTER TABLE `table_with_one` ADD UNIQUE `uniqueindex` (`intfield`);
 ALTER TABLE `table_with_one` ADD INDEX `addfield` (`charfield`);
-ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(11) NOT NULL COMMENT "A int field" first;
 ALTER TABLE `table_with_all` DROP `id`;
 ALTER TABLE `table_with_all` DROP `charfield`;
 ALTER TABLE `table_with_all` DROP `textfield`;
@@ -109,3 +110,4 @@ ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NU
 ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT "A text field" after `intfield_def`;
 ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(200) NOT NULL COMMENT "A varchar field" after `textfield`;
 ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(11) NOT NULL COMMENT "A int field" after `charfield`;
+ALTER TABLE `table_with_all` DROP `intfield`;

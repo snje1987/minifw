@@ -17,6 +17,10 @@ class DiffTest extends Ts\TestCommon {
         $table = TableDel::get();
         $diff = $table->table_diff();
         $this->assertEquals(TableDel::$diff, $diff);
+
+        $table = TableDel1::get();
+        $diff = $table->table_diff();
+        $this->assertEquals(TableDel1::$diff, $diff);
     }
 
     public function test_change() {
