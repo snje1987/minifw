@@ -306,6 +306,7 @@ class Mysqli extends FW\DB {
 
         //计算删除的列
         $i = 0;
+        $removed = array();
         foreach ($from as $k => $v) {
             $i ++;
             if (array_key_exists($k, $to)) {
@@ -317,6 +318,7 @@ class Mysqli extends FW\DB {
                 'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
             ];
             self::move_field_no($from, $i - 1, -1, -1);
+            $removed[] = $k;
         }
 
         //计算变化的列
@@ -338,10 +340,10 @@ class Mysqli extends FW\DB {
             $i ++;
         }
 
-        return $diff;
+        return [$diff, $removed];
     }
 
-    public static function get_index_diff($tbname, $from, $to) {
+    public static function get_index_diff($tbname, $from, $to, $removed) {
         $diff = [];
         foreach ($to as $k => $v) {
             $to_sql = self::index_to_sql($k, $v, false);
@@ -373,10 +375,22 @@ class Mysqli extends FW\DB {
             if (array_key_exists($k, $to)) {
                 continue;
             }
+            $has_removed = true;
+            foreach ($v['fields'] as $field) {
+                if (!in_array($field, $removed)) {
+                    $has_removed = false;
+                    break;
+                }
+            }
             $from_sql = self::index_to_sql($k, $v, false);
             $trans = 'ALTER TABLE `' . $tbname . '` DROP INDEX `' . $k . '`;';
             if ($k == 'PRIMARY') {
                 $trans = 'ALTER TABLE `' . $tbname . '` DROP PRIMARY KEY;';
+            }
+
+            if ($has_removed) {
+                //如果索引中所有的列已经被删除，索引会被自动删除，不必生成删除语句
+                $trans = null;
             }
 
             $diff[] = [

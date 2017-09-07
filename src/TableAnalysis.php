@@ -27,7 +27,7 @@ interface TableAnalysis {
     /**
      * get diff info to convert table indexs
      */
-    public static function get_index_diff($tbname, $from, $to);
+    public static function get_index_diff($tbname, $from, $to, $removed);
 
     /**
      * get diff info to convert table fields

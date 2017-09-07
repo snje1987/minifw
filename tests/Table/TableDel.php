@@ -45,7 +45,7 @@ class TableDel extends FW\Table {
         ],
         [
             'diff' => '- PRIMARY KEY (`id`) COMMENT "主键"',
-            'trans' => 'ALTER TABLE `table_with_all` DROP PRIMARY KEY;',
+            'trans' => null,
         ],
         [
             'diff' => '- UNIQUE `uniqueindex` (`intfield`)',
@@ -53,7 +53,7 @@ class TableDel extends FW\Table {
         ],
         [
             'diff' => '- INDEX `charfield` (`charfield`)',
-            'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `charfield`;',
+            'trans' => null,
         ],
         [
             'diff' => '- INDEX `intfield` (`intfield`,`charfield`)',

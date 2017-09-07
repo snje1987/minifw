@@ -192,11 +192,11 @@ abstract class Table {
             return $diff;
         }
         $diff = $this->db->get_status_diff(static::TBNAME, $status, static::STATUS);
-        $fdiff = $this->db->get_field_diff(static::TBNAME, $field, static::FIELD);
+        list($fdiff, $removed) = $this->db->get_field_diff(static::TBNAME, $field, static::FIELD);
         if (!empty($fdiff)) {
             $diff = array_merge($diff, $fdiff);
         }
-        $idiff = $this->db->get_index_diff(static::TBNAME, $index, static::INDEX);
+        $idiff = $this->db->get_index_diff(static::TBNAME, $index, static::INDEX, $removed);
         if (!empty($idiff)) {
             $diff = array_merge($diff, $idiff);
         }

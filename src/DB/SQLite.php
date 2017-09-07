@@ -117,7 +117,7 @@ class SQLite extends FW\DB {
         throw new Exception('方法未实现');
     }
 
-    public static function get_index_diff($tbname, $from, $to) {
+    public static function get_index_diff($tbname, $from, $to, $removed) {
         throw new Exception('方法未实现');
     }
 

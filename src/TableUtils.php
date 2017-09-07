@@ -15,7 +15,9 @@ class TableUtils {
             echo $class . ' ' . $info['tbname'] . "\n\n";
             foreach ($info['diff'] as $line) {
                 echo $line['diff'] . "\n";
-                $trans[] = $line['trans'];
+                if ($line['trans'] !== null) {
+                    $trans[] = $line['trans'];
+                }
             }
         }
         echo "\n\n================================================================\n\n";
