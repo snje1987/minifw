@@ -28,12 +28,34 @@ class Resource {
     public function compile_all() {
         foreach ($this->map as $cfg) {
             if ($cfg['type'] === 'file') {
-                if (!$this->compile($cfg['to'])) {
-                    return false;
+                if (!is_array($cfg['to'])) {
+                    $cfg['to'] = [
+                        $cfg['to'],
+                    ];
+                }
+                foreach ($cfg['to'] as $to) {
+                    if (!$this->compile($to)) {
+                        return false;
+                    }
                 }
             } elseif ($cfg['type'] === 'dir') {
-                if (!$this->compile_dir($cfg['from'], $cfg['to'])) {
-                    return false;
+                if (!is_array($cfg['to'])) {
+                    $cfg['to'] = [
+                        $cfg['to'],
+                    ];
+                }
+                if (!is_array($cfg['from'])) {
+                    $cfg['from'] = [
+                        $cfg['from'],
+                    ];
+                }
+                foreach ($cfg['to'] as $k => $to) {
+                    if (!isset($cfg['from'][$k])) {
+                        return false;
+                    }
+                    if (!$this->compile_dir($cfg['from'][$k], $to)) {
+                        return false;
+                    }
                 }
             } else {
                 return false;
@@ -76,41 +98,89 @@ class Resource {
     public function get_match_rule($dest) {
         foreach ($this->map as $cfg) {
             if ($cfg['type'] === 'file') {
-                if ($cfg['to'] === $dest) {
-                    if (!is_array($cfg['from'])) {
-                        $cfg['from'] = [
-                            $cfg['from'],
-                        ];
-                    }
-                    return $cfg;
+                $ret = $this->match_file($dest, $cfg);
+                if ($ret !== null) {
+                    return $ret;
                 }
             } elseif ($cfg['type'] === 'dir') {
-                $len = strlen($cfg['to']);
-                if (strncmp($cfg['to'], $dest, $len) !== 0) {
-                    continue;
+                $ret = $this->match_dir($dest, $cfg);
+                if ($ret !== null) {
+                    return $ret;
                 }
-                if (isset($cfg['tail'])) {
-                    if (!is_array($cfg['tail'])) {
-                        $cfg['tail'] = [
-                            $cfg['tail'],
+            }
+        }
+        return null;
+    }
+
+    protected function match_file($dest, $cfg) {
+        if (is_array($cfg['to'])) {
+            foreach ($cfg['to'] as $k => $v) {
+                if ($v === $dest) {
+                    if (is_array($cfg['from']) && isset($cfg['from'][$k])) {
+                        $cfg['to'] = $dest;
+                        $cfg['from'] = [
+                            $cfg['from'][$k],
                         ];
-                    }
-                    $match = false;
-                    foreach ($cfg['tail'] as $v) {
-                        if (substr($dest, -1 * strlen($v)) === $v) {
-                            $match = true;
-                            break;
-                        }
-                    }
-                    if (!$match) {
-                        continue;
+                        return $cfg;
                     }
                 }
-                $cfg['from'] = [
-                    $cfg['from'] . substr($dest, $len),
-                ];
+            }
+        } else {
+            if ($cfg['to'] === $dest) {
+                if (!is_array($cfg['from'])) {
+                    $cfg['from'] = [
+                        $cfg['from'],
+                    ];
+                }
                 return $cfg;
             }
+        }
+        return null;
+    }
+
+    protected function match_dir($dest, $cfg) {
+        if (!is_array($cfg['to'])) {
+            $cfg['to'] = [
+                $cfg['to'],
+            ];
+        }
+        if (!is_array($cfg['from'])) {
+            $cfg['from'] = [
+                $cfg['from'],
+            ];
+        }
+
+        if (isset($cfg['tail'])) {
+            if (!is_array($cfg['tail'])) {
+                $cfg['tail'] = [
+                    $cfg['tail'],
+                ];
+            }
+            $match = false;
+            foreach ($cfg['tail'] as $v) {
+                if (substr($dest, -1 * strlen($v)) === $v) {
+                    $match = true;
+                    break;
+                }
+            }
+            if (!$match) {
+                return null;
+            }
+        }
+
+        foreach ($cfg['to'] as $k => $to) {
+            $len = strlen($to);
+            if (strncmp($to, $dest, $len) !== 0) {
+                continue;
+            }
+            if (!isset($cfg['from'][$k])) {
+                return null;
+            }
+            $cfg['to'] = $dest;
+            $cfg['from'] = [
+                $cfg['from'][$k] . substr($dest, $len),
+            ];
+            return $cfg;
         }
         return null;
     }

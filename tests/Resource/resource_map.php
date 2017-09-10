@@ -18,6 +18,18 @@ $value[] = [
     'method' => 'copy',
     'type' => 'file',
 ];
+$value[] = [
+    'from' => [
+        '/tests/Resource/from/dir2/file4.css',
+        '/tests/Resource/from/dir2/file4.js',
+    ],
+    'to' => [
+        '/tests/Resource/to/copy/dir2/file4.css',
+        '/tests/Resource/to/copy/dir2/file4.js'
+    ],
+    'method' => 'copy',
+    'type' => 'file',
+];
 
 $value[] = [
     'from' => '/tests/Resource/from/dir1',
@@ -32,5 +44,25 @@ $value[] = [
     'method' => 'cssmin',
     'type' => 'dir',
     'tail' => '.css',
+];
+$value[] = [
+    'from' => '/tests/Resource/from/dir1',
+    'to' => '/tests/Resource/to/copy/dir1',
+    'method' => 'copy',
+    'type' => 'dir',
+    'tail' => '.js',
+];
+$value[] = [
+    'from' => [
+        '/tests/Resource/from/dir1',
+        '/tests/Resource/from/dir2',
+    ],
+    'to' => [
+        '/tests/Resource/to/copy/mdir/dir1',
+        '/tests/Resource/to/copy/mdir/dir2',
+    ],
+    'method' => 'copy',
+    'type' => 'dir',
+    'tail' => '.js',
 ];
 return $value;
