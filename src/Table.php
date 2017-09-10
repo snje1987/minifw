@@ -114,14 +114,6 @@ abstract class Table {
         return $this->db->limit_query(static::$tbname, $condition, $field);
     }
 
-    public function gets_by_query($sql) {
-        return $this->db->get_query($sql);
-    }
-
-    public function query($sql) {
-        return $this->db->query($sql);
-    }
-
     public function drop() {
         $sql = $this->db->drop_table_sql(static::$tbname);
         return $this->db->query($sql);
