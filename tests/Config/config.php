@@ -7,7 +7,7 @@ $cfg['main']['db'] = 'Mysqli';
 
 $cfg['path'] = array(
     'theme' => '/theme',
-    'theme_res' => '/www',
+    'res' => '/www',
     'compiled' => '/compiled',
     'ttfs' => '/ttfs',
     'web_root' => dirname(__DIR__),

@@ -96,56 +96,7 @@ class Tpl {
         if (self::$always_compile == 1 || $desttime == 0 || $desttime <= $srctime) {
             $str = file_get_contents($src);
 
-            $str = preg_replace(
-                    '/\<{inc (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",array(),"' . $theme . '"); ?>', $str);
-
-            $str = preg_replace(
-                    '/\<{inc (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"' . $theme . '"); ?>', $str);
-
-            $str = preg_replace(
-                    '/\<{inc (\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc("/$1",$2,"$3"); ?>', $str);
-
-            $str = preg_replace('/\<{=(.*?)}\>/', '<?php echo ($1); ?>', $str);
-            $str = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){ ?>', $str);
-            $str = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){ ?>', $str);
-            $str = preg_replace('/\<{else}\>/', '<?php }else{ ?>', $str);
-            $str = preg_replace('/\<{\/if}\>/', '<?php } ?>', $str);
-
-            $str = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php for($1=$2; $1 <= $3; $1++){ ?>', $str);
-
-            $str = preg_replace('/\<{\/for}\>/', '<?php } ?>', $str);
-
-            $str = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/', '<?php foreach($1 as $2){ ?>', $str);
-
-            $str = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php foreach($1 as $2 => $3){ ?>', $str);
-
-            $str = preg_replace('/\<{\/foreach}\>/', '<?php } ?>', $str);
-            $str = preg_replace('/\<{(\S.*?)}\>/', '<?php $1; ?>', $str);
-            $str = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $str);
-
-            //path relate to theme："/xxxx/yyyy"
-            $str = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $str);
-
-            //path relate to resource root："|xxx/yyy"
-            $str = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/$2" $3 />', $str);
-
-            //path keep original："\xxx/yyy"
-            $str = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1 href="/$2" $3 />', $str);
-            $str = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1 src="/$2" $3>', $str);
-            $str = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1 src="/$2" $3 />', $str);
-
-            //remove empty character
-            $str = preg_replace('/^\s*(.*?)\s*$/im', '$1', $str);
-            $str = preg_replace('/\r|\n/', '', $str);
-            $str = preg_replace('/\>\s*\</', '>$1<', $str);
-            $str = preg_replace('/\s*\?\>\s*\<\?php\s*/', '', $str);
-            $str = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $str);
-            $str = preg_replace('/\s{2,}/i', ' ', $str);
-            $str = preg_replace('/\?\>$/i', '', $str);
+            $str = self::_compile_string($str, $theme);
 
             FW\File::mkdir(dirname($dest));
             if (!file_put_contents($dest, $str)) {
@@ -156,6 +107,60 @@ class Tpl {
                 }
             }
         }
+    }
+
+    protected static function _compile_string($input, $theme) {
+        $input = preg_replace(
+                '/\<{inc \/?(\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',[],\'' . $theme . '\');?>', $input);
+
+        $input = preg_replace(
+                '/\<{inc \/?(\S*?) (\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
+
+        $input = preg_replace(
+                '/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
+
+        $input = preg_replace('/\<{=(.*?)}\>/', '<?phpecho ($1);?>', $input);
+        $input = preg_replace('/\<{if (.*?)}\>/', '<?phpif($1){?>', $input);
+        $input = preg_replace('/\<{elseif (.*?)}\>/', '<?php}elseif($1){?>', $input);
+        $input = preg_replace('/\<{else}\>/', '<?php}else{?>', $input);
+        $input = preg_replace('/\<{\/if}\>/', '<?php}?>', $input);
+
+        $input = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?phpfor($1=$2;$1<=$3;$1++){?>', $input);
+
+        $input = preg_replace('/\<{\/for}\>/', '<?php}?>', $input);
+
+        $input = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/', '<?phpforeach($1 as $2){?>', $input);
+
+        $input = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?phpforeach($1 as $2=>$3){?>', $input);
+
+        $input = preg_replace('/\<{\/foreach}\>/', '<?php}?>', $input);
+        $input = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $input);
+        $input = preg_replace('/\<{(\S.*?)}\>/', '<?php$1;?>', $input);
+
+        //path relate to theme："/xxxx/yyyy"
+        $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $input);
+
+        //path relate to resource root："|xxx/yyy"
+        $input = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/$2" $3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/$2" $3 />', $input);
+
+        //path keep original："\xxx/yyy"
+        $input = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1 href="/$2" $3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1 src="/$2" $3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1 src="/$2" $3 />', $input);
+
+        //remove empty character
+        $input = preg_replace('/^\s*(.*?)\s*$/im', '$1', $input);
+        $input = preg_replace('/\r|\n/', '', $input);
+        $input = preg_replace('/\>\s*\</', '>$1<', $input);
+        $input = preg_replace('/\s*\?\>\s*\<\?php\s*/', '', $input);
+        $input = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $input);
+        $input = preg_replace('/\s{2,}/i', ' ', $input);
+        $input = preg_replace('/\?\>$/i', "\n", $input);
+        return $input;
     }
 
 }

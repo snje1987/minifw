@@ -11,6 +11,7 @@
     <testsuites>
         <testsuite name="all">
             <testsuite name="money">
+                <file>Config/ConfigTest.php</file>
                 <file>Text/TextTest.php</file>
                 <file>Table/CreateTest.php</file>
                 <file>Table/GetTest.php</file>
@@ -18,10 +19,10 @@
                 <file>JsonCall/CommonTest.php</file>
                 <file>JsonCall/TableTest.php</file>
                 <file>File/FileTest.php</file>
-                <file>Config/ConfigTest.php</file>
                 <file>Router/RouterTest.php</file>
                 <file>Resource/ResourceTest.php</file>
                 <file>DB/MysqliTest.php</file>
+                <file>Tpl/TplTest.php</file>
             </testsuite>
         </testsuite>
     </testsuites>
