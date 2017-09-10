@@ -127,4 +127,39 @@ class Text {
         return true;
     }
 
+    public static function str_num_cmp($left, $right) {
+        $l_match = array();
+        if (!preg_match('/^(-)?(\d+)(\.(\d+)?)?$/', $left, $l_match)) {
+            return false;
+        }
+        $r_match = array();
+        if (!preg_match('/^(-)?(\d+)(\.(\d+)?)?$/', $right, $r_match)) {
+            return false;
+        }
+        $falg = 1;
+        if ($l_match[1] != $r_match[1]) {
+            if ($l_match[1] === '-') {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+        if ($l_match[1] === '-') {
+            $falg = -1;
+        }
+        $l_match[2] = ltrim($l_match[2], '0');
+        $r_match[2] = ltrim($r_match[2], '0');
+        $tmp = strlen($l_match[2]) - strlen($r_match[2]);
+        if ($tmp !== 0) {
+            return $tmp * $falg;
+        }
+        $tmp = strcmp($l_match[2], $r_match[2]);
+        if ($tmp !== 0) {
+            return $tmp * $falg;
+        }
+        $l_match[4] = isset($l_match[4]) ? rtrim($l_match[4], '0') : '';
+        $r_match[4] = isset($r_match[4]) ? rtrim($r_match[4], '0') : '';
+        return strcmp($l_match[4], $r_match[4]) * $falg;
+    }
+
 }
