@@ -111,31 +111,31 @@ class Tpl {
 
     protected static function _compile_string($input, $theme) {
         $input = preg_replace(
-                '/\<{inc \/?(\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',[],\'' . $theme . '\');?>', $input);
+                '/\<{inc \/?(\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',[],\'' . $theme . '\');?>', $input);
 
         $input = preg_replace(
-                '/\<{inc \/?(\S*?) (\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
+                '/\<{inc \/?(\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
 
         $input = preg_replace(
-                '/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/', '<?php' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
+                '/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
 
         $input = preg_replace('/\<{=(.*?)}\>/', '<?=($1);?>', $input);
-        $input = preg_replace('/\<{if (.*?)}\>/', '<?phpif($1){?>', $input);
-        $input = preg_replace('/\<{elseif (.*?)}\>/', '<?php}elseif($1){?>', $input);
-        $input = preg_replace('/\<{else}\>/', '<?php}else{?>', $input);
-        $input = preg_replace('/\<{\/if}\>/', '<?php}?>', $input);
+        $input = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){?>', $input);
+        $input = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){?>', $input);
+        $input = preg_replace('/\<{else}\>/', '<?php }else{?>', $input);
+        $input = preg_replace('/\<{\/if}\>/', '<?php }?>', $input);
 
-        $input = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?phpfor($1=$2;$1<=$3;$1++){?>', $input);
+        $input = preg_replace('/\<{for (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php for($1=$2;$1<=$3;$1++){?>', $input);
 
-        $input = preg_replace('/\<{\/for}\>/', '<?php}?>', $input);
+        $input = preg_replace('/\<{\/for}\>/', '<?php }?>', $input);
 
-        $input = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/', '<?phpforeach($1 as $2){?>', $input);
+        $input = preg_replace('/\<{foreach (\S*?) (\S*?)}\>/', '<?php foreach($1 as $2){?>', $input);
 
-        $input = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?phpforeach($1 as $2=>$3){?>', $input);
+        $input = preg_replace('/\<{foreach (\S*?) (\S*?) (\S*?)\s*?}\>/', '<?php foreach($1 as $2=>$3){?>', $input);
 
-        $input = preg_replace('/\<{\/foreach}\>/', '<?php}?>', $input);
+        $input = preg_replace('/\<{\/foreach}\>/', '<?php }?>', $input);
         $input = preg_replace('/\<{\*((.|\r|\n)*?)\*}\>/', '', $input);
-        $input = preg_replace('/\<{(\S.*?)}\>/', '<?php$1;?>', $input);
+        $input = preg_replace('/\<{(\S.*?)}\>/', '<?php $1;?>', $input);
 
         //path relate to theme："/xxxx/yyyy"
         $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $input);
