@@ -58,7 +58,7 @@ class Mysqli extends FW\DB {
         return $this->_mysqli->error;
     }
 
-    public function query($sql, $field = array(), $value = array()) {
+    public function query($sql, $cvar = array(), $uvar = array()) {
         if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
@@ -69,7 +69,7 @@ class Mysqli extends FW\DB {
                 throw new Exception('数据库查询失败');
             }
         }
-        $sql = $this->compile_sql($sql, $field, $value);
+        $sql = $this->compile_sql($sql, $cvar, $uvar);
         $ret = $this->_mysqli->query($sql);
         if ($ret === false && DEBUG == 1) {
             throw new Exception($this->last_error() . "\n" . $sql);
@@ -81,7 +81,8 @@ class Mysqli extends FW\DB {
         if (method_exists('mysqli_result', 'fetch_all')) {
             $data = $res->fetch_all(MYSQLI_ASSOC);
         } else {
-            for ($data = array(); $tmp = $res->fetch_array(MYSQLI_ASSOC);) {
+            for ($data = array(); $tmp = $res->fetch_array(MYSQLI_ASSOC);
+            ) {
                 $data[] = $tmp;
             }
         }
@@ -212,19 +213,11 @@ class Mysqli extends FW\DB {
         throw new Exception('返回信息处理失败');
     }
 
-    public function compile_sql($sql, $field = array(), $value = array()) {
-        foreach ($field as $k => $v) {
-            if (is_array($v)) {
-                if ($v[0] === 'expr') {
-                    $sql = str_replace("{{$k}}", $v[1], $sql);
-                } else {
-                    $sql = str_replace("{{$k}}", "`{$v[1]}`", $sql);
-                }
-            } else {
-                $sql = str_replace("{{$k}}", "`{$v}`", $sql);
-            }
+    public function compile_sql($sql, $cvar = array(), $uvar = array()) {
+        foreach ($cvar as $k => $v) {
+            $sql = str_replace("{{$k}}", "`{$v}`", $sql);
         }
-        foreach ($value as $k => $v) {
+        foreach ($uvar as $k => $v) {
             if (is_array($v)) {
                 switch ($v[0]) {
                     case 'expr':
@@ -236,7 +229,7 @@ class Mysqli extends FW\DB {
                         break;
                     case 'like':
                         $v[1] = $this->parse_like($v[1]);
-                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                        $sql = str_replace("{{$k}}", "{$v[1]}", $sql);
                         break;
                     default :
                         $v[1] = $this->parse_str($v[1]);

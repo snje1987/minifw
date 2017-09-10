@@ -69,11 +69,11 @@ abstract class DB implements TableAnalysis {
         return $data;
     }
 
-    public function get_query($sql) {
+    public function get_query($sql, $cvar = array(), $uvar = array()) {
         if (static::$test_mode) {
             return $sql;
         }
-        $res = $this->query($sql);
+        $res = $this->query($sql, $cvar, $uvar);
         if ($res === false) {
             return false;
         }
@@ -365,7 +365,7 @@ abstract class DB implements TableAnalysis {
         return $str;
     }
 
-    abstract public function query($sql, $field = array(), $value = array());
+    abstract public function query($sql, $cvar = array(), $uvar = array());
 
     abstract public function multi_query($sql);
 
