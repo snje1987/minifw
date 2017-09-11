@@ -10,8 +10,8 @@ class TplTest extends Ts\TestCommon {
     public function test_compile_string() {
         $class = 'Org\\Snje\\Minifw\\Tpl';
         $hash = array(
-            '<{inc header}>' => '<?php ' . $class . '::_inc(\'/header\',[],\'default\');' . "\n",
-            '<{inc /header}>' => '<?php ' . $class . '::_inc(\'/header\',[],\'default\');' . "\n",
+            '<{inc header}>' => '<?php ' . $class . '::_inc(\'/header\',array(),\'default\');' . "\n",
+            '<{inc /header}>' => '<?php ' . $class . '::_inc(\'/header\',array(),\'default\');' . "\n",
             '<{inc header $args}>' => '<?php ' . $class . '::_inc(\'/header\',$args,\'default\');' . "\n",
             '<{inc /header $args}>' => '<?php ' . $class . '::_inc(\'/header\',$args,\'default\');' . "\n",
             '<{inc header $args theme}>' => '<?php ' . $class . '::_inc(\'/header\',$args,\'theme\');' . "\n",

@@ -111,7 +111,7 @@ class Tpl {
 
     protected static function _compile_string($input, $theme) {
         $input = preg_replace(
-                '/\<{inc \/?(\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',[],\'' . $theme . '\');?>', $input);
+                '/\<{inc \/?(\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',array(),\'' . $theme . '\');?>', $input);
 
         $input = preg_replace(
                 '/\<{inc \/?(\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
