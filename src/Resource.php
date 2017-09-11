@@ -28,32 +28,17 @@ class Resource {
     public function compile_all() {
         foreach ($this->map as $cfg) {
             if ($cfg['type'] === 'file') {
-                if (!is_array($cfg['to'])) {
-                    $cfg['to'] = array(
-                        $cfg['to'],
-                    );
-                }
-                foreach ($cfg['to'] as $to) {
+                foreach ($cfg['map'] as $to => $from) {
                     if (!$this->compile($to)) {
                         return false;
                     }
                 }
             } elseif ($cfg['type'] === 'dir') {
-                if (!is_array($cfg['to'])) {
-                    $cfg['to'] = array(
-                        $cfg['to'],
-                    );
-                }
-                if (!is_array($cfg['from'])) {
-                    $cfg['from'] = array(
-                        $cfg['from'],
-                    );
-                }
-                foreach ($cfg['to'] as $k => $to) {
-                    if (!isset($cfg['from'][$k])) {
-                        return false;
+                foreach ($cfg['map'] as $to => $from) {
+                    if (is_array($from)) {
+                        $from = $from[0];
                     }
-                    if (!$this->compile_dir($cfg['from'][$k], $to)) {
+                    if (!$this->compile_dir($from, $to)) {
                         return false;
                     }
                 }
@@ -113,43 +98,21 @@ class Resource {
     }
 
     protected function match_file($dest, $cfg) {
-        if (is_array($cfg['to'])) {
-            foreach ($cfg['to'] as $k => $v) {
-                if ($v === $dest) {
-                    if (is_array($cfg['from']) && isset($cfg['from'][$k])) {
-                        $cfg['to'] = $dest;
-                        $cfg['from'] = array(
-                            $cfg['from'][$k],
-                        );
-                        return $cfg;
-                    }
-                }
+        if (isset($cfg['map'][$dest])) {
+            if (!is_array($cfg['map'][$dest])) {
+                $cfg['map'][$dest] = array(
+                    $cfg['map'][$dest]
+                );
             }
-        } else {
-            if ($cfg['to'] === $dest) {
-                if (!is_array($cfg['from'])) {
-                    $cfg['from'] = array(
-                        $cfg['from'],
-                    );
-                }
-                return $cfg;
-            }
+            $cfg['map'] = array(
+                $dest => $cfg['map'][$dest],
+            );
+            return $cfg;
         }
         return null;
     }
 
     protected function match_dir($dest, $cfg) {
-        if (!is_array($cfg['to'])) {
-            $cfg['to'] = array(
-                $cfg['to'],
-            );
-        }
-        if (!is_array($cfg['from'])) {
-            $cfg['from'] = array(
-                $cfg['from'],
-            );
-        }
-
         if (isset($cfg['tail'])) {
             if (!is_array($cfg['tail'])) {
                 $cfg['tail'] = array(
@@ -168,17 +131,18 @@ class Resource {
             }
         }
 
-        foreach ($cfg['to'] as $k => $to) {
+        foreach ($cfg['map'] as $to => $from) {
             $len = strlen($to);
             if (strncmp($to, $dest, $len) !== 0) {
                 continue;
             }
-            if (!isset($cfg['from'][$k])) {
-                return null;
+            if (is_array($from)) {
+                $from = $from[0];
             }
-            $cfg['to'] = $dest;
-            $cfg['from'] = array(
-                $cfg['from'][$k] . substr($dest, $len),
+            $cfg['map'] = array(
+                $dest => array(
+                    $from . substr($dest, $len)
+                ),
             );
             return $cfg;
         }
@@ -193,7 +157,7 @@ class Resource {
             return true;
         }
         $dtime = \filemtime(WEB_ROOT . $dest);
-        foreach ($cfg['from'] as $file) {
+        foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $stime = \filemtime($full);
@@ -207,7 +171,7 @@ class Resource {
 
     protected function compile_uglify($dest, $cfg) {
         $content = '';
-        foreach ($cfg['from'] as $file) {
+        foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content .= \file_get_contents($full);
@@ -215,33 +179,30 @@ class Resource {
         }
         $myPacker = new \GK\JavascriptPacker($content, 'Normal', true, false);
         $content = $myPacker->pack();
-        $dest = WEB_ROOT . $dest;
-        File::put_content($dest, $content);
+        File::put_content(WEB_ROOT . $dest, $content);
         return true;
     }
 
     protected function compile_cssmin($dest, $cfg) {
         $content = '';
-        foreach ($cfg['from'] as $file) {
+        foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content .= \file_get_contents($full);
             }
         }
         $content = \CssMin::minify($content);
-        $dest = WEB_ROOT . $dest;
-        File::put_content($dest, $content);
+        File::put_content(WEB_ROOT . $dest, $content);
         return true;
     }
 
     protected function compile_copy($dest, $cfg) {
-        $dest = WEB_ROOT . $dest;
         File::delete($dest, true);
-        foreach ($cfg['from'] as $file) {
+        foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
                 $content = \file_get_contents($full);
-                File::put_content($dest, $content, '', FILE_APPEND);
+                File::put_content(WEB_ROOT . $dest, $content, '', FILE_APPEND);
             }
         }
         return true;
