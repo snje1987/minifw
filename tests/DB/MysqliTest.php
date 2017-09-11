@@ -10,42 +10,29 @@ class MysqliTest extends Ts\TestCommon {
     public function test_compile_sql() {
         $cases = [
             [
-                'sql' => 'select {name} from {table} limit 1',
-                'field' => [
-                    'name' => 'real_name',
-                    'table' => 'real_table'
-                ],
-                'value' => [],
-                'out' => 'select `real_name` from `real_table` limit 1',
-            ],
-            [
                 'sql' => 'select `name` from `table` where `name` = {value}',
-                'field' => [],
-                'value' => [
+                'var' => [
                     'value' => 'real_value<>_%'
                 ],
                 'out' => 'select `name` from `table` where `name` = "real_value&lt;&gt;_%"',
             ],
             [
                 'sql' => 'select `name` from `table` where `name` = {value}',
-                'field' => [],
-                'value' => [
+                'var' => [
                     'value' => ['rich', 'real_value<>_%'],
                 ],
                 'out' => 'select `name` from `table` where `name` = "real_value<>_%"',
             ],
             [
                 'sql' => 'select `name` from `table` where `name` = {value}',
-                'field' => [],
-                'value' => [
+                'var' => [
                     'value' => ['expr', '"real_value<>_%"'],
                 ],
                 'out' => 'select `name` from `table` where `name` = "real_value<>_%"',
             ],
             [
                 'sql' => 'select `name` from `table` where `name` like "%{value}_"',
-                'field' => [],
-                'value' => [
+                'var' => [
                     'value' => ['like', 'real_value<>_%'],
                 ],
                 'out' => 'select `name` from `table` where `name` like "%real\_value<>\_\%_"',
@@ -53,7 +40,7 @@ class MysqliTest extends Ts\TestCommon {
         ];
         $db = FW\DB\Mysqli::get();
         foreach ($cases as $v) {
-            $this->assertEquals($v['out'], $db->compile_sql($v['sql'], $v['field'], $v['value']));
+            $this->assertEquals($v['out'], $db->compile_sql($v['sql'], $v['var']));
         }
     }
 

@@ -58,7 +58,7 @@ class Mysqli extends FW\DB {
         return $this->_mysqli->error;
     }
 
-    public function query($sql, $cvar = [], $uvar = []) {
+    public function query($sql, $var = []) {
         if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
@@ -69,7 +69,7 @@ class Mysqli extends FW\DB {
                 throw new Exception('数据库查询失败');
             }
         }
-        $sql = $this->compile_sql($sql, $cvar, $uvar);
+        $sql = $this->compile_sql($sql, $var);
         $ret = $this->_mysqli->query($sql);
         if ($ret === false && DEBUG == 1) {
             throw new Exception($this->last_error() . "\n" . $sql);
@@ -212,11 +212,8 @@ class Mysqli extends FW\DB {
         throw new Exception('返回信息处理失败');
     }
 
-    public function compile_sql($sql, $cvar = [], $uvar = []) {
-        foreach ($cvar as $k => $v) {
-            $sql = str_replace("{{$k}}", "`{$v}`", $sql);
-        }
-        foreach ($uvar as $k => $v) {
+    public function compile_sql($sql, $var = []) {
+        foreach ($var as $k => $v) {
             if (is_array($v)) {
                 switch ($v[0]) {
                     case 'expr':
