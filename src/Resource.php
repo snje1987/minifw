@@ -197,7 +197,7 @@ class Resource {
     }
 
     protected function compile_copy($dest, $cfg) {
-        File::delete($dest, true);
+        File::delete(WEB_ROOT . $dest, true);
         foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
