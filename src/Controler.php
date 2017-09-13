@@ -21,6 +21,20 @@ class Controler {
     protected $config;
     protected $theme;
 
+    public static function send_download_header($filename) {
+        header("Accept-Ranges: bytes");
+        $ua = isset($_SERVER["HTTP_USER_AGENT"]) ? strval($_SERVER["HTTP_USER_AGENT"]) : '';
+        if (strpos($ua, "MSIE") || (strpos($ua, 'rv:11.0') && strpos($ua, 'Trident'))) {
+            $encoded_filename = urlencode($filename);
+            $encoded_filename = str_replace("+", "%20", $encoded_filename);
+            header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+        } elseif (preg_match("/Firefox/", $ua)) {
+            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
+        } else {
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+        }
+    }
+
     public function __construct() {
         $this->config = Config::get();
         $this->theme = $this->config->get_config('main', 'theme', '');
@@ -91,6 +105,15 @@ class Controler {
         } else {
             File::readfile($full);
         }
+    }
+
+    public function download_file($path, $filename, $fsencoding = '') {
+        $full = File::conv_to($path, $fsencoding);
+        if (!file_exists($full)) {
+            $this->show_404();
+        }
+        self::send_download_header($filename);
+        File::readfile($full);
     }
 
     public function referer($default = null) {
