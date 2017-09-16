@@ -215,6 +215,10 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function rename($src, $dest, $fsencoding = '') {
+        $src = strval($src);
+        if ($src == '') {
+            return;
+        }
         $src = self::conv_to($src, $fsencoding);
         $dest = self::conv_to($dest, $fsencoding);
         $dest_dir = self::conv_to(dirname($dest), $fsencoding);
@@ -230,6 +234,10 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function copy($src, $dest, $fsencoding = '') {
+        $src = strval($src);
+        if ($src == '') {
+            return;
+        }
         $src = self::conv_to($src, $fsencoding);
         $dest = self::conv_to($dest, $fsencoding);
         $dest_dir = self::conv_to(dirname($dest), $fsencoding);
@@ -246,6 +254,10 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function copy_dir($src, $dest, $hidden = false, $fsencoding = '') {
+        $src = strval($src);
+        if ($src == '') {
+            return;
+        }
         $src = self::conv_to($src, $fsencoding);
         $dest = self::conv_to($dest, $fsencoding);
         self::mkdir($dest);
@@ -313,6 +325,7 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function delete($path, $isfull = false, $fsencoding = '') {
+        $path = strval($path);
         if ($path == '') {
             return;
         }
@@ -343,6 +356,7 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function clear_dir($path, $isfull = false, $fsencoding = '') {
+        $path = strval($path);
         if ($path == '') {
             return;
         }
@@ -381,6 +395,7 @@ class File {
      * @param string $fsencoding 文件系统的编码，如不为空则会自动进行一些编码转换
      */
     public static function delete_img($path, $isfull = false, $fsencoding = '') {
+        $path = strval($path);
         if ($path == '') {
             return;
         }
