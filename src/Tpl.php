@@ -138,27 +138,27 @@ class Tpl {
         $input = preg_replace('/\<{(\S.*?)}\>/', '<?php $1;?>', $input);
 
         //path relate to theme："/xxxx/yyyy"
-        $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $input);
-        $input = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3>', $input);
-        $input = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2" $3 />', $input);
+        $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
 
         //path relate to resource root："|xxx/yyy"
-        $input = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1 href="' . self::$res_path . '/$2" $3 />', $input);
-        $input = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1 src="' . self::$res_path . '/$2" $3>', $input);
-        $input = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1 src="' . self::$res_path . '/$2" $3 />', $input);
+        $input = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . '/$2"$3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . '/$2"$3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . '/$2"$3 />', $input);
 
         //path keep original："\xxx/yyy"
-        $input = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1 href="/$2" $3 />', $input);
-        $input = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1 src="/$2" $3>', $input);
-        $input = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1 src="/$2" $3 />', $input);
+        $input = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1href="/$2"$3 />', $input);
+        $input = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1src="/$2"$3>', $input);
+        $input = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1src="/$2"$3 />', $input);
 
         //remove empty character
-        $input = preg_replace('/^\s*(.*?)\s*$/im', '$1', $input);
-        $input = preg_replace('/\r|\n/', '', $input);
-        $input = preg_replace('/\>\s*\</', '>$1<', $input);
+        //$input = preg_replace('/^\s*(.*?)\s*$/im', '$1', $input);
+        //$input = preg_replace('/\r|\n/', '', $input);
+        //$input = preg_replace('/\>\s*\</', '>$1<', $input);
         $input = preg_replace('/\s*\?\>\s*\<\?php\s*/', '', $input);
-        $input = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $input);
-        $input = preg_replace('/\s{2,}/i', ' ', $input);
+        //$input = preg_replace('/\>\s*(.*?)\s*\</', '>$1<', $input);
+        //$input = preg_replace('/\s{2,}/i', ' ', $input);
         $input = preg_replace('/\?\>$/i', "\n", $input);
         return $input;
     }

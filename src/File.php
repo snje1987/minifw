@@ -64,7 +64,7 @@ class File {
     }
 
     /**
-     * 保存字符串到文件，会对字符串内容进行压缩
+     * 保存字符串到文件
      *
      * @param string $str 要保存的字符串
      * @param string $group 分组
@@ -73,7 +73,6 @@ class File {
      * @return string 保存的相对路径
      */
     public static function save_str($str, $group, $ext, $fsencoding = '') {
-        $str = Text::strip_html($str);
         return self::save($str, $group, $ext, $fsencoding);
     }
 
