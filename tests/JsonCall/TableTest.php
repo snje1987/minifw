@@ -57,7 +57,12 @@ class TableTest extends Ts\TestCommon {
         [
             'msg' => 'testmsg',
             'returl' => 'testurl',
-        ]
+        ],
+        [
+            'msg' => 'testmsg',
+            'returl' => 'testurl',
+            'msg1' => 'testmsg1',
+        ],
     ];
     public static $expect = [
         [
@@ -86,6 +91,12 @@ class TableTest extends Ts\TestCommon {
             'succeed' => true,
             'returl' => 'testurl',
             'msg' => 'testmsg',
+        ],
+        [
+            'succeed' => true,
+            'returl' => 'testurl',
+            'msg' => 'testmsg',
+            'msg1' => 'testmsg1',
         ],
     ];
 
