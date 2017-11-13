@@ -137,14 +137,10 @@ class Controler {
             }
             if (is_array($value)) {
                 $ret['succeed'] = true;
-                if (isset($value['returl'])) {
-                    $ret['returl'] = $value['returl'];
-                } elseif (is_array($post) && isset($post['returl'])) {
+                if (is_array($post) && isset($post['returl'])) {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
-                if (isset($value['msg'])) {
-                    $ret['msg'] = $value['msg'];
-                }
+                $ret = array_merge($ret, $value);
             } elseif ($value === true) {
                 $ret['succeed'] = true;
                 if (is_array($post) && isset($post['returl'])) {

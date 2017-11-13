@@ -57,7 +57,12 @@ class TableTest extends Ts\TestCommon {
         array(
             'msg' => 'testmsg',
             'returl' => 'testurl',
-        )
+        ),
+        array(
+            'msg' => 'testmsg',
+            'returl' => 'testurl',
+            'msg1' => 'testmsg1',
+        ),
     );
     public static $expect = array(
         array(
@@ -86,6 +91,12 @@ class TableTest extends Ts\TestCommon {
             'succeed' => true,
             'returl' => 'testurl',
             'msg' => 'testmsg',
+        ),
+        array(
+            'succeed' => true,
+            'returl' => 'testurl',
+            'msg' => 'testmsg',
+            'msg1' => 'testmsg1',
         ),
     );
 
