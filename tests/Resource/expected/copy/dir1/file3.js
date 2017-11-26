@@ -1,5 +1,6 @@
 (function ($) {
     $(document).ready(function () {
-        alert('file3');
+        var ddd = 'file3';
+        alert(ddd);
     });
 })(jQuery);

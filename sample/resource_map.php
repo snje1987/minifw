@@ -2,7 +2,7 @@
 
 $value = array();
 $value[] = array(
-    'method' => 'uglify',
+    'method' => 'js',
     'type' => 'dir',
     'tail' => '.js',
     'map' => array(
@@ -10,7 +10,7 @@ $value[] = array(
     ),
 );
 $value[] = array(
-    'method' => 'cssmin',
+    'method' => 'css',
     'type' => 'file',
     'map' => array(
         '/www/theme/default/style/common.css' => '/theme/default/style/common.css',

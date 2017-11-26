@@ -169,30 +169,37 @@ class Resource {
         return false;
     }
 
-    protected function compile_uglify($dest, $cfg) {
-        $content = '';
+    protected function compile_js($dest, $cfg) {
+        $minifier = new \MatthiasMullie\Minify\JS();
         foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
-                $content .= \file_get_contents($full);
+                $minifier->add($full);
             }
         }
-        $myPacker = new \GK\JavascriptPacker($content, 'Normal', true, false);
-        $content = $myPacker->pack();
-        File::put_content(WEB_ROOT . $dest, $content);
+        $dest = WEB_ROOT . $dest;
+        $dir = dirname($dest);
+        if (!is_dir($dir)) {
+            \mkdir($dir, 0777, true);
+        }
+        $minifier->minify($dest);
         return true;
     }
 
-    protected function compile_cssmin($dest, $cfg) {
-        $content = '';
+    protected function compile_css($dest, $cfg) {
+        $minifier = new \MatthiasMullie\Minify\CSS();
         foreach ($cfg['map'][$dest] as $file) {
             $full = WEB_ROOT . $file;
             if (\file_exists($full)) {
-                $content .= \file_get_contents($full);
+                $minifier->add($full);
             }
         }
-        $content = \CssMin::minify($content);
-        File::put_content(WEB_ROOT . $dest, $content);
+        $dest = WEB_ROOT . $dest;
+        $dir = dirname($dest);
+        if (!is_dir($dir)) {
+            \mkdir($dir, 0777, true);
+        }
+        $minifier->minify($dest);
         return true;
     }
 

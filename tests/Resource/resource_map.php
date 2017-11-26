@@ -2,14 +2,14 @@
 
 $value = array();
 $value[] = array(
-    'method' => 'uglify',
+    'method' => 'js',
     'type' => 'file',
     'map' => array(
         '/tests/Resource/to/uglify/file1.js' => '/tests/Resource/from/file1.js',
     ),
 );
 $value[] = array(
-    'method' => 'cssmin',
+    'method' => 'css',
     'type' => 'file',
     'map' => array(
         '/tests/Resource/to/cssmin/file1.css' => '/tests/Resource/from/file1.css',
@@ -32,7 +32,7 @@ $value[] = array(
 );
 
 $value[] = array(
-    'method' => 'uglify',
+    'method' => 'js',
     'type' => 'dir',
     'tail' => '.js',
     'map' => array(
@@ -40,7 +40,7 @@ $value[] = array(
     ),
 );
 $value[] = array(
-    'method' => 'cssmin',
+    'method' => 'css',
     'type' => 'dir',
     'tail' => '.css',
     'map' => array(
