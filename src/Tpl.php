@@ -42,6 +42,9 @@ class Tpl {
     }
 
     public static function exist($tpl, $theme, $is_block = false) {
+        if ($theme === null || $theme === '') {
+            return false;
+        }
         $path = '';
         if ($is_block) {
             $path = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';

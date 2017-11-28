@@ -18,9 +18,7 @@ $cfg['main'] = array(
     'encoding' => 'utf-8',
     'session' => 'session_id',
     'domain' => '',
-    'err_404' => '/www/error/404.html',
     'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '',
-    'theme' => '',
     'cache' => 3600
 );
 
