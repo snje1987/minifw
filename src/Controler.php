@@ -37,7 +37,7 @@ class Controler {
 
     public function __construct() {
         $this->config = Config::get();
-        $this->theme = $this->config->get_config('main', 'theme', '');
+        $this->theme = null;
     }
 
     /**
@@ -65,16 +65,26 @@ class Controler {
     }
 
     public function show_msg($content, $title = '', $link = '') {
-        Tpl::assign('content', $content);
-        Tpl::assign('title', $title);
-        Tpl::assign('link', $link);
-        Tpl::display('/msg', $this, $this->theme);
+        if (Tpl::exist('/msg', $this->theme)) {
+            Tpl::assign('content', $content);
+            Tpl::assign('title', $title);
+            Tpl::assign('link', $link);
+            Tpl::display('/msg', $this, $this->theme);
+        } else {
+            echo <<<TEXT
+<h1>{$title}</h1>
+<p>{$content}</p>
+<p><a href="{$link}">返回</a></p>
+TEXT;
+        }
     }
 
     public function show_404() {
         header("HTTP/1.1 404 Not Found");
         header("status: 404 not found");
-        readfile(WEB_ROOT . $this->config->get_config('main', 'err_404'));
+        if (Tpl::exist('/404', $this->theme)) {
+            Tpl::display('/404', $this, $this->theme);
+        }
     }
 
     public function redirect($url) {
@@ -124,6 +134,18 @@ class Controler {
         return $url;
     }
 
+    public function cur_url() {
+        $url = 'http';
+        if ($_SERVER['HTTPS'] == 'on') {
+            $url .= 's';
+        }
+        $url .= '://' . $_SERVER['SERVER_NAME'];
+        if ($_SERVER['SERVER_PORT'] != '80') {
+            $url .= ':' . $_SERVER['SERVER_PORT'];
+        }
+        return $url . $_SERVER['REQUEST_URI'];
+    }
+
     public function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
         $ret = [
             'succeed' => false,
@@ -135,11 +157,15 @@ class Controler {
                 $value = call_user_func($call, $post);
             }
             if (is_array($value)) {
+                $ret = $value;
                 $ret['succeed'] = true;
-                if (is_array($post) && isset($post['returl'])) {
-                    $ret['returl'] = urldecode(strval($post['returl']));
+                if (!isset($ret['returl'])) {
+                    if (is_array($post) && isset($post['returl'])) {
+                        $ret['returl'] = urldecode(strval($post['returl']));
+                    } else {
+                        $ret['returl'] = '';
+                    }
                 }
-                $ret = array_merge($ret, $value);
             } elseif ($value === true) {
                 $ret['succeed'] = true;
                 if (is_array($post) && isset($post['returl'])) {
