@@ -3,6 +3,7 @@
 namespace Org\Snje\Minifw;
 
 use Org\Snje\Minifw as FW;
+use Org\Snje\Minifw\Exception;
 
 class File {
 
@@ -12,12 +13,6 @@ class File {
      * @var string
      */
     public static $encoding;
-
-    /**
-     * 保存错误信息
-     * @var string
-     */
-    private static $last_error = '';
 
     const MIME_HASH = [
         'css' => 'text/css',
@@ -89,7 +84,7 @@ class File {
         $dirmap = Config::get()->get_config('save');
 
         if (!isset($dirmap[$group])) {
-            return self::error('分组错误');
+            throw new Exception('分组错误');
         }
 
         $base_dir = $dirmap[$group];
@@ -97,7 +92,7 @@ class File {
         $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
 
         if ($name == '') {
-            return self::error('同一时间上传的文件过多');
+            throw new Exception('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
@@ -105,7 +100,7 @@ class File {
         if (file_put_contents($dest, $data) !== false) {
             return $base_dir . '/' . $name;
         } else {
-            return self::error('文件写入出错');
+            throw new Exception('文件写入出错');
         }
     }
 
@@ -121,41 +116,31 @@ class File {
         if (empty($file)) {
             return '';
         }
-        if ($file['error'] != 0) {
-            $error = '';
+        if ($file['error'] != UPLOAD_ERR_OK) {
             switch ($file['error']) {
-                case '1':
-                    $error = '超过服务器允许的大小。';
-                    break;
-                case '2':
-                    $error = '超过表单允许的大小。';
-                    break;
-                case '3':
-                    $error = '文件只有部分被上传。';
-                    break;
-                case '4':
-                    $error = '请选择文件。';
-                    break;
-                case '6':
-                    $error = '找不到临时目录。';
-                    break;
-                case '7':
-                    $error = '写文件到硬盘出错。';
-                    break;
-                case '8':
-                    $error = '文件传输被扩展终止。';
-                    break;
-                case '999':
+                case UPLOAD_ERR_INI_SIZE:
+                    throw new Exception('文件超过服务器允许的大小');
+                case UPLOAD_ERR_FORM_SIZE:
+                    throw new Exception('文件超过表单允许的大小');
+                case UPLOAD_ERR_PARTIAL:
+                    throw new Exception('文件上传不完整');
+                case UPLOAD_ERR_NO_FILE: //未选择文件
+                    return '';
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    throw new Exception('文件上传出错');
+                case UPLOAD_ERR_CANT_WRITE:
+                    throw new Exception('文件上传出错');
+                case UPLOAD_ERR_EXTENSION:
+                    throw new Exception('文件上传出错');
                 default:
-                    $error = '未知错误。';
+                    throw new Exception('文件上传出错');
             }
-            return self::error($error);
         }
 
         $dirmap = Config::get()->get_config('upload');
 
         if (!isset($dirmap[$group])) {
-            return self::error('文件分组错误');
+            throw new Exception('文件分组错误');
         }
 
         $allow = $dirmap[$group]['allow'];
@@ -163,18 +148,18 @@ class File {
         $maxsize = isset($dirmap[$group]['maxsize']) ? intval($dirmap[$group]['maxsize']) : 0;
         $filesize = intval($file['size']);
         if ($maxsize > 0 && $filesize > $maxsize) {
-            return self::error('文件大小超过限制');
+            throw new Exception('文件大小超过限制');
         }
 
         $pinfo = pathinfo($file['name']);
         $ext = strtolower($pinfo['extension']);
 
         if (!in_array($ext, $allow)) {
-            return self::error('不允许的文件类型');
+            throw new Exception('不允许的文件类型');
         }
         $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
         if ($name == '') {
-            return self::error('同一时间上传的文件过多');
+            throw new Exception('同一时间上传的文件过多');
         }
         $dest = WEB_ROOT . $base_dir . '/' . $name;
         $dest = self::conv_to($dest, $fsencoding);
@@ -182,7 +167,7 @@ class File {
         if (move_uploaded_file($file['tmp_name'], $dest)) {
             return $base_dir . '/' . $name;
         } else {
-            return self::error('文件移动出错');
+            throw new Exception('文件移动出错');
         }
     }
 
@@ -302,13 +287,13 @@ class File {
         $full = self::conv_to($full, $fsencoding);
         $name = '';
         $count = 0;
-        while ($name == '' && $count < 1000000) {
-            $time = date('YmdHis');
-            $year = date('Y');
-            $month = date('m');
-            $day = date('d');
+        $now = time();
+        $time = date('YmdHis', $now);
+        $year = date('Y', $now);
+        $month_day = date('md', $now);
+        while ($name == '' && $count < 100) {
             $rand = rand(100000, 999999);
-            $name = $year . '/' . $month . '/' . $day . '/' . $time . $rand . $tail;
+            $name = $year . '/' . $month_day . '/' . $time . $rand . $tail;
             if (file_exists($full . '/' . $name)) {
                 $name = '';
             }
@@ -655,26 +640,6 @@ class File {
             $str = iconv($fsencoding, self::$encoding, $str);
         }
         return $str;
-    }
-
-    /**
-     * 当文件上传／保存过程中发生错误时设置错误信息
-     *
-     * @param string $str 错误信息
-     * @return string　空字符串
-     */
-    public static function error($str) {
-        self::$last_error = $str;
-        return '';
-    }
-
-    /**
-     * 获取错误信息
-     *
-     * @return string
-     */
-    public static function last_error() {
-        return self::$last_error;
     }
 
 }
