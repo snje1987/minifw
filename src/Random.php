@@ -17,10 +17,35 @@ class Random {
     protected static $alpha_len;
     protected static $digit_len;
 
+    public static function gen_int($min, $max) {
+        if (function_exists('random_int')) {
+            return random_int($min, $max);
+        }
+        return mt_rand($min, $max);
+    }
+
+    public static function gen_byte($len, $bin = false) {
+        $byte = null;
+        if (function_exists('random_bytes')) {
+            $byte = random_bytes($length);
+        }
+        if (function_exists('mcrypt_create_iv')) {
+            $byte = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+        }
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $byte = openssl_random_pseudo_bytes($length);
+        }
+        if ($bin) {
+            return $byte;
+        } else {
+            return bin2hex($byte);
+        }
+    }
+
     public static function gen_key($len) {
         $key = '';
         for ($i = 0; $i < $len; $i++) {
-            $key .= self::CHARS[mt_rand(0, self::$char_len - 1)];
+            $key .= self::CHARS[self::gen_int(0, self::$char_len - 1)];
         }
         return $key;
     }
@@ -28,7 +53,7 @@ class Random {
     public static function gen_str($len) {
         $key = '';
         for ($i = 0; $i < $len; $i++) {
-            $key .= self::ALPHAS[mt_rand(0, self::$alpha_len - 1)];
+            $key .= self::ALPHAS[self::gen_int(0, self::$alpha_len - 1)];
         }
         return $key;
     }
@@ -36,7 +61,7 @@ class Random {
     public static function gen_num($len) {
         $key = '';
         for ($i = 0; $i < $len; $i++) {
-            $key .= self::DIGITS[mt_rand(0, self::$digit_len - 1)];
+            $key .= self::DIGITS[self::gen_int(0, self::$digit_len - 1)];
         }
         return $key;
     }
