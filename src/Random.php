@@ -27,13 +27,13 @@ class Random {
     public static function gen_byte($len, $bin = false) {
         $byte = null;
         if (function_exists('random_bytes')) {
-            $byte = random_bytes($length);
+            $byte = random_bytes($len);
         }
         if (function_exists('mcrypt_create_iv')) {
-            $byte = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+            $byte = mcrypt_create_iv($len, MCRYPT_DEV_URANDOM);
         }
         if (function_exists('openssl_random_pseudo_bytes')) {
-            $byte = openssl_random_pseudo_bytes($length);
+            $byte = openssl_random_pseudo_bytes($len);
         }
         if ($bin) {
             return $byte;

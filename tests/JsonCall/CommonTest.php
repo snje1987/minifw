@@ -24,7 +24,7 @@ class CommonTest extends Ts\TestCommon {
                 , $class . '::static_except'
                 , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
-            'succeed' => false,
+            'error' => -1,
             'returl' => '',
             'msg' => '[' . __DIR__ . '/Functions.php:16]test msg',
                 ], $ret);
@@ -34,7 +34,7 @@ class CommonTest extends Ts\TestCommon {
                 , $class . '::static_noexist'
                 , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
-            'succeed' => false,
+            'error' => -1,
             'returl' => '',
             'msg' => '操作失败',
                 ], $ret);
@@ -57,7 +57,7 @@ class CommonTest extends Ts\TestCommon {
                 , [$obj, 'func_except']
                 , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
-            'succeed' => false,
+            'error' => -1,
             'returl' => '',
             'msg' => '[' . __DIR__ . '/Functions.php:24]test msg',
                 ], $ret);
@@ -67,7 +67,7 @@ class CommonTest extends Ts\TestCommon {
                 , [$obj, 'func_noexist']
                 , FW\Controler::JSON_CALL_RETURN);
         $this->assertEquals([
-            'succeed' => false,
+            'error' => -1,
             'returl' => '',
             'msg' => '操作失败',
                 ], $ret);
@@ -92,37 +92,49 @@ class CommonTest extends Ts\TestCommon {
             'returl' => 'testurl',
             'msg1' => 'testmsg1',
         ],
+        [
+            'error' => 1,
+            'msg' => 'testmsg',
+            'returl' => 'testurl',
+            'msg1' => 'testmsg1',
+        ],
     ];
     public static $expect = [
         [
-            'succeed' => false,
+            'error' => -1,
             'msg' => '操作失败',
             'returl' => '',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
             'returl' => '',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
             'returl' => '',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
             'returl' => 'testurl',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
             'returl' => '',
             'msg' => 'testmsg',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
             'returl' => 'testurl',
             'msg' => 'testmsg',
         ],
         [
-            'succeed' => true,
+            'error' => 0,
+            'returl' => 'testurl',
+            'msg' => 'testmsg',
+            'msg1' => 'testmsg1',
+        ],
+        [
+            'error' => 1,
             'returl' => 'testurl',
             'msg' => 'testmsg',
             'msg1' => 'testmsg1',

@@ -11,6 +11,8 @@ class Controler {
     const JSON_CALL_DIE = 0;
     const JSON_CALL_RETURN = 1;
     const JSON_CALL_REDIRECT = 2;
+    const JSON_ERROR_OK = 0;
+    const JSON_ERROR_UNKNOWN = -1;
 
     public static $cache_time;
 
@@ -148,7 +150,7 @@ TEXT;
 
     public function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
         $ret = [
-            'succeed' => false,
+            'error' => self::JSON_ERROR_UNKNOWN,
             'returl' => '',
         ];
         try {
@@ -158,7 +160,9 @@ TEXT;
             }
             if (is_array($value)) {
                 $ret = $value;
-                $ret['succeed'] = true;
+                if (!isset($ret['error'])) {
+                    $ret['error'] = self::JSON_ERROR_OK;
+                }
                 if (!isset($ret['returl'])) {
                     if (is_array($post) && isset($post['returl'])) {
                         $ret['returl'] = urldecode(strval($post['returl']));
@@ -167,7 +171,7 @@ TEXT;
                     }
                 }
             } elseif ($value === true) {
-                $ret['succeed'] = true;
+                $ret['error'] = self::JSON_ERROR_OK;
                 if (is_array($post) && isset($post['returl'])) {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
@@ -215,7 +219,7 @@ TEXT;
     public function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
         $db->begin();
         $ret = $this->json_call($post, $call, self::JSON_CALL_RETURN);
-        if ($ret['succeed'] === true) {
+        if ($ret['error'] === self::JSON_ERROR_OK) {
             $db->commit();
         } else {
             $db->rollback();
