@@ -171,6 +171,112 @@ class File {
     }
 
     /**
+     * 初始化一个指定大小的空文件，用于分片上传，同时会建立一个分片上传数据文件
+     *
+     * @param string $filename 要上传文件的文件名
+     * @param int $filesize 文件大小
+     * @param string $group 文件分组
+     * @param string $fsencoding 文件系统编码
+     * @return string
+     * @throws Exception
+     */
+    public static function init_file($filename, $filesize, $group, $fsencoding = '') {
+        $dirmap = Config::get()->get_config('upload');
+
+        if (!isset($dirmap[$group])) {
+            throw new Exception('文件分组错误');
+        }
+
+        $allow = $dirmap[$group]['allow'];
+        $base_dir = $dirmap[$group]['path'];
+        $maxsize = isset($dirmap[$group]['maxsize']) ? intval($dirmap[$group]['maxsize']) : 0;
+        $filesize = intval($filesize);
+        if ($maxsize > 0 && $filesize > $maxsize) {
+            throw new Exception('文件大小超过限制');
+        }
+
+        $pinfo = pathinfo($filename);
+        $ext = strtolower($pinfo['extension']);
+
+        if (!in_array($ext, $allow)) {
+            throw new Exception('不允许的文件类型');
+        }
+        $name = self::mkname(WEB_ROOT . $base_dir, '.' . $ext, $fsencoding);
+        if ($name == '') {
+            throw new Exception('同一时间上传的文件过多');
+        }
+        $dest = WEB_ROOT . $base_dir . '/' . $name;
+        $dest = self::conv_to($dest, $fsencoding);
+        self::mkdir(dirname($dest));
+
+        $dh = fopen($dest, 'w+');
+        if ($dh === false) {
+            throw new Exception('文件建立失败');
+        }
+        if (!ftruncate($dh, $filesize)) {
+            unlink($dest);
+            throw new Exception('文件建立失败');
+        }
+        fclose($dh);
+
+        $cfg_path = $dest . '.ucfg';
+        $dh = fopen($cfg_path, 'w+');
+        if ($dh === false) {
+            throw new Exception('文件建立失败');
+        }
+        fclose($dh);
+
+        return $base_dir . '/' . $name;
+    }
+
+    /**
+     * 写入一个文件分片，需要在外部方式并发调用，同时会更新分片上传数据文件
+     *
+     * @param int $chunk 当前分片号，从0开始
+     * @param int $chunks 总分片数
+     * @param string $path 文件路径
+     * @param string $file $_FILES数组
+     * @param string $fsencoding 文件系统编码
+     * @throws Exception
+     */
+    public static function write_chunk($chunk, $chunks, $path, $file, $fsencoding = '') {
+        $dest = WEB_ROOT . $path;
+        $dest = self::conv_to($dest, $fsencoding);
+        $cfg_path = $dest . '.ucfg';
+
+        if (!file_exists($dest) || !file_exists($cfg_path)) {
+            throw new Exception('文件不存在');
+        }
+
+        $tmp_name = $file['tmp_name'];
+        $content = file_get_contents($tmp_name);
+        $size = strlen($content);
+        unlink($tmp_name);
+
+        $dh = fopen($dest, 'r+');
+        if ($chunk == $chunks - 1) {
+            fseek($dh, -1 * $size, SEEK_END);
+        } else {
+            fseek($dh, $size * $chunk, SEEK_SET);
+        }
+        fwrite($dh, $content, $size);
+        fclose($dh);
+
+        $cfg = file($cfg_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($cfg == null || $cfg == '') {
+            $cfg = array(
+                $chunks, 0, str_repeat('0', $chunks)
+            );
+        }
+        $cfg[2][$chunk] = '1';
+        $cfg[1] = strpos($cfg[2], '0', $cfg[1]);
+        if ($cfg[1] === false) {
+            $cfg[1] = $chunks;
+        }
+        file_put_contents($cfg_path, implode("\n", $cfg));
+    }
+
+    /**
      * 获取上传文件的原文件名
      *
      * @param array $file 要上传的文件
