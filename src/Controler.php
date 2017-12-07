@@ -182,12 +182,14 @@ TEXT;
                 $ret['msg'] = '操作失败';
             }
         } catch (Exception $e) {
+            $ret['error'] = $e->getCode();
             if (DEBUG === 1) {
                 $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
             } else {
                 $ret['msg'] = $e->getMessage();
             }
         } catch (\Exception $e) {
+            $ret['error'] = self::JSON_ERROR_UNKNOWN;
             if (DEBUG === 1) {
                 $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
             } else {
