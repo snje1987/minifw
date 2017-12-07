@@ -230,6 +230,47 @@ class File {
     }
 
     /**
+     * 使用指定路径初始化一个指定大小的空文件，用于分片上传，同时会建立一个分片上传数据文件
+     *
+     * @param string $filename 要上传文件的文件名
+     * @param int $filesize 文件大小
+     * @param string $path 文件的路径
+     * @param string $is_full 文件的路径是否是完整路径
+     * @param string $fsencoding 文件系统编码
+     * @return string
+     * @throws Exception
+     */
+    public static function init_file_direct($filename, $filesize, $path, $is_full = false, $fsencoding = '') {
+        if ($is_full) {
+            $dest = $path;
+        } else {
+            $dest = WEB_ROOT . $path;
+        }
+
+        $dest = self::conv_to($dest, $fsencoding);
+        self::mkdir(dirname($dest));
+
+        $dh = fopen($dest, 'w+');
+        if ($dh === false) {
+            throw new Exception('文件建立失败');
+        }
+        if (!ftruncate($dh, $filesize)) {
+            unlink($dest);
+            throw new Exception('文件建立失败');
+        }
+        fclose($dh);
+
+        $cfg_path = $dest . '.ucfg';
+        $dh = fopen($cfg_path, 'w+');
+        if ($dh === false) {
+            throw new Exception('文件建立失败');
+        }
+        fclose($dh);
+
+        return $path;
+    }
+
+    /**
      * 写入一个文件分片，需要在外部方式并发调用，同时会更新分片上传数据文件
      *
      * @param int $chunk 当前分片号，从0开始
