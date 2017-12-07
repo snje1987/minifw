@@ -12,6 +12,7 @@ class Loader {
      * 注册加载函数
      */
     public static function register() {
+        self::$len = strlen(__NAMESPACE__ . '\\');
         //设置类的加载器
         spl_autoload_register([__NAMESPACE__ . '\Loader', 'class_loader']);
     }
@@ -38,4 +39,3 @@ class Loader {
 }
 
 FW\Loader::register();
-FW\Loader::$len = strlen(__NAMESPACE__ . '\\');
