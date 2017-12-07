@@ -18,6 +18,7 @@ $cfg['main'] = [
     'encoding' => 'utf-8',
     'session' => 'session_id',
     'domain' => '',
+    'theme' => null, //默认的显示模板，只在发生错误时使用
     'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '',
     'cache' => 3600
 ];

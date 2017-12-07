@@ -39,7 +39,7 @@ class Controler {
 
     public function __construct() {
         $this->config = Config::get();
-        $this->theme = null;
+        $this->theme = $this->config->get_config('main', 'theme', null);
     }
 
     /**
@@ -86,6 +86,8 @@ TEXT;
         header("status: 404 not found");
         if (Tpl::exist('/404', $this->theme)) {
             Tpl::display('/404', $this, $this->theme);
+        } else {
+            echo '<h1>Page not found</h1>';
         }
     }
 
@@ -136,7 +138,7 @@ TEXT;
         return $url;
     }
 
-    public function cur_url() {
+    public function url() {
         $url = 'http';
         if ($_SERVER['HTTPS'] == 'on') {
             $url .= 's';
