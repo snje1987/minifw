@@ -105,21 +105,21 @@ class System {
             if ($this->use_buffer) {
                 @ob_end_clean();
             }
+            $controler = new Controler();
             if (DEBUG === 1) {
-                $controler = new Controler();
-                $controler->show_msg($ex->getMessage(), 'Error');
-                return;
+                return $controler->show_msg($ex->getMessage(), 'Error');
+            } else {
+                return $controler->show_404();
             }
-            return;
         }
         if ($this->use_buffer) {
             @ob_end_clean();
         }
         $controler = new Controler();
         if (DEBUG === 1) {
-            $controler->show_msg('路由未指定.', 'Error');
+            return $controler->show_msg('路由未指定.', 'Error');
         } else {
-            $controler->show_404();
+            return $controler->show_404();
         }
     }
 
