@@ -55,11 +55,11 @@ class Controler {
         }
         $function = str_replace('.', '', $function);
         if ($function == '') {
-            throw new Exception('No function specify.');
+            return $this->show_404();
         }
         $function = 'c_' . $function;
         if (!$class->hasMethod($function)) {
-            throw new Exception('Function not exists.');
+            return $this->show_404();
         }
 
         $func = $class->getMethod($function);
