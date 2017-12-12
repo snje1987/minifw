@@ -71,8 +71,12 @@ class Mysqli extends FW\DB {
         }
         $sql = $this->compile_sql($sql, $var);
         $ret = $this->_mysqli->query($sql);
-        if ($ret === false && DEBUG == 1) {
-            throw new Exception($this->last_error() . "\n" . $sql);
+        if ($ret === false) {
+            if (DEBUG == 1) {
+                throw new Exception($this->last_error() . "\n" . $sql);
+            } else {
+                throw new Exception('数据库查询失败');
+            }
         }
         return $ret;
     }
