@@ -79,14 +79,17 @@ class TableTest extends Ts\TestCommon {
         [
             'error' => 0,
             'returl' => '',
+            'msg' => '',
         ],
         [
             'error' => 0,
             'returl' => '',
+            'msg' => '',
         ],
         [
             'error' => 0,
             'returl' => 'testurl',
+            'msg' => '',
         ],
         [
             'error' => 0,

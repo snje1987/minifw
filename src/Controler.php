@@ -154,6 +154,7 @@ TEXT;
         $ret = [
             'error' => self::JSON_ERROR_UNKNOWN,
             'returl' => '',
+            'msg' => '',
         ];
         try {
             $value = false;
@@ -171,6 +172,9 @@ TEXT;
                     } else {
                         $ret['returl'] = '';
                     }
+                }
+                if (!isset($ret['msg'])) {
+                    $ret['msg'] = '';
                 }
             } elseif ($value === true) {
                 $ret['error'] = self::JSON_ERROR_OK;
