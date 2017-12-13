@@ -108,14 +108,17 @@ class CommonTest extends Ts\TestCommon {
         array(
             'error' => 0,
             'returl' => '',
+            'msg' => '',
         ),
         array(
             'error' => 0,
             'returl' => '',
+            'msg' => '',
         ),
         array(
             'error' => 0,
             'returl' => 'testurl',
+            'msg' => '',
         ),
         array(
             'error' => 0,
