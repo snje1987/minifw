@@ -37,6 +37,157 @@ class Controler {
         }
     }
 
+    public static function redirect($url) {
+        if (!headers_sent()) {
+            header('Location:' . $url);
+        } else {
+            echo '<script type="text/javascript">window.location="' . $url . '";</script>';
+        }
+    }
+
+    public static function show_301($url) {
+        header('HTTP/1.1 301 Moved Permanently');
+        header('Location: ' . $url);
+    }
+
+    public static function readfile_with_304($file, $fsencoding = '') {
+        $full = File::conv_to($file, $fsencoding);
+        $mtime = \filemtime($full);
+        $expire = gmdate('D, d M Y H:i:s', time() + self::$cache_time) . ' GMT';
+        header('Expires: ' . $expire);
+        header('Pragma: cache');
+        header('Cache-Control: max-age=' . self::$cache_time);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+        header('Etag: ' . $mtime);
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $mtime) {
+            header('HTTP/1.1 304 Not Modified');
+        } else {
+            File::readfile($full);
+        }
+    }
+
+    public static function host() {
+        $url = 'http';
+        if ($_SERVER['HTTPS'] == 'on') {
+            $url .= 's';
+        }
+        $url .= '://' . $_SERVER['HTTP_HOST'];
+        return $url;
+    }
+
+    public static function url() {
+        return self::host() . $_SERVER['REQUEST_URI'];
+    }
+
+    public static function referer($default = null) {
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $url = strval($_SERVER['HTTP_REFERER']);
+        } else {
+            $url = $default;
+        }
+        return $url;
+    }
+
+    public static function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
+        $ret = array(
+            'error' => self::JSON_ERROR_UNKNOWN,
+            'returl' => '',
+            'msg' => '',
+        );
+        try {
+            $value = false;
+            if (is_callable($call)) {
+                $value = call_user_func($call, $post);
+            }
+            if (is_array($value)) {
+                $ret = $value;
+                if (!isset($ret['error'])) {
+                    $ret['error'] = self::JSON_ERROR_OK;
+                }
+                if (!isset($ret['returl'])) {
+                    if (is_array($post) && isset($post['returl'])) {
+                        $ret['returl'] = urldecode(strval($post['returl']));
+                    } else {
+                        $ret['returl'] = '';
+                    }
+                }
+                if (!isset($ret['msg'])) {
+                    $ret['msg'] = '';
+                }
+            } elseif ($value === true) {
+                $ret['error'] = self::JSON_ERROR_OK;
+                if (is_array($post) && isset($post['returl'])) {
+                    $ret['returl'] = urldecode(strval($post['returl']));
+                }
+            } else {
+                $ret['msg'] = '操作失败';
+            }
+        } catch (Exception $e) {
+            $ret['error'] = $e->getCode();
+            if (DEBUG === 1) {
+                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
+            } else {
+                $ret['msg'] = $e->getMessage();
+            }
+        } catch (\Exception $e) {
+            $ret['error'] = self::JSON_ERROR_UNKNOWN;
+            if (DEBUG === 1) {
+                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
+            } else {
+                $ret['msg'] = '操作失败';
+            }
+        }
+        if ($mode == self::JSON_CALL_REDIRECT) {
+            // @codeCoverageIgnoreStart
+            if ($ret['returl'] != '') {
+                self::redirect($ret['returl']);
+            } else {
+                self::redirect(self::referer('/'));
+            }
+            die(0);
+            // @codeCoverageIgnoreEnd
+        } elseif ($mode == self::JSON_CALL_DIE) {
+            // @codeCoverageIgnoreStart
+            die(\json_encode($ret));
+            // @codeCoverageIgnoreEnd
+        } else {
+            return $ret;
+        }
+    }
+
+    /**
+     *
+     * @param FW\DB $db
+     * @param array $post
+     * @param callback $call
+     * @param int $mode
+     */
+    public static function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
+        $db->begin();
+        $ret = self::json_call($post, $call, self::JSON_CALL_RETURN);
+        if ($ret['error'] === self::JSON_ERROR_OK) {
+            $db->commit();
+        } else {
+            $db->rollback();
+        }
+        if ($mode == self::JSON_CALL_REDIRECT) {
+            // @codeCoverageIgnoreStart
+            if ($ret['returl'] != '') {
+                self::redirect($ret['returl']);
+            } else {
+                self::redirect(self::referer('/'));
+            }
+            die(0);
+            // @codeCoverageIgnoreEnd
+        } elseif ($mode == self::JSON_CALL_DIE) {
+            // @codeCoverageIgnoreStart
+            die(\json_encode($ret));
+            // @codeCoverageIgnoreEnd
+        } else {
+            return $ret;
+        }
+    }
+
     public function __construct() {
         $this->config = Config::get();
         $this->theme = $this->config->get_config('main', 'theme', null);
@@ -92,35 +243,6 @@ TEXT;
         }
     }
 
-    public function redirect($url) {
-        if (!headers_sent()) {
-            header('Location:' . $url);
-        } else {
-            echo '<script type="text/javascript">window.location="' . $url . '";</script>';
-        }
-    }
-
-    public function show_301($url) {
-        header('HTTP/1.1 301 Moved Permanently');
-        header('Location: ' . $url);
-    }
-
-    public function readfile_with_304($file, $fsencoding = '') {
-        $full = File::conv_to($file, $fsencoding);
-        $mtime = \filemtime($full);
-        $expire = gmdate('D, d M Y H:i:s', time() + self::$cache_time) . ' GMT';
-        header('Expires: ' . $expire);
-        header('Pragma: cache');
-        header('Cache-Control: max-age=' . self::$cache_time);
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
-        header('Etag: ' . $mtime);
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $mtime) {
-            header('HTTP/1.1 304 Not Modified');
-        } else {
-            File::readfile($full);
-        }
-    }
-
     public function download_file($path, $filename, $fsencoding = '') {
         $full = File::conv_to($path, $fsencoding);
         if (!file_exists($full)) {
@@ -128,127 +250,6 @@ TEXT;
         }
         self::send_download_header($filename);
         File::readfile($full);
-    }
-
-    public function referer($default = null) {
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $url = strval($_SERVER['HTTP_REFERER']);
-        } else {
-            $url = $default;
-        }
-        return $url;
-    }
-
-    public function url() {
-        $url = 'http';
-        if ($_SERVER['HTTPS'] == 'on') {
-            $url .= 's';
-        }
-        $url .= '://' . $_SERVER['SERVER_NAME'];
-        if ($_SERVER['SERVER_PORT'] != '80') {
-            $url .= ':' . $_SERVER['SERVER_PORT'];
-        }
-        return $url . $_SERVER['REQUEST_URI'];
-    }
-
-    public function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
-        $ret = array(
-            'error' => self::JSON_ERROR_UNKNOWN,
-            'returl' => '',
-            'msg' => '',
-        );
-        try {
-            $value = false;
-            if (is_callable($call)) {
-                $value = call_user_func($call, $post);
-            }
-            if (is_array($value)) {
-                $ret = $value;
-                if (!isset($ret['error'])) {
-                    $ret['error'] = self::JSON_ERROR_OK;
-                }
-                if (!isset($ret['returl'])) {
-                    if (is_array($post) && isset($post['returl'])) {
-                        $ret['returl'] = urldecode(strval($post['returl']));
-                    } else {
-                        $ret['returl'] = '';
-                    }
-                }
-                if (!isset($ret['msg'])) {
-                    $ret['msg'] = '';
-                }
-            } elseif ($value === true) {
-                $ret['error'] = self::JSON_ERROR_OK;
-                if (is_array($post) && isset($post['returl'])) {
-                    $ret['returl'] = urldecode(strval($post['returl']));
-                }
-            } else {
-                $ret['msg'] = '操作失败';
-            }
-        } catch (Exception $e) {
-            $ret['error'] = $e->getCode();
-            if (DEBUG === 1) {
-                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
-            } else {
-                $ret['msg'] = $e->getMessage();
-            }
-        } catch (\Exception $e) {
-            $ret['error'] = self::JSON_ERROR_UNKNOWN;
-            if (DEBUG === 1) {
-                $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
-            } else {
-                $ret['msg'] = '操作失败';
-            }
-        }
-        if ($mode == self::JSON_CALL_REDIRECT) {
-            // @codeCoverageIgnoreStart
-            if ($ret['returl'] != '') {
-                $this->redirect($ret['returl']);
-            } else {
-                $this->redirect($this->referer('/'));
-            }
-            die(0);
-            // @codeCoverageIgnoreEnd
-        } elseif ($mode == self::JSON_CALL_DIE) {
-            // @codeCoverageIgnoreStart
-            die(\json_encode($ret));
-            // @codeCoverageIgnoreEnd
-        } else {
-            return $ret;
-        }
-    }
-
-    /**
-     *
-     * @param FW\DB $db
-     * @param array $post
-     * @param callback $call
-     * @param int $mode
-     */
-    public function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
-        $db->begin();
-        $ret = $this->json_call($post, $call, self::JSON_CALL_RETURN);
-        if ($ret['error'] === self::JSON_ERROR_OK) {
-            $db->commit();
-        } else {
-            $db->rollback();
-        }
-        if ($mode == self::JSON_CALL_REDIRECT) {
-            // @codeCoverageIgnoreStart
-            if ($ret['returl'] != '') {
-                $this->redirect($ret['returl']);
-            } else {
-                $this->redirect($this->referer('/'));
-            }
-            die(0);
-            // @codeCoverageIgnoreEnd
-        } elseif ($mode == self::JSON_CALL_DIE) {
-            // @codeCoverageIgnoreStart
-            die(\json_encode($ret));
-            // @codeCoverageIgnoreEnd
-        } else {
-            return $ret;
-        }
     }
 
 }
