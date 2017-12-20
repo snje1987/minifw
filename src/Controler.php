@@ -37,61 +37,7 @@ class Controler {
         }
     }
 
-    public function __construct() {
-        $this->config = Config::get();
-        $this->theme = $this->config->get_config('main', 'theme', null);
-    }
-
-    /**
-     * Call controler function according to the given name.
-     * @param type $func function name
-     * @param type $args args.
-     */
-    public function dispatch($function, $args) {
-        $class = new \ReflectionClass(static::class);
-        if ($function == '') {
-            $function = $class->getConstant('DEFAULT_FUNCTION');
-        }
-        $function = str_replace('.', '', $function);
-        if ($function == '') {
-            return $this->show_404();
-        }
-        $function = 'c_' . $function;
-        if (!$class->hasMethod($function)) {
-            return $this->show_404();
-        }
-
-        $func = $class->getMethod($function);
-        $func->setAccessible(true);
-        $func->invoke($this, $args);
-    }
-
-    public function show_msg($content, $title = '', $link = '') {
-        if (Tpl::exist('/msg', $this->theme)) {
-            Tpl::assign('content', $content);
-            Tpl::assign('title', $title);
-            Tpl::assign('link', $link);
-            Tpl::display('/msg', $this, $this->theme);
-        } else {
-            echo <<<TEXT
-<h1>{$title}</h1>
-<p>{$content}</p>
-<p><a href="{$link}">返回</a></p>
-TEXT;
-        }
-    }
-
-    public function show_404() {
-        header("HTTP/1.1 404 Not Found");
-        header("status: 404 not found");
-        if (Tpl::exist('/404', $this->theme)) {
-            Tpl::display('/404', $this, $this->theme);
-        } else {
-            echo '<h1>Page not found</h1>';
-        }
-    }
-
-    public function redirect($url) {
+    public static function redirect($url) {
         if (!headers_sent()) {
             header('Location:' . $url);
         } else {
@@ -99,12 +45,12 @@ TEXT;
         }
     }
 
-    public function show_301($url) {
+    public static function show_301($url) {
         header('HTTP/1.1 301 Moved Permanently');
         header('Location: ' . $url);
     }
 
-    public function readfile_with_304($file, $fsencoding = '') {
+    public static function readfile_with_304($file, $fsencoding = '') {
         $full = File::conv_to($file, $fsencoding);
         $mtime = \filemtime($full);
         $expire = gmdate('D, d M Y H:i:s', time() + self::$cache_time) . ' GMT';
@@ -120,16 +66,20 @@ TEXT;
         }
     }
 
-    public function download_file($path, $filename, $fsencoding = '') {
-        $full = File::conv_to($path, $fsencoding);
-        if (!file_exists($full)) {
-            $this->show_404();
+    public static function host() {
+        $url = 'http';
+        if ($_SERVER['HTTPS'] == 'on') {
+            $url .= 's';
         }
-        self::send_download_header($filename);
-        File::readfile($full);
+        $url .= '://' . $_SERVER['HTTP_HOST'];
+        return $url;
     }
 
-    public function referer($default = null) {
+    public static function url() {
+        return self::host() . $_SERVER['REQUEST_URI'];
+    }
+
+    public static function referer($default = null) {
         if (isset($_SERVER['HTTP_REFERER'])) {
             $url = strval($_SERVER['HTTP_REFERER']);
         } else {
@@ -138,19 +88,7 @@ TEXT;
         return $url;
     }
 
-    public function url() {
-        $url = 'http';
-        if ($_SERVER['HTTPS'] == 'on') {
-            $url .= 's';
-        }
-        $url .= '://' . $_SERVER['SERVER_NAME'];
-        if ($_SERVER['SERVER_PORT'] != '80') {
-            $url .= ':' . $_SERVER['SERVER_PORT'];
-        }
-        return $url . $_SERVER['REQUEST_URI'];
-    }
-
-    public function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
+    public static function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
         $ret = [
             'error' => self::JSON_ERROR_UNKNOWN,
             'returl' => '',
@@ -202,9 +140,9 @@ TEXT;
         if ($mode == self::JSON_CALL_REDIRECT) {
             // @codeCoverageIgnoreStart
             if ($ret['returl'] != '') {
-                $this->redirect($ret['returl']);
+                self::redirect($ret['returl']);
             } else {
-                $this->redirect($this->referer('/'));
+                self::redirect(self::referer('/'));
             }
             die(0);
             // @codeCoverageIgnoreEnd
@@ -224,9 +162,9 @@ TEXT;
      * @param callback $call
      * @param int $mode
      */
-    public function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
+    public static function sync_call($db, $post, $call, $mode = self::JSON_CALL_DIE) {
         $db->begin();
-        $ret = $this->json_call($post, $call, self::JSON_CALL_RETURN);
+        $ret = self::json_call($post, $call, self::JSON_CALL_RETURN);
         if ($ret['error'] === self::JSON_ERROR_OK) {
             $db->commit();
         } else {
@@ -235,9 +173,9 @@ TEXT;
         if ($mode == self::JSON_CALL_REDIRECT) {
             // @codeCoverageIgnoreStart
             if ($ret['returl'] != '') {
-                $this->redirect($ret['returl']);
+                self::redirect($ret['returl']);
             } else {
-                $this->redirect($this->referer('/'));
+                self::redirect(self::referer('/'));
             }
             die(0);
             // @codeCoverageIgnoreEnd
@@ -248,6 +186,70 @@ TEXT;
         } else {
             return $ret;
         }
+    }
+
+    public function __construct() {
+        $this->config = Config::get();
+        $this->theme = $this->config->get_config('main', 'theme', null);
+    }
+
+    /**
+     * Call controler function according to the given name.
+     * @param type $func function name
+     * @param type $args args.
+     */
+    public function dispatch($function, $args) {
+        $class_name = get_class($this);
+        $class = new \ReflectionClass($class_name);
+        if ($function == '') {
+            $function = $class->getConstant('DEFAULT_FUNCTION');
+        }
+        $function = str_replace('.', '', $function);
+        if ($function == '') {
+            return $this->show_404();
+        }
+        $function = 'c_' . $function;
+        if (!$class->hasMethod($function)) {
+            return $this->show_404();
+        }
+
+        $func = $class->getMethod($function);
+        $func->setAccessible(true);
+        $func->invoke($this, $args);
+    }
+
+    public function show_msg($content, $title = '', $link = '') {
+        if (Tpl::exist('/msg', $this->theme)) {
+            Tpl::assign('content', $content);
+            Tpl::assign('title', $title);
+            Tpl::assign('link', $link);
+            Tpl::display('/msg', $this, $this->theme);
+        } else {
+            echo <<<TEXT
+<h1>{$title}</h1>
+<p>{$content}</p>
+<p><a href="{$link}">返回</a></p>
+TEXT;
+        }
+    }
+
+    public function show_404() {
+        header("HTTP/1.1 404 Not Found");
+        header("status: 404 not found");
+        if (Tpl::exist('/404', $this->theme)) {
+            Tpl::display('/404', $this, $this->theme);
+        } else {
+            echo '<h1>Page not found</h1>';
+        }
+    }
+
+    public function download_file($path, $filename, $fsencoding = '') {
+        $full = File::conv_to($path, $fsencoding);
+        if (!file_exists($full)) {
+            $this->show_404();
+        }
+        self::send_download_header($filename);
+        File::readfile($full);
     }
 
 }
