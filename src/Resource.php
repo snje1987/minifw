@@ -199,7 +199,8 @@ class Resource {
         if (!is_dir($dir)) {
             \mkdir($dir, 0777, true);
         }
-        $minifier->minify($dest);
+        $str = $minifier->minify();
+        file_put_contents($dest, $str);
         return true;
     }
 
