@@ -28,7 +28,8 @@ class Tpl {
     public static function append($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] .= $value;
-        } else {
+        }
+        else {
             self::$_varis[$name] = $value;
         }
     }
@@ -36,7 +37,8 @@ class Tpl {
     public static function prepend($name, $value) {
         if (isset(self::$_varis[$name])) {
             self::$_varis[$name] = $value . self::$_varis[$name];
-        } else {
+        }
+        else {
             self::$_varis[$name] = $value;
         }
     }
@@ -48,7 +50,8 @@ class Tpl {
         $path = '';
         if ($is_block) {
             $path = WEB_ROOT . self::$theme_path . '/' . $theme . '/block' . $tpl . '.html';
-        } else {
+        }
+        else {
             $path = WEB_ROOT . self::$theme_path . '/' . $theme . '/page' . $tpl . '.html';
         }
         return file_exists($path);
@@ -64,11 +67,13 @@ class Tpl {
             include(self::$tpl_dest);
             if ($return) {
                 return ob_get_clean();
-            } else {
+            }
+            else {
                 ob_end_flush();
                 return;
             }
-        } catch (\Exception $ex) {
+        }
+        catch (\Exception $ex) {
             ob_end_clean();
             throw $ex;
         }
@@ -86,7 +91,8 @@ class Tpl {
         if (!file_exists($src)) {
             if (DEBUG === 1) {
                 throw new Exception('模板不存在：' . $src);
-            } else {
+            }
+            else {
                 throw new Exception('模板不存在');
             }
         }
@@ -105,7 +111,8 @@ class Tpl {
             if (!file_put_contents($dest, $str)) {
                 if (DEBUG === 1) {
                     throw new Exception('写入模板失败: ' . $dest);
-                } else {
+                }
+                else {
                     throw new Exception('写入模板失败');
                 }
             }
@@ -122,6 +129,31 @@ class Tpl {
         $input = preg_replace(
                 '/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
 
+        $input = preg_replace_callback('/\<{\|(.*?)}\>/', function($matches) {
+            $str = $matches[1];
+            if ($str == '') {
+                return '';
+            }
+            else {
+                $array = explode('|', $str);
+                $ret = '';
+                $tail = '';
+                $last = count($array) - 1;
+                foreach ($array as $k => $item) {
+                    if ($k == 0 || $k < $last) {
+                        $ret .= '(isset(' . $item . ')?(' . $item . '):';
+                        $tail .= ')';
+                    }
+                    else {
+                        $ret .= '(' . $item . ')';
+                    }
+                }
+                if ($last == 0) {
+                    $ret .= '\'\'';
+                }
+                return '<?=' . $ret . $tail . ';?>';
+            }
+        }, $input);
         $input = preg_replace('/\<{=(.*?)}\>/', '<?=($1);?>', $input);
         $input = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){?>', $input);
         $input = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){?>', $input);
