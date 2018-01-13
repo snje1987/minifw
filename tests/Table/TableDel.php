@@ -24,27 +24,27 @@ class TableDel extends FW\Table {
     ];
     const DIFF = [
         [
-            'diff' => '- `id` int(10) unsigned NOT NULL auto_increment COMMENT "ID"',
+            'diff' => '- `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `id`;',
         ],
         [
-            'diff' => '- `charfield` varchar(200) NOT NULL COMMENT "A varchar field"',
+            'diff' => '- `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `charfield`;',
         ],
         [
-            'diff' => '- `textfield` text NOT NULL COMMENT "A text field"',
+            'diff' => '- `textfield` text NOT NULL COMMENT \'A text field\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `textfield`;',
         ],
         [
-            'diff' => '- `intfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A int field"',
+            'diff' => '- `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `intfield_def`;',
         ],
         [
-            'diff' => '- `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field"',
+            'diff' => '- `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `charfield_def`;',
         ],
         [
-            'diff' => '- PRIMARY KEY (`id`) COMMENT "主键"',
+            'diff' => '- PRIMARY KEY (`id`) COMMENT \'主键\'',
             'trans' => null,
         ],
         [

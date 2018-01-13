@@ -58,18 +58,19 @@ class SQLite extends FW\DB {
 
     public function parse_str($str) {
         $str = htmlspecialchars(trim($str));
-        $str = str_replace("\"", "\"\"", $str);
+        $str = str_replace('\'', '\'\'', $str);
         return $str;
     }
 
     public function parse_richstr($str) {
-        $str = str_replace("\"", "\"\"", $str);
+        $str = str_replace('\'', '\'\'', $str);
         return trim($str);
     }
 
     public function parse_like($str) {
         $str = str_replace(
-                ["/", "'", "\"", "[", "]", "%", "&", "_", "(", ")"], ["//", "''", "\"\"", "/[", "/]", "/%", "/&", "/_", "/(", "/)"], $str
+                ['/', '\'', '"', '[', ']', '%', '&', '_', '(', ')']
+                , ['//', '\'\'', '""', '/[', '/]', '/%', '/&', '/_', '/(', '/)'], $str
         );
         return trim($str);
     }

@@ -33,24 +33,24 @@ class TableMove extends FW\Table {
     ];
     const DIFF = [
         [
-            'diff' => '-[5] `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field"' . "\n" . '+[0] `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field" first;',
+            'diff' => '-[5] `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'' . "\n" . '+[0] `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\' first;',
         ],
         [
-            'diff' => '-[5] `intfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A int field"' . "\n" . '+[1] `intfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A int field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A int field" after `charfield_def`;',
+            'diff' => '-[5] `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'' . "\n" . '+[1] `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\' after `charfield_def`;',
         ],
         [
-            'diff' => '-[5] `textfield` text NOT NULL COMMENT "A text field"' . "\n" . '+[2] `textfield` text NOT NULL COMMENT "A text field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT "A text field" after `intfield_def`;',
+            'diff' => '-[5] `textfield` text NOT NULL COMMENT \'A text field\'' . "\n" . '+[2] `textfield` text NOT NULL COMMENT \'A text field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT \'A text field\' after `intfield_def`;',
         ],
         [
-            'diff' => '-[5] `charfield` varchar(200) NOT NULL COMMENT "A varchar field"' . "\n" . '+[3] `charfield` varchar(200) NOT NULL COMMENT "A varchar field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(200) NOT NULL COMMENT "A varchar field" after `textfield`;',
+            'diff' => '-[5] `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'' . "\n" . '+[3] `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\' after `textfield`;',
         ],
         [
-            'diff' => '-[5] `intfield` int(11) NOT NULL COMMENT "A int field"' . "\n" . '+[4] `intfield` int(11) NOT NULL COMMENT "A int field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(11) NOT NULL COMMENT "A int field" after `charfield`;',
+            'diff' => '-[5] `intfield` int(11) NOT NULL COMMENT \'A int field\'' . "\n" . '+[4] `intfield` int(11) NOT NULL COMMENT \'A int field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(11) NOT NULL COMMENT \'A int field\' after `charfield`;',
         ],
     ];
 

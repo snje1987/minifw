@@ -14,28 +14,28 @@ class MysqliTest extends Ts\TestCommon {
                 'var' => [
                     'value' => 'real_value<>_%'
                 ],
-                'out' => 'select `name` from `table` where `name` = "real_value&lt;&gt;_%"',
+                'out' => 'select `name` from `table` where `name` = \'real_value&lt;&gt;_%\'',
             ],
             [
                 'sql' => 'select `name` from `table` where `name` = {value}',
                 'var' => [
                     'value' => ['rich', 'real_value<>_%'],
                 ],
-                'out' => 'select `name` from `table` where `name` = "real_value<>_%"',
+                'out' => 'select `name` from `table` where `name` = \'real_value<>_%\'',
             ],
             [
                 'sql' => 'select `name` from `table` where `name` = {value}',
                 'var' => [
-                    'value' => ['expr', '"real_value<>_%"'],
+                    'value' => ['expr', '\'real_value<>_%\''],
                 ],
-                'out' => 'select `name` from `table` where `name` = "real_value<>_%"',
+                'out' => 'select `name` from `table` where `name` = \'real_value<>_%\'',
             ],
             [
-                'sql' => 'select `name` from `table` where `name` like "%{value}_"',
+                'sql' => 'select `name` from `table` where `name` like \'%{value}_\'',
                 'var' => [
                     'value' => ['like', 'real_value<>_%'],
                 ],
-                'out' => 'select `name` from `table` where `name` like "%real\_value<>\_\%_"',
+                'out' => 'select `name` from `table` where `name` like \'%real\_value<>\_\%_\'',
             ],
         ];
         $db = FW\DB\Mysqli::get();
