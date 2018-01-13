@@ -32,7 +32,7 @@ class TableDel1 extends FW\Table {
     );
     public static $diff = array(
         array(
-            'diff' => '- `intfield` int(11) NOT NULL COMMENT "A int field"',
+            'diff' => '- `intfield` int(11) NOT NULL COMMENT \'A int field\'',
             'trans' => 'ALTER TABLE `table_with_all` DROP `intfield`;',
         ),
     );

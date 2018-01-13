@@ -114,8 +114,8 @@ class Mysqli extends FW\DB {
 
     public function parse_like($str) {
         $str = $this->_mysqli->escape_string($str);
-        $str = str_replace("_", "\_", $str);
-        $str = str_replace("%", "\%", $str);
+        $str = str_replace('_', '\_', $str);
+        $str = str_replace('%', '\%', $str);
         return trim($str);
     }
 
@@ -226,7 +226,7 @@ class Mysqli extends FW\DB {
                         break;
                     case 'rich':
                         $v[1] = $this->parse_richstr($v[1]);
-                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                        $sql = str_replace("{{$k}}", "'{$v[1]}'", $sql);
                         break;
                     case 'like':
                         $v[1] = $this->parse_like($v[1]);
@@ -234,11 +234,11 @@ class Mysqli extends FW\DB {
                         break;
                     default :
                         $v[1] = $this->parse_str($v[1]);
-                        $sql = str_replace("{{$k}}", "\"{$v[1]}\"", $sql);
+                        $sql = str_replace("{{$k}}", "'{$v[1]}'", $sql);
                 }
             } else {
                 $v = $this->parse_str($v);
-                $sql = str_replace("{{$k}}", "\"{$v}\"", $sql);
+                $sql = str_replace("{{$k}}", "'{$v}'", $sql);
             }
         }
         return $sql;
@@ -253,7 +253,7 @@ class Mysqli extends FW\DB {
             throw new Exception('参数错误');
         }
 
-        $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . "` (" . $dim;
+        $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . '` (' . $dim;
         $lines = array();
         foreach ($field as $k => $v) {
             $lines[] = self::field_to_sql($k, $v);
@@ -263,10 +263,10 @@ class Mysqli extends FW\DB {
             $lines[] = self::index_to_sql($k, $v);
         }
 
-        $sql .= implode("," . $dim, $lines) . $dim;
+        $sql .= implode(',' . $dim, $lines) . $dim;
         $sql .= ') ENGINE=' . $engine . ' DEFAULT CHARSET=' . $charset;
         if ($comment != '') {
-            $sql .= ' COMMENT="' . $comment . '"';
+            $sql .= ' COMMENT=\'' . $comment . '\'';
         }
         return $sql;
     }
@@ -406,14 +406,14 @@ class Mysqli extends FW\DB {
         }
         if ($from['comment'] != $to['comment']) {
             $diff[] = array(
-                'diff' => '- Comment="' . $from['comment'] . "\"\n" . '+ Comment="' . $to['comment'] . '"',
-                'trans' => 'ALTER TABLE `' . $tbname . '` COMMENT="' . $to['comment'] . '";',
+                'diff' => '- Comment=\'' . $from['comment'] . "'\n" . '+ Comment=\'' . $to['comment'] . '\'',
+                'trans' => 'ALTER TABLE `' . $tbname . '` COMMENT=\'' . $to['comment'] . '\';',
             );
         }
         if ($from['charset'] != $to['charset']) {
             $diff[] = array(
-                'diff' => '- Charset="' . $from['charset'] . "\"\n" . '+ Charset="' . $to['charset'] . '"',
-                'trans' => 'ALTER TABLE `' . $tbname . '` DEFAULT CHARSET="' . $to['charset'] . '";',
+                'diff' => '- Charset=\'' . $from['charset'] . "'\n" . '+ Charset=\'' . $to['charset'] . '\'',
+                'trans' => 'ALTER TABLE `' . $tbname . '` DEFAULT CHARSET=\'' . $to['charset'] . '\';',
             );
         }
         return $diff;
@@ -437,12 +437,12 @@ class Mysqli extends FW\DB {
                     $sql .= ' ' . $attr['extra'];
                 }
                 if (isset($attr['default']) && $attr['default'] !== null) {
-                    $sql .= ' DEFAULT "' . $attr['default'] . '"';
+                    $sql .= ' DEFAULT \'' . $attr['default'] . '\'';
                 }
                 break;
         }
         if (isset($attr['comment']) && $attr['comment'] !== null) {
-            $sql .= ' COMMENT "' . $attr['comment'] . '"';
+            $sql .= ' COMMENT \'' . $attr['comment'] . '\'';
         }
         return $sql;
     }
@@ -474,7 +474,7 @@ class Mysqli extends FW\DB {
                 break;
         }
         if (isset($attr['comment']) && $attr['comment'] != '') {
-            $sql .= ' COMMENT "' . $attr['comment'] . '"';
+            $sql .= ' COMMENT \'' . $attr['comment'] . '\'';
         }
         return $sql;
     }

@@ -37,39 +37,39 @@ class TableChange extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_all` ENGINE=MyISAM;',
         ),
         array(
-            'diff' => '- Comment="Table To Create"' . "\n" . '+ Comment="Table To Change"',
-            'trans' => 'ALTER TABLE `table_with_all` COMMENT="Table To Change";',
+            'diff' => '- Comment=\'Table To Create\'' . "\n" . '+ Comment=\'Table To Change\'',
+            'trans' => 'ALTER TABLE `table_with_all` COMMENT=\'Table To Change\';',
         ),
         array(
-            'diff' => '- Charset="utf8"' . "\n" . '+ Charset="GBK"',
-            'trans' => 'ALTER TABLE `table_with_all` DEFAULT CHARSET="GBK";',
+            'diff' => '- Charset=\'utf8\'' . "\n" . '+ Charset=\'GBK\'',
+            'trans' => 'ALTER TABLE `table_with_all` DEFAULT CHARSET=\'GBK\';',
         ),
         array(
-            'diff' => '-[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT "ID"' . "\n" . '+[0] `id` int(10) unsigned NOT NULL COMMENT "ID"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `id` `id` int(10) unsigned NOT NULL COMMENT "ID" first;',
+            'diff' => '-[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\'' . "\n" . '+[0] `id` int(10) unsigned NOT NULL COMMENT \'ID\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `id` `id` int(10) unsigned NOT NULL COMMENT \'ID\' first;',
         ),
         array(
-            'diff' => '-[1] `intfield` int(11) NOT NULL COMMENT "A int field"' . "\n" . '+[1] `intfield` int(10) unsigned NOT NULL COMMENT "A int field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(10) unsigned NOT NULL COMMENT "A int field" after `id`;',
+            'diff' => '-[1] `intfield` int(11) NOT NULL COMMENT \'A int field\'' . "\n" . '+[1] `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\' after `id`;',
         ),
         array(
-            'diff' => '-[2] `charfield` varchar(200) NOT NULL COMMENT "A varchar field"' . "\n" . '+[2] `charfield` varchar(100) NOT NULL DEFAULT "#" COMMENT "A varchar field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(100) NOT NULL DEFAULT "#" COMMENT "A varchar field" after `intfield`;',
+            'diff' => '-[2] `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'' . "\n" . '+[2] `charfield` varchar(100) NOT NULL DEFAULT \'#\' COMMENT \'A varchar field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(100) NOT NULL DEFAULT \'#\' COMMENT \'A varchar field\' after `intfield`;',
         ),
         array(
-            'diff' => '-[3] `textfield` text NOT NULL COMMENT "A text field"' . "\n" . '+[3] `textfield` text NOT NULL COMMENT "A text field change"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT "A text field change" after `charfield`;',
+            'diff' => '-[3] `textfield` text NOT NULL COMMENT \'A text field\'' . "\n" . '+[3] `textfield` text NOT NULL COMMENT \'A text field change\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT \'A text field change\' after `charfield`;',
         ),
         array(
-            'diff' => '-[4] `intfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A int field"' . "\n" . '+[4] `intfield_def` int(11) NOT NULL COMMENT "A int field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NULL COMMENT "A int field" after `textfield`;',
+            'diff' => '-[4] `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'' . "\n" . '+[4] `intfield_def` int(11) NOT NULL COMMENT \'A int field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NULL COMMENT \'A int field\' after `textfield`;',
         ),
         array(
-            'diff' => '-[5] `charfield_def` varchar(200) NOT NULL DEFAULT "" COMMENT "A varchar field"' . "\n" . '+[5] `charfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A varchar field"',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` int(11) NOT NULL DEFAULT "0" COMMENT "A varchar field" after `intfield_def`;',
+            'diff' => '-[5] `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'' . "\n" . '+[5] `charfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A varchar field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A varchar field\' after `intfield_def`;',
         ),
         array(
-            'diff' => '- PRIMARY KEY (`id`) COMMENT "主键"' . "\n" . '+ PRIMARY KEY (`intfield`)',
+            'diff' => '- PRIMARY KEY (`id`) COMMENT \'主键\'' . "\n" . '+ PRIMARY KEY (`intfield`)',
             'trans' => 'ALTER TABLE `table_with_all` DROP PRIMARY KEY, ADD PRIMARY KEY (`intfield`);',
         ),
         array(

@@ -8,7 +8,6 @@ use Org\Snje\Minifw\Exception;
 class SQLite extends FW\DB {
 
     protected $_sqlite;
-
     protected $_rollback = false;
 
     protected function __construct($args = array()) {
@@ -58,18 +57,19 @@ class SQLite extends FW\DB {
 
     public function parse_str($str) {
         $str = htmlspecialchars(trim($str));
-        $str = str_replace("\"", "\"\"", $str);
+        $str = str_replace('\'', '\'\'', $str);
         return $str;
     }
 
     public function parse_richstr($str) {
-        $str = str_replace("\"", "\"\"", $str);
+        $str = str_replace('\'', '\'\'', $str);
         return trim($str);
     }
 
     public function parse_like($str) {
         $str = str_replace(
-                array("/", "'", "\"", "[", "]", "%", "&", "_", "(", ")"), array("//", "''", "\"\"", "/[", "/]", "/%", "/&", "/_", "/(", "/)"), $str
+                array('/', '\'', '"', '[', ']', '%', '&', '_', '(', ')')
+                , array('//', '\'\'', '""', '/[', '/]', '/%', '/&', '/_', '/(', '/)'), $str
         );
         return trim($str);
     }
