@@ -30,6 +30,7 @@ if ($cfg['main']['uri'] === '' && isset($_GET['uri'])) {
 $cfg['debug'] = array(
     'debug' => 0,
     'tpl_always_compile' => 0,
+    'log_error' => 0,
 );
 
 $cfg['mysql'] = array(

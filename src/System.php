@@ -34,6 +34,7 @@ class System {
     protected $config;
     protected $errors = array();
     protected $use_buffer = false;
+    protected $log_error = false;
 
     protected function __construct($cfg_path) {
 
@@ -61,6 +62,8 @@ class System {
         }
         date_default_timezone_set($this->config->get_config('main', 'timezone', 'UTC'));
 
+        $this->log_error = $this->config->get_config('debug', 'log_error', 0);
+
         //设置错误处理函数
         set_error_handler(array($this, 'captureNormal'));
         //设置异常处理函数
@@ -87,13 +90,15 @@ class System {
                     call_user_func_array($v['callback'], $matches);
                     if ($this->use_buffer) {
                         if (DEBUG === 1 && !empty($this->errors)) {
-                        $content = ob_get_clean();
-                        print_r($this->errors);
-                        echo $content;
-                    } else {
-                        @ob_end_flush();
+                            $content = ob_get_clean();
+                            print_r($this->errors);
+                            echo $content;
+                        }
+                        else {
+                            @ob_end_flush();
+                        }
                     }
-                    } else {
+                    else {
                         if (DEBUG === 1 && !empty($this->errors)) {
                             print_r($this->errors);
                         }
@@ -101,14 +106,16 @@ class System {
                     return;
                 }
             }
-        } catch (\Exception $ex) {
+        }
+        catch (\Exception $ex) {
             if ($this->use_buffer) {
                 @ob_end_clean();
             }
             $controler = new Controler();
             if (DEBUG === 1) {
                 return $controler->show_msg($ex->getMessage(), 'Error');
-            } else {
+            }
+            else {
                 return $controler->show_404();
             }
         }
@@ -118,7 +125,8 @@ class System {
         $controler = new Controler();
         if (DEBUG === 1) {
             return $controler->show_msg('路由未指定.', 'Error');
-        } else {
+        }
+        else {
             return $controler->show_404();
         }
     }
@@ -160,7 +168,8 @@ class System {
             foreach ($string as $key => $val) {
                 $string[$key] = self::magic_gpc($val);
             }
-        } else {
+        }
+        else {
             $string = trim($string);
         }
         return $string;
@@ -170,8 +179,14 @@ class System {
         if (DEBUG === 1) {
             $this->errors[] = array('type' => $number, 'message' => $message, 'file' => $file, 'line' => $line);
         }
+        if ($this->log_error) {
+            error_log('[' . $number . '] ' . $file . '[' . $line . ']:' . $message);
+        }
     }
 
+    /**
+     * @param \Exception $exception
+     */
     public function captureException($exception) {
         if ($this->use_buffer) {
             @ob_end_clean();
@@ -179,24 +194,33 @@ class System {
         if (DEBUG === 1) {
             header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
             print_r($exception);
-        } else {
+        }
+        else {
             echo 'Runtime Error';
+        }
+        if ($this->log_error) {
+            error_log('[' . $exception->getCode() . '] ' . $exception->getFile() . '[' . $exception->getLine() . ']:' . $exception->getMessage());
         }
     }
 
     public function captureShutdown() {
         $error = error_get_last();
-        if ($error) {
+        if ($error !== null) {
             if ($this->use_buffer) {
                 @ob_end_clean();
             }
             if (DEBUG === 1) {
                 header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
                 print_r($error);
-            } else {
+            }
+            else {
                 echo 'Runtime Error';
             }
-        } else {
+            if ($this->log_error) {
+                error_log('[' . $error['type'] . '] ' . $error['file'] . '[' . $error['line'] . ']:' . $error['message']);
+            }
+        }
+        else {
             return true;
         }
     }
