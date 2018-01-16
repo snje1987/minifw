@@ -74,7 +74,8 @@ class Mysqli extends FW\DB {
         if ($ret === false) {
             if (DEBUG == 1) {
                 throw new Exception($this->last_error() . "\n" . $sql);
-            } else {
+            }
+            else {
                 throw new Exception('数据库查询失败');
             }
         }
@@ -84,7 +85,8 @@ class Mysqli extends FW\DB {
     public function fetch_all($res) {
         if (method_exists('mysqli_result', 'fetch_all')) {
             $data = $res->fetch_all(MYSQLI_ASSOC);
-        } else {
+        }
+        else {
             for ($data = []; $tmp = $res->fetch_array(MYSQLI_ASSOC);) {
                 $data[] = $tmp;
             }
@@ -183,11 +185,13 @@ class Mysqli extends FW\DB {
                 if ($name !== 'PRIMARY') {
                     if ($v['Non_unique'] == 0) {
                         $index[$name]['unique'] = true;
-                    } elseif ($v['Index_type'] == 'FULLTEXT') {
+                    }
+                    elseif ($v['Index_type'] == 'FULLTEXT') {
                         $index[$name]['fulltext'] = true;
                     }
                 }
-            } else {
+            }
+            else {
                 $index[$name]['fields'][] = $v['Column_name'];
             }
         }
@@ -235,7 +239,8 @@ class Mysqli extends FW\DB {
                         $v[1] = $this->parse_str($v[1]);
                         $sql = str_replace("{{$k}}", "'{$v[1]}'", $sql);
                 }
-            } else {
+            }
+            else {
                 $v = $this->parse_str($v);
                 $sql = str_replace("{{$k}}", "'{$v}'", $sql);
             }
@@ -352,7 +357,8 @@ class Mysqli extends FW\DB {
                 $trans = 'ALTER TABLE `' . $tbname . '` DROP';
                 if ($k == 'PRIMARY') {
                     $trans .= ' PRIMARY KEY';
-                } else {
+                }
+                else {
                     $trans .= ' INDEX `' . $k . '`';
                 }
                 $trans .= ', ADD ' . $to_sql . ';';
@@ -436,12 +442,12 @@ class Mysqli extends FW\DB {
                     $sql .= ' ' . $attr['extra'];
                 }
                 if (isset($attr['default']) && $attr['default'] !== null) {
-                    $sql .= ' DEFAULT \'' . $attr['default'] . '\'';
+                    $sql .= ' DEFAULT \'' . str_replace('\'', '\'\'', $attr['default']) . '\'';
                 }
                 break;
         }
         if (isset($attr['comment']) && $attr['comment'] !== null) {
-            $sql .= ' COMMENT \'' . $attr['comment'] . '\'';
+            $sql .= ' COMMENT \'' . str_replace('\'', '\'\'', $attr['comment']) . '\'';
         }
         return $sql;
     }
@@ -456,16 +462,20 @@ class Mysqli extends FW\DB {
                 if ($in_create) {
                     if (isset($attr['unique']) && $attr['unique'] === true) {
                         $sql = 'UNIQUE ';
-                    } else if (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                    }
+                    else if (isset($attr['fulltext']) && $attr['fulltext'] === true) {
                         $sql = 'FULLTEXT ';
                     }
                     $sql .= 'KEY ';
-                } else {
+                }
+                else {
                     if (isset($attr['unique']) && $attr['unique'] === true) {
                         $sql = 'UNIQUE ';
-                    } elseif (isset($attr['fulltext']) && $attr['fulltext'] === true) {
+                    }
+                    elseif (isset($attr['fulltext']) && $attr['fulltext'] === true) {
                         $sql = 'FULLTEXT ';
-                    } else {
+                    }
+                    else {
                         $sql = 'INDEX ';
                     }
                 }
@@ -473,7 +483,7 @@ class Mysqli extends FW\DB {
                 break;
         }
         if (isset($attr['comment']) && $attr['comment'] != '') {
-            $sql .= ' COMMENT \'' . $attr['comment'] . '\'';
+            $sql .= ' COMMENT \'' . str_replace('\'', '\'\'', $attr['comment']) . '\'';
         }
         return $sql;
     }

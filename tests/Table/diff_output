@@ -2,12 +2,12 @@
 Org\Snje\MinifwTest\Table\TableAdd table_with_one
 
 +[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT 'ID'
-+[2] `charfield` varchar(200) NOT NULL COMMENT 'A varchar field'
++[2] `charfield` varchar(200) NOT NULL COMMENT 'A '' varchar field'
 +[3] `textfield` text NOT NULL COMMENT 'A text field'
 +[4] `addfield` text NOT NULL COMMENT 'A add field'
 +[5] `intfield_def` int(11) NOT NULL DEFAULT '0' COMMENT 'A int field'
-+[6] `charfield_def` varchar(200) NOT NULL DEFAULT '' COMMENT 'A varchar field'
-+ PRIMARY KEY (`id`) COMMENT '主键'
++[6] `charfield_def` varchar(200) NOT NULL DEFAULT '123''' COMMENT 'A varchar field'
++ PRIMARY KEY (`id`) COMMENT '主''键'
 + INDEX `intfield` (`intfield`,`charfield`)
 + UNIQUE `uniqueindex` (`intfield`)
 + INDEX `addfield` (`charfield`)
@@ -74,12 +74,12 @@ Org\Snje\MinifwTest\Table\TableDel1 table_with_all
 ================================================================
 
 ALTER TABLE `table_with_one` ADD `id` int(10) unsigned NOT NULL auto_increment COMMENT 'ID' first;
-ALTER TABLE `table_with_one` ADD `charfield` varchar(200) NOT NULL COMMENT 'A varchar field' after `intfield`;
+ALTER TABLE `table_with_one` ADD `charfield` varchar(200) NOT NULL COMMENT 'A '' varchar field' after `intfield`;
 ALTER TABLE `table_with_one` ADD `textfield` text NOT NULL COMMENT 'A text field' after `charfield`;
 ALTER TABLE `table_with_one` ADD `addfield` text NOT NULL COMMENT 'A add field' after `textfield`;
 ALTER TABLE `table_with_one` ADD `intfield_def` int(11) NOT NULL DEFAULT '0' COMMENT 'A int field' after `addfield`;
-ALTER TABLE `table_with_one` ADD `charfield_def` varchar(200) NOT NULL DEFAULT '' COMMENT 'A varchar field' after `intfield_def`;
-ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`) COMMENT '主键';
+ALTER TABLE `table_with_one` ADD `charfield_def` varchar(200) NOT NULL DEFAULT '123''' COMMENT 'A varchar field' after `intfield_def`;
+ALTER TABLE `table_with_one` ADD PRIMARY KEY (`id`) COMMENT '主''键';
 ALTER TABLE `table_with_one` ADD INDEX `intfield` (`intfield`,`charfield`);
 ALTER TABLE `table_with_one` ADD UNIQUE `uniqueindex` (`intfield`);
 ALTER TABLE `table_with_one` ADD INDEX `addfield` (`charfield`);
