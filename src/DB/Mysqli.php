@@ -262,7 +262,8 @@ class Mysqli extends FW\DB {
         $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . '` (' . $dim;
         $lines = [];
         foreach ($field as $k => $v) {
-            $lines[] = self::field_to_sql($k, $v);
+            $sql_info = self::field_to_sql($k, $v);
+            $lines[] = $sql_info['sql'];
         }
 
         foreach ($index as $k => $v) {
@@ -287,6 +288,7 @@ class Mysqli extends FW\DB {
 
     public static function get_field_diff($tbname, $from, $to) {
         $diff = [];
+        $last = [];
         $tail = ' first';
         $i = 0;
 
@@ -294,10 +296,23 @@ class Mysqli extends FW\DB {
         foreach ($to as $k => $v) {
             $to_sql = self::field_to_sql($k, $v);
             if (!isset($from[$k])) {
-                $diff[] = [
-                    'diff' => '+[' . $i . '] ' . $to_sql,
-                    'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . $tail . ';',
-                ];
+                if (isset($to_sql['sql_first'])) {
+                    $diff[] = [
+                        'diff' => '+[' . $i . '] ' . $to_sql['sql_first'],
+                        'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql['sql_first'] . $tail . ';',
+                    ];
+                    $last[] = [
+                        'diff' => '-[' . $i . '] ' . $to_sql['sql_first'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
+                        'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
+                    ];
+                }
+                else {
+                    $diff[] = [
+                        'diff' => '+[' . $i . '] ' . $to_sql['sql'],
+                        'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql['sql'] . $tail . ';',
+                    ];
+                }
+
                 self::move_field_no($from, $i);
             }
             $tail = ' after `' . $k . '`';
@@ -314,7 +329,7 @@ class Mysqli extends FW\DB {
             }
             $from_sql = self::field_to_sql($k, $v);
             $diff[] = [
-                'diff' => '- ' . $from_sql,
+                'diff' => '- ' . $from_sql['sql'],
                 'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
             ];
             self::move_field_no($from, $i - 1, -1, -1);
@@ -325,14 +340,27 @@ class Mysqli extends FW\DB {
         $i = 0;
         $tail = ' first';
         foreach ($to as $k => $v) {
-            $to_sql = self::field_to_sql($k, $v);
             if (isset($from[$k])) {
+                $to_sql = self::field_to_sql($k, $v);
                 $from_sql = self::field_to_sql($k, $from[$k]);
-                if ($from_sql != $to_sql || $i != $from[$k]['no']) {
-                    $diff[] = [
-                        'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql . "\n" . '+[' . $i . '] ' . $to_sql,
-                        'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql . $tail . ';',
-                    ];
+                if ($from_sql['sql'] != $to_sql['sql'] || $i != $from[$k]['no']) {
+                    //如果原定义不包含自增而新定义包含
+                    if (isset($to_sql['sql_first']) && !isset($from_sql['sql_first'])) {
+                        $diff[] = [
+                            'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql['sql'] . "\n" . '+[' . $i . '] ' . $to_sql['sql_first'],
+                            'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql_first'] . $tail . ';',
+                        ];
+                        $last[] = [
+                            'diff' => '-[' . $from[$k]['no'] . '] ' . $to_sql['sql_first'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
+                            'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
+                        ];
+                    }
+                    else {
+                        $diff[] = [
+                            'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql['sql'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
+                            'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
+                        ];
+                    }
                 }
                 self::move_field_no($from, $i, $from[$k]['no']);
             }
@@ -340,7 +368,7 @@ class Mysqli extends FW\DB {
             $i ++;
         }
 
-        return [$diff, $removed];
+        return [$diff, $removed, $last];
     }
 
     public static function get_index_diff($tbname, $from, $to, $removed) {
@@ -427,31 +455,47 @@ class Mysqli extends FW\DB {
     }
 
     protected static function field_to_sql($name, $attr) {
-        $sql = '';
+        $info = [
+            'sql' => '',
+        ];
+        if (isset($attr['extra']) && $attr['extra'] === 'auto_increment') {
+            $info['sql_first'] = '';
+        }
         switch ($attr['type']) {
             case 'text':
-                $sql = '`' . $name . '` text';
+                $info['sql'] = '`' . $name . '` text';
                 if (!isset($attr['null']) || $attr['null'] === 'NO') {
-                    $sql .= ' NOT NULL';
+                    $info['sql'] .= ' NOT NULL';
                 }
                 break;
             default :
-                $sql = '`' . $name . '` ' . $attr['type'];
+                $info['sql'] = '`' . $name . '` ' . $attr['type'];
                 if (!isset($attr['null']) || $attr['null'] === 'NO') {
-                    $sql .= ' NOT NULL';
+                    $info['sql'] .= ' NOT NULL';
+                }
+                if (isset($info['sql_first'])) {
+                    $info['sql_first'] = $info['sql'];
                 }
                 if (isset($attr['extra']) && $attr['extra'] !== null && $attr['extra'] !== '') {
-                    $sql .= ' ' . $attr['extra'];
+                    $info['sql'] .= ' ' . $attr['extra'];
                 }
                 if (isset($attr['default']) && $attr['default'] !== null) {
-                    $sql .= ' DEFAULT \'' . str_replace('\'', '\'\'', $attr['default']) . '\'';
+                    $tmp = ' DEFAULT \'' . str_replace('\'', '\'\'', $attr['default']) . '\'';
+                    $info['sql'] .= $tmp;
+                    if (isset($info['sql_first'])) {
+                        $info['sql_first'] .= $tmp;
+                    }
                 }
                 break;
         }
         if (isset($attr['comment']) && $attr['comment'] !== null) {
-            $sql .= ' COMMENT \'' . str_replace('\'', '\'\'', $attr['comment']) . '\'';
+            $tmp = ' COMMENT \'' . str_replace('\'', '\'\'', $attr['comment']) . '\'';
+            $info['sql'] .= $tmp;
+            if (isset($info['sql_first'])) {
+                $info['sql_first'] .= $tmp;
+            }
         }
-        return $sql;
+        return $info;
     }
 
     protected static function index_to_sql($name, $attr, $in_create = true) {

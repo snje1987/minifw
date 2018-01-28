@@ -34,8 +34,8 @@ class TableAdd extends FW\Table {
     ];
     const DIFF = [
         [
-            'diff' => '+[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\'',
-            'trans' => 'ALTER TABLE `table_with_one` ADD `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\' first;',
+            'diff' => '+[0] `id` int(10) unsigned NOT NULL COMMENT \'ID\'',
+            'trans' => 'ALTER TABLE `table_with_one` ADD `id` int(10) unsigned NOT NULL COMMENT \'ID\' first;',
         ],
         [
             'diff' => '+[2] `charfield` varchar(200) NOT NULL COMMENT \'A \'\' varchar field\'',
@@ -72,6 +72,10 @@ class TableAdd extends FW\Table {
         [
             'diff' => '+ INDEX `addfield` (`charfield`)',
             'trans' => 'ALTER TABLE `table_with_one` ADD INDEX `addfield` (`charfield`);',
+        ],
+        [
+            'diff' => '-[0] `id` int(10) unsigned NOT NULL COMMENT \'ID\'' . "\n" . '+[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\'',
+            'trans' => 'ALTER TABLE `table_with_one` CHANGE `id` `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\' first;',
         ],
     ];
 

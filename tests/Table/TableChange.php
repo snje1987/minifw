@@ -19,6 +19,7 @@ class TableChange extends FW\Table {
     ];
     const FIELD = [
         'id' => ['type' => 'int(10) unsigned', 'comment' => 'ID'],
+        'id2' => ['type' => 'int(10) unsigned', 'extra' => 'auto_increment', 'comment' => 'ID2'],
         'intfield' => ['type' => 'int(10) unsigned', 'comment' => 'A int field'],
         'charfield' => ['type' => 'varchar(100)', 'default' => '#', 'comment' => 'A varchar field'],
         'textfield' => ['type' => 'text', 'comment' => 'A text field change'],
@@ -45,27 +46,31 @@ class TableChange extends FW\Table {
             'trans' => 'ALTER TABLE `table_with_all` DEFAULT CHARSET=\'GBK\';',
         ],
         [
+            'diff' => '+[1] `id2` int(10) unsigned NOT NULL COMMENT \'ID2\'',
+            'trans' => 'ALTER TABLE `table_with_all` ADD `id2` int(10) unsigned NOT NULL COMMENT \'ID2\' after `id`;',
+        ],
+        [
             'diff' => '-[0] `id` int(10) unsigned NOT NULL auto_increment COMMENT \'ID\'' . "\n" . '+[0] `id` int(10) unsigned NOT NULL COMMENT \'ID\'',
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `id` `id` int(10) unsigned NOT NULL COMMENT \'ID\' first;',
         ],
         [
-            'diff' => '-[1] `intfield` int(11) NOT NULL COMMENT \'A int field\'' . "\n" . '+[1] `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\'',
-            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\' after `id`;',
+            'diff' => '-[2] `intfield` int(11) NOT NULL COMMENT \'A int field\'' . "\n" . '+[2] `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield` `intfield` int(10) unsigned NOT NULL COMMENT \'A int field\' after `id2`;',
         ],
         [
-            'diff' => '-[2] `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'' . "\n" . '+[2] `charfield` varchar(100) NOT NULL DEFAULT \'#\' COMMENT \'A varchar field\'',
+            'diff' => '-[3] `charfield` varchar(200) NOT NULL COMMENT \'A varchar field\'' . "\n" . '+[3] `charfield` varchar(100) NOT NULL DEFAULT \'#\' COMMENT \'A varchar field\'',
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield` `charfield` varchar(100) NOT NULL DEFAULT \'#\' COMMENT \'A varchar field\' after `intfield`;',
         ],
         [
-            'diff' => '-[3] `textfield` text NOT NULL COMMENT \'A text field\'' . "\n" . '+[3] `textfield` text NOT NULL COMMENT \'A text field change\'',
+            'diff' => '-[4] `textfield` text NOT NULL COMMENT \'A text field\'' . "\n" . '+[4] `textfield` text NOT NULL COMMENT \'A text field change\'',
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `textfield` `textfield` text NOT NULL COMMENT \'A text field change\' after `charfield`;',
         ],
         [
-            'diff' => '-[4] `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'' . "\n" . '+[4] `intfield_def` int(11) NOT NULL COMMENT \'A int field\'',
+            'diff' => '-[5] `intfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A int field\'' . "\n" . '+[5] `intfield_def` int(11) NOT NULL COMMENT \'A int field\'',
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `intfield_def` `intfield_def` int(11) NOT NULL COMMENT \'A int field\' after `textfield`;',
         ],
         [
-            'diff' => '-[5] `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'' . "\n" . '+[5] `charfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A varchar field\'',
+            'diff' => '-[6] `charfield_def` varchar(200) NOT NULL DEFAULT \'\' COMMENT \'A varchar field\'' . "\n" . '+[6] `charfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A varchar field\'',
             'trans' => 'ALTER TABLE `table_with_all` CHANGE `charfield_def` `charfield_def` int(11) NOT NULL DEFAULT \'0\' COMMENT \'A varchar field\' after `intfield_def`;',
         ],
         [
@@ -83,6 +88,10 @@ class TableChange extends FW\Table {
         [
             'diff' => '- UNIQUE `uniqueindex` (`intfield`)' . "\n" . '+ INDEX `uniqueindex` (`intfield`)',
             'trans' => 'ALTER TABLE `table_with_all` DROP INDEX `uniqueindex`, ADD INDEX `uniqueindex` (`intfield`);',
+        ],
+        [
+            'diff' => '-[1] `id2` int(10) unsigned NOT NULL COMMENT \'ID2\'' . "\n" . '+[1] `id2` int(10) unsigned NOT NULL auto_increment COMMENT \'ID2\'',
+            'trans' => 'ALTER TABLE `table_with_all` CHANGE `id2` `id2` int(10) unsigned NOT NULL auto_increment COMMENT \'ID2\' after `id`;',
         ],
     ];
 
