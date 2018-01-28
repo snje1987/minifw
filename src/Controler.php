@@ -30,9 +30,11 @@ class Controler {
             $encoded_filename = urlencode($filename);
             $encoded_filename = str_replace("+", "%20", $encoded_filename);
             header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
-        } elseif (preg_match("/Firefox/", $ua)) {
+        }
+        elseif (preg_match("/Firefox/", $ua)) {
             header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
-        } else {
+        }
+        else {
             header('Content-Disposition: attachment; filename="' . $filename . '"');
         }
     }
@@ -40,7 +42,8 @@ class Controler {
     public static function redirect($url) {
         if (!headers_sent()) {
             header('Location:' . $url);
-        } else {
+        }
+        else {
             echo '<script type="text/javascript">window.location="' . $url . '";</script>';
         }
     }
@@ -61,7 +64,8 @@ class Controler {
         header('Etag: ' . $mtime);
         if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $mtime) {
             header('HTTP/1.1 304 Not Modified');
-        } else {
+        }
+        else {
             File::readfile($full);
         }
     }
@@ -82,7 +86,8 @@ class Controler {
     public static function referer($default = null) {
         if (isset($_SERVER['HTTP_REFERER'])) {
             $url = strval($_SERVER['HTTP_REFERER']);
-        } else {
+        }
+        else {
             $url = $default;
         }
         return $url;
@@ -107,33 +112,40 @@ class Controler {
                 if (!isset($ret['returl'])) {
                     if (is_array($post) && isset($post['returl'])) {
                         $ret['returl'] = urldecode(strval($post['returl']));
-                    } else {
+                    }
+                    else {
                         $ret['returl'] = '';
                     }
                 }
                 if (!isset($ret['msg'])) {
                     $ret['msg'] = '';
                 }
-            } elseif ($value === true) {
+            }
+            elseif ($value === true) {
                 $ret['error'] = self::JSON_ERROR_OK;
                 if (is_array($post) && isset($post['returl'])) {
                     $ret['returl'] = urldecode(strval($post['returl']));
                 }
-            } else {
+            }
+            else {
                 $ret['msg'] = '操作失败';
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $ret['error'] = $e->getCode();
             if (DEBUG === 1) {
                 $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
-            } else {
+            }
+            else {
                 $ret['msg'] = $e->getMessage();
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $ret['error'] = self::JSON_ERROR_UNKNOWN;
             if (DEBUG === 1) {
                 $ret['msg'] = '[' . $e->getFile() . ':' . $e->getLine() . ']' . $e->getMessage();
-            } else {
+            }
+            else {
                 $ret['msg'] = '操作失败';
             }
         }
@@ -141,16 +153,19 @@ class Controler {
             // @codeCoverageIgnoreStart
             if ($ret['returl'] != '') {
                 self::redirect($ret['returl']);
-            } else {
+            }
+            else {
                 self::redirect(self::referer('/'));
             }
             die(0);
             // @codeCoverageIgnoreEnd
-        } elseif ($mode == self::JSON_CALL_DIE) {
+        }
+        elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
             die(\json_encode($ret));
             // @codeCoverageIgnoreEnd
-        } else {
+        }
+        else {
             return $ret;
         }
     }
@@ -167,23 +182,27 @@ class Controler {
         $ret = self::json_call($post, $call, self::JSON_CALL_RETURN);
         if ($ret['error'] === self::JSON_ERROR_OK) {
             $db->commit();
-        } else {
+        }
+        else {
             $db->rollback();
         }
         if ($mode == self::JSON_CALL_REDIRECT) {
             // @codeCoverageIgnoreStart
             if ($ret['returl'] != '') {
                 self::redirect($ret['returl']);
-            } else {
+            }
+            else {
                 self::redirect(self::referer('/'));
             }
             die(0);
             // @codeCoverageIgnoreEnd
-        } elseif ($mode == self::JSON_CALL_DIE) {
+        }
+        elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
             die(\json_encode($ret));
             // @codeCoverageIgnoreEnd
-        } else {
+        }
+        else {
             return $ret;
         }
     }
@@ -215,7 +234,17 @@ class Controler {
 
         $func = $class->getMethod($function);
         $func->setAccessible(true);
-        $func->invoke($this, $args);
+        try {
+            $func->invoke($this, $args);
+        }
+        catch (\Exception $ex) {
+            if (DEBUG === 1) {
+                return $this->show_msg($ex->getMessage(), 'Error');
+            }
+            else {
+                return $this->show_404();
+            }
+        }
     }
 
     public function show_msg($content, $title = '', $link = '') {
@@ -224,7 +253,8 @@ class Controler {
             Tpl::assign('title', $title);
             Tpl::assign('link', $link);
             Tpl::display('/msg', $this, $this->theme);
-        } else {
+        }
+        else {
             echo <<<TEXT
 <h1>{$title}</h1>
 <p>{$content}</p>
@@ -238,7 +268,8 @@ TEXT;
         header("status: 404 not found");
         if (Tpl::exist('/404', $this->theme)) {
             Tpl::display('/404', $this, $this->theme);
-        } else {
+        }
+        else {
             echo '<h1>Page not found</h1>';
         }
     }
