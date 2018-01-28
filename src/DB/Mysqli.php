@@ -181,7 +181,9 @@ class Mysqli extends FW\DB {
                         $v['Column_name']
                     ]
                 ];
-                $index[$name]['comment'] = $v['Index_comment'];
+                if (isset($v['Index_comment'])) {
+                    $index[$name]['comment'] = $v['Index_comment'];
+                }
                 if ($name !== 'PRIMARY') {
                     if ($v['Non_unique'] == 0) {
                         $index[$name]['unique'] = true;
