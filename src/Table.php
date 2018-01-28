@@ -185,13 +185,16 @@ abstract class Table {
             return $diff;
         }
         $diff = $this->db->get_status_diff(static::$tbname, $status, static::$status);
-        list($fdiff, $removed) = $this->db->get_field_diff(static::$tbname, $field, static::$field);
+        list($fdiff, $removed, $last) = $this->db->get_field_diff(static::$tbname, $field, static::$field);
         if (!empty($fdiff)) {
             $diff = array_merge($diff, $fdiff);
         }
         $idiff = $this->db->get_index_diff(static::$tbname, $index, static::$index, $removed);
         if (!empty($idiff)) {
             $diff = array_merge($diff, $idiff);
+        }
+        if (!empty($last)) {
+            $diff = array_merge($diff, $last);
         }
         return $diff;
     }
