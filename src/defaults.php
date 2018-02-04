@@ -39,6 +39,8 @@ $cfg['mysql'] = [
     'password' => '',
     'dbname' => '',
     'encoding' => 'utf8',
+    'explain_level' => -1,
+    'explain_log' => null,
 ];
 
 $cfg['sqlite'] = [

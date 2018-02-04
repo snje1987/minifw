@@ -16,31 +16,43 @@ class Mysqli extends FW\DB {
     protected $_username;
     protected $_password;
     protected $_dbname;
+    protected $_explain_log;
+    protected $_explain_level;
     protected $_rollback = false;
 
     const DEFAULT_ENGINE = 'InnoDB';
     const DEFAULT_CHARSET = 'utf8';
+    const EXPLAIN_TYPE = [
+        'system' => 2,
+        'const' => 2,
+        'eq_ref' => 2,
+        'ref' => 2,
+        'fulltext' => 1,
+        'ref_or_null' => 1,
+        'unique_subquery' => 1,
+        'index_subquery' => 1,
+        'range' => 1,
+        'index_merge' => 0,
+        'index' => 0,
+        'ALL' => 0,
+    ];
 
     protected function __construct($args = []) {
         parent::__construct();
         $config = FW\Config::get();
         $ini = $config->get_config('mysql');
-        if (!empty($args)) {
-            $ini['host'] = isset($args['host']) ? strval($args['host']) : $ini['host'];
-            $ini['username'] = isset($args['username']) ? strval($args['username']) : $ini['username'];
-            $ini['password'] = isset($args['password']) ? strval($args['password']) : $ini['password'];
-            $ini['dbname'] = isset($args['dbname']) ? strval($args['dbname']) : $ini['dbname'];
-            $ini['encoding'] = isset($args['encoding']) ? strval($args['encoding']) : $ini['encoding'];
-        }
+        $ini = array_merge($ini, $args);
 
         if (empty($ini)) {
             throw new Exception('数据库未配置');
         }
-        $this->_host = $ini['host'];
-        $this->_username = $ini['username'];
-        $this->_password = $ini['password'];
-        $this->_dbname = $ini['dbname'];
-        $this->_encoding = $ini['encoding'];
+        $this->_host = isset($ini['host']) ? strval($ini['host']) : '';
+        $this->_username = isset($ini['username']) ? strval($ini['username']) : '';
+        $this->_password = isset($ini['password']) ? strval($ini['password']) : '';
+        $this->_dbname = isset($ini['dbname']) ? strval($ini['dbname']) : '';
+        $this->_encoding = isset($ini['encoding']) ? strval($ini['encoding']) : '';
+        $this->_explain_log = isset($ini['explain_log']) ? strval($ini['explain_log']) : null;
+        $this->_explain_level = isset($ini['explain_level']) ? strval($ini['explain_level']) : -1;
         $this->_mysqli = new \mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
         if ($this->_mysqli->connect_error) {
             throw new Exception('数据库连接失败');
@@ -70,6 +82,9 @@ class Mysqli extends FW\DB {
             }
         }
         $sql = $this->compile_sql($sql, $var);
+        if ($this->_explain_level > -1) {
+            $this->log_explain($sql);
+        }
         $ret = $this->_mysqli->query($sql);
         if ($ret === false) {
             if (DEBUG == 1) {
@@ -80,6 +95,28 @@ class Mysqli extends FW\DB {
             }
         }
         return $ret;
+    }
+
+    public function log_explain($sql) {
+        if ($this->_explain_log === null) {
+            return;
+        }
+
+        $sql = 'explain ' . $sql;
+        $result = $this->_mysqli->query($sql);
+        if ($result === false) {
+            return;
+        }
+        $data = $this->fetch_all($result);
+        $this->free($result);
+
+        $log_str = $sql . "\n";
+        foreach ($data as $v) {
+            if (!array_key_exists($v['type'], self::EXPLAIN_TYPE) || self::EXPLAIN_TYPE[$v['type']] <= $this->_explain_level) {
+                $log_str .= print_r($v, true);
+            }
+        }
+        FW\File::put_content(WEB_ROOT . $this->_explain_log, $log_str, '', FILE_APPEND);
     }
 
     public function fetch_all($res) {
