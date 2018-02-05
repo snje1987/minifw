@@ -27,11 +27,11 @@ class Mysqli extends FW\DB {
         'const' => 2,
         'eq_ref' => 2,
         'ref' => 2,
-        'fulltext' => 1,
+        'fulltext' => 2,
         'ref_or_null' => 1,
         'unique_subquery' => 1,
         'index_subquery' => 1,
-        'range' => 1,
+        'range' => 2,
         'index_merge' => 0,
         'index' => 0,
         'ALL' => 0,
@@ -52,7 +52,10 @@ class Mysqli extends FW\DB {
         $this->_dbname = isset($ini['dbname']) ? strval($ini['dbname']) : '';
         $this->_encoding = isset($ini['encoding']) ? strval($ini['encoding']) : '';
         $this->_explain_log = isset($ini['explain_log']) ? strval($ini['explain_log']) : null;
-        $this->_explain_level = isset($ini['explain_level']) ? strval($ini['explain_level']) : -1;
+        $this->_explain_level = isset($ini['explain_level']) ? $ini['explain_level'] : -1;
+        if (!is_array($this->_explain_level)) {
+            $this->_explain_level = intval($this->_explain_level);
+        }
         $this->_mysqli = new \mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
         if ($this->_mysqli->connect_error) {
             throw new Exception('数据库连接失败');
@@ -111,12 +114,23 @@ class Mysqli extends FW\DB {
         $this->free($result);
 
         $log_str = $sql . "\n";
+        $need_log = false;
         foreach ($data as $v) {
-            if (!array_key_exists($v['type'], self::EXPLAIN_TYPE) || self::EXPLAIN_TYPE[$v['type']] <= $this->_explain_level) {
-                $log_str .= print_r($v, true);
+            $log_str .= print_r($v, true);
+            if (is_array($this->_explain_level)) {
+                if (!isset($this->_explain_level[$v['type']]) || $this->_explain_level[$v['type']] === false) {
+                    $need_log = true;
+                }
+            }
+            else {
+                if (!array_key_exists($v['type'], self::EXPLAIN_TYPE) || self::EXPLAIN_TYPE[$v['type']] <= $this->_explain_level) {
+                    $need_log = true;
+                }
             }
         }
-        FW\File::put_content(WEB_ROOT . $this->_explain_log, $log_str, '', FILE_APPEND);
+        if ($need_log) {
+            FW\File::put_content(WEB_ROOT . $this->_explain_log, $log_str, '', FILE_APPEND);
+        }
     }
 
     public function fetch_all($res) {
