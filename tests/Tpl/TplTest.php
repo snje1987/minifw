@@ -9,6 +9,9 @@ class TplTest extends Ts\TestCommon {
 
     public function test_compile_string() {
         $hash = [
+            '<{inc $header}>' => '<?php ' . FW\Tpl::class . '::_inc($header,[],\'default\');' . "\n",
+            '<{inc $header $args}>' => '<?php ' . FW\Tpl::class . '::_inc($header,$args,\'default\');' . "\n",
+            '<{inc $header $args theme}>' => '<?php ' . FW\Tpl::class . '::_inc($header,$args,\'theme\');' . "\n",
             '<{inc header}>' => '<?php ' . FW\Tpl::class . '::_inc(\'/header\',[],\'default\');' . "\n",
             '<{inc /header}>' => '<?php ' . FW\Tpl::class . '::_inc(\'/header\',[],\'default\');' . "\n",
             '<{inc header $args}>' => '<?php ' . FW\Tpl::class . '::_inc(\'/header\',$args,\'default\');' . "\n",
@@ -40,6 +43,9 @@ class TplTest extends Ts\TestCommon {
             '<link class="a" href="\\a/b.css" attr="b" />' => '<link class="a" href="/a/b.css" attr="b" />',
             '<script class="a" src="\\a/b.js" attr="b">' => '<script class="a" src="/a/b.js" attr="b">',
             '<img class="a" src="\\a/b.jpg" attr="b" />' => '<img class="a" src="/a/b.jpg" attr="b" />',
+            'url(/a/b.jpg)' => 'url(\'/www/theme/default/a/b.jpg\')',
+            'url(|a/b.jpg)' => 'url(\'/www/a/b.jpg\')',
+            'url(\\a/b.jpg)' => 'url(\'/a/b.jpg\')',
         ];
 
         $class = new \ReflectionClass(FW\Tpl::class);
