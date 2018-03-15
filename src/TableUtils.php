@@ -44,7 +44,7 @@ class TableUtils {
 
         header("Content-Type:text/plain;charset=utf-8");
         $otable = '';
-        $trans = array();
+        $trans = [];
         foreach ($diff as $class => $info) {
             echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
             echo $class . ' ' . $info['tbname'] . "\n\n";
@@ -63,14 +63,14 @@ class TableUtils {
         if ($path == '' || !is_dir($path)) {
             return;
         }
-        $diff = array();
+        $diff = [];
         try {
             $dir = opendir($path);
             while (false !== ($file = readdir($dir))) {
                 if ($file == '.' || $file == '..') {
                     continue;
                 }
-                $ndiff = array();
+                $ndiff = [];
                 if (is_dir($path . '/' . $file)) {
                     $ndiff = self::get_all_diff($ns . '\\' . $file, $path . '/' . $file);
                 }
@@ -86,10 +86,10 @@ class TableUtils {
                             if (empty($table_diff)) {
                                 continue;
                             }
-                            $ndiff[$classname] = array(
+                            $ndiff[$classname] = [
                                 'tbname' => $classname::$tbname,
                                 'diff' => $table_diff
-                            );
+                            ];
                         }
                     }
                 }

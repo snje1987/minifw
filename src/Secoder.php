@@ -27,7 +27,7 @@ class Secoder {
     public static $noise = 0;
 
     public static function entry($key) {
-        $bg = array(243, 251, 254);
+        $bg = [243, 251, 254];
         if (self::$width == 0) {
             self::$width = self::$code_len * self::$font_size * 1.8 + self::$font_size * 2.0;
         }
@@ -52,7 +52,7 @@ class Secoder {
             }
         }
 
-        $code = array();
+        $code = [];
 
         if (self::$start == 0) {
             $codeNX = self::$font_size * 0.5;

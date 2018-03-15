@@ -10,7 +10,7 @@ class SQLite extends FW\DB {
     protected $_sqlite;
     protected $_rollback = false;
 
-    protected function __construct($args = array()) {
+    protected function __construct($args = []) {
         parent::__construct();
         $config = FW\Config::get();
         $ini = $config->get_config('sqlite');
@@ -32,7 +32,7 @@ class SQLite extends FW\DB {
         return $this->_sqlite->lastErrorMsg();
     }
 
-    public function query($sql, $var = array()) {
+    public function query($sql, $var = []) {
         $ret = $this->_sqlite->query($sql);
         if ($ret === false && DEBUG == 1) {
             throw new Exception($this->last_error() . "\n" . $sql);
@@ -41,7 +41,7 @@ class SQLite extends FW\DB {
     }
 
     public function fetch_all($res) {
-        for ($data = array(); $tmp = $res->fetchArray(MYSQLI_ASSOC);) {
+        for ($data = []; $tmp = $res->fetchArray(MYSQLI_ASSOC);) {
             $data[] = $tmp;
         }
         return $data;
@@ -68,8 +68,8 @@ class SQLite extends FW\DB {
 
     public function parse_like($str) {
         $str = str_replace(
-                array('/', '\'', '"', '[', ']', '%', '&', '_', '(', ')')
-                , array('//', '\'\'', '""', '/[', '/]', '/%', '/&', '/_', '/(', '/)'), $str
+                ['/', '\'', '"', '[', ']', '%', '&', '_', '(', ')']
+                , ['//', '\'\'', '""', '/[', '/]', '/%', '/&', '/_', '/(', '/)'], $str
         );
         return trim($str);
     }

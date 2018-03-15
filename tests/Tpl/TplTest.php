@@ -9,7 +9,7 @@ class TplTest extends Ts\TestCommon {
 
     public function test_compile_string() {
         $class = 'Org\\Snje\\Minifw\\Tpl';
-        $hash = array(
+        $hash = [
             '<{inc header}>' => '<?php ' . $class . '::_inc(\'/header\',array(),\'default\');' . "\n",
             '<{inc /header}>' => '<?php ' . $class . '::_inc(\'/header\',array(),\'default\');' . "\n",
             '<{inc header $args}>' => '<?php ' . $class . '::_inc(\'/header\',$args,\'default\');' . "\n",
@@ -41,7 +41,7 @@ class TplTest extends Ts\TestCommon {
             '<link class="a" href="\\a/b.css" attr="b" />' => '<link class="a" href="/a/b.css" attr="b" />',
             '<script class="a" src="\\a/b.js" attr="b">' => '<script class="a" src="/a/b.js" attr="b">',
             '<img class="a" src="\\a/b.jpg" attr="b" />' => '<img class="a" src="/a/b.jpg" attr="b" />',
-    );
+        ];
 
         $class = new \ReflectionClass($class);
         $function = $class->getMethod('_compile_string');

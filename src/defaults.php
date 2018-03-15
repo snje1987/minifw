@@ -1,17 +1,17 @@
 <?php
 
-$cfg['path'] = array(
+$cfg['path'] = [
     'theme' => '/theme', //template path
     'res' => '/www', //resource path
     'compiled' => '/compiled', //compiled template
     'web_root' => isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '', //web site's root
-);
+];
 
-$cfg['fonts'] = array(
-    'secode' => array(),
-);
+$cfg['fonts'] = [
+    'secode' => [],
+];
 
-$cfg['main'] = array(
+$cfg['main'] = [
     'db' => '', //Mysqli or SQLite (not tested)
     'timezone' => 'PRC',
     'dbprefix' => '',
@@ -21,19 +21,19 @@ $cfg['main'] = array(
     'theme' => null, //默认的显示模板，只在发生错误时使用
     'uri' => isset($_SERVER['REQUEST_URI']) ? strval($_SERVER['REQUEST_URI']) : '',
     'cache' => 3600
-);
+];
 
 if ($cfg['main']['uri'] === '' && isset($_GET['uri'])) {
     $cfg['main']['uri'] = strval($_GET['uri']);
 }
 
-$cfg['debug'] = array(
+$cfg['debug'] = [
     'debug' => 0,
     'tpl_always_compile' => 0,
     'log_error' => 0,
-);
+];
 
-$cfg['mysql'] = array(
+$cfg['mysql'] = [
     'host' => 'localhost',
     'username' => '',
     'password' => '',
@@ -41,17 +41,17 @@ $cfg['mysql'] = array(
     'encoding' => 'utf8',
     'explain_level' => -1,
     'explain_log' => null,
-);
+];
 
-$cfg['sqlite'] = array(
+$cfg['sqlite'] = [
 //    'path' => '/web.db'
-);
+];
 
-$cfg['save'] = array(
+$cfg['save'] = [
 //    'html' => '/html',
-);
+];
 
-$cfg['upload'] = array(
+$cfg['upload'] = [
 //    'attach' => array(
 //        'path' => '/attach',
 //        'allow' => array('jpg', 'svg', 'gif', 'png', 'tif'),
@@ -60,4 +60,4 @@ $cfg['upload'] = array(
 //        'path' => '/www/upload',
 //        'allow' => array('jpg', 'svg', 'gif', 'png', 'tif'),
 //    ],
-);
+];

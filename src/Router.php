@@ -14,21 +14,22 @@ class Router {
             $url = substr($url, 0, $index);
         }
 
-        $matches = array();
+        $matches = [];
         if (preg_match('/^(\/[_a-z0-9\/]*)?\/([_a-z\.0-9]*)(-(.*))?$/', $url, $matches) == 0) {
             throw new Exception('URL不正确.');
         }
 
         $dir = $matches[1];
         $fname = $matches[2];
-        $args = array();
+        $args = [];
         if (isset($matches[4])) {
             $args = explode('-', $matches[4]);
-        } else {
+        }
+        else {
             $matches[4] = '';
         }
 
-        return array($dir, $fname, $args, $matches[4]);
+        return [$dir, $fname, $args, $matches[4]];
     }
 
     /**
@@ -72,7 +73,7 @@ class Router {
             $url = substr($url, 0, $index);
         }
 
-        $matches = array();
+        $matches = [];
         if (preg_match('/^(\/[_a-z0-9]*)?\/([_a-z0-9]*)(.*)$/', $url, $matches) == 0) {
             throw new Exception('URL不正确.');
         }
@@ -81,7 +82,7 @@ class Router {
         $function = isset($matches[2]) ? $matches[2] : '';
         $args = isset($matches[3]) ? $matches[3] : '';
 
-        return array($classname, $function, $args);
+        return [$classname, $function, $args];
     }
 
     /**

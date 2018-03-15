@@ -5,14 +5,14 @@ $cfg['main']['dbprefix'] = '';
 $cfg['main']['theme'] = 'def';
 $cfg['main']['db'] = 'Mysqli';
 
-$cfg['path'] = array(
+$cfg['path'] = [
     'theme' => '/theme',
     'res' => '/www',
     'compiled' => '/compiled',
     'ttfs' => '/ttfs',
     'web_root' => dirname(__DIR__),
-);
+];
 
-$cfg['sqlite'] = array();
+$cfg['sqlite'] = [];
 
-$cfg['save'] = array();
+$cfg['save'] = [];

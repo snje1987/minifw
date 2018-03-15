@@ -10,7 +10,7 @@ class Tpl {
     public static $theme_path;
     public static $res_path;
     public static $compiled_path;
-    protected static $_varis = array();
+    protected static $_varis = [];
     public static $always_compile;
     protected static $tpl_dest = null;
 

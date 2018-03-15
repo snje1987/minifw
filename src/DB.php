@@ -7,16 +7,16 @@ use Org\Snje\Minifw\Exception;
 
 abstract class DB implements TableAnalysis {
 
-    protected static $_instance = array();
+    protected static $_instance = [];
 
     /**
      * 获取实例
      * @return static 实例
      */
-    public static function get($args = array(), $id = '') {
+    public static function get($args = [], $id = '') {
         $class = get_called_class();
         if (!isset(static::$_instance[$class])) {
-            static::$_instance[$class] = array();
+            static::$_instance[$class] = [];
         }
         if (!isset(static::$_instance[$class][$id])) {
             static::$_instance[$class][$id] = new static($args);
@@ -26,7 +26,7 @@ abstract class DB implements TableAnalysis {
 
     private $_transaction_lv = 0;
 
-    public static function get_default($args = array(), $id = '') {
+    public static function get_default($args = [], $id = '') {
         $type = '';
         if (isset($args['type'])) {
             $type = strval($args['type']);
@@ -44,16 +44,18 @@ abstract class DB implements TableAnalysis {
         return $class_name::get($args, $id);
     }
 
-    public function limit_query($tbname, $condition = array(), $field = array()) {
+    public function limit_query($tbname, $condition = [], $field = []) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
         if (is_array($tbname) && $tbname[0] == 'expr') {
             if ($tbname[0] == 'expr') {
                 $sql = 'select ' . $fieldstr . ' from ' . $tbname[1] . $conditionstr;
-            } else {
+            }
+            else {
                 $sql = 'select ' . $fieldstr . ' from `' . $tbname[1] . '`' . $conditionstr;
             }
-        } else {
+        }
+        else {
             $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
         }
         $res = $this->query($sql);
@@ -65,7 +67,7 @@ abstract class DB implements TableAnalysis {
         return $data;
     }
 
-    public function get_query($sql, $var = array()) {
+    public function get_query($sql, $var = []) {
         $res = $this->query($sql, $var);
         if ($res === false) {
             return false;
@@ -75,7 +77,7 @@ abstract class DB implements TableAnalysis {
         return $data;
     }
 
-    public function one_query($tbname, $condition = array(), $field = array(), $lock = false) {
+    public function one_query($tbname, $condition = [], $field = [], $lock = false) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
         $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr . ' limit 1';
@@ -91,7 +93,7 @@ abstract class DB implements TableAnalysis {
         return $data;
     }
 
-    public function count($tbname, $condition = array()) {
+    public function count($tbname, $condition = []) {
         $conditionstr = $this->_parse_condition($condition);
         $sql = 'select count(*) as \'count\' from `' . $tbname . '` ' . $conditionstr;
         $res = $this->query($sql);
@@ -115,7 +117,7 @@ abstract class DB implements TableAnalysis {
         return $this->query($sql);
     }
 
-    public function delete($tbname, $condition = array()) {
+    public function delete($tbname, $condition = []) {
         if (empty($condition)) {
             throw new Exception('删除条件不能为空');
         }
@@ -124,7 +126,7 @@ abstract class DB implements TableAnalysis {
         return $this->query($sql);
     }
 
-    public function update($tbname, $value, $condition = array()) {
+    public function update($tbname, $value, $condition = []) {
         if (empty($condition)) {
             throw new Exception('更新条件不能为空');
         }
@@ -157,7 +159,7 @@ abstract class DB implements TableAnalysis {
         }
     }
 
-    protected function __construct($args = array()) {
+    protected function __construct($args = []) {
 
     }
 
@@ -165,11 +167,12 @@ abstract class DB implements TableAnalysis {
         if (empty($field)) {
             return '*';
         }
-        $arr = array();
+        $arr = [];
         foreach ($field as $k => $v) {
             if (is_int($k)) {
                 $arr[] = '`' . $v . '`';
-            } else {
+            }
+            else {
                 $arr[] = $v . ' as \'' . $k . '\'';
             }
         }
@@ -180,20 +183,23 @@ abstract class DB implements TableAnalysis {
         if (empty($value)) {
             throw new Exception('参数错误');
         }
-        $farr = array();
-        $varr = array();
+        $farr = [];
+        $varr = [];
 
         foreach ($value as $k => $v) {
             $farr[] = $k;
             if (is_array($v)) {
                 if ($v[0] == 'rich') {
                     $varr[] = '\'' . $this->parse_richstr(strval($v[1])) . '\'';
-                } elseif ($v[0] == 'expr') {
+                }
+                elseif ($v[0] == 'expr') {
                     $varr[] = $v[1];
-                } else {
+                }
+                else {
                     throw new Exception('参数错误');
                 }
-            } else {
+            }
+            else {
                 $varr[] = '\'' . $this->parse_str(strval($v)) . '\'';
             }
         }
@@ -202,18 +208,21 @@ abstract class DB implements TableAnalysis {
 
     protected function _parse_update($value) {
 
-        $arr = array();
+        $arr = [];
 
         foreach ($value as $k => $v) {
             if (is_array($v)) {
                 if ($v[0] == 'rich') {
                     $arr[] = '`' . $k . '`=\'' . $this->parse_richstr(strval($v[1])) . '\'';
-                } elseif ($v[0] == 'expr') {
+                }
+                elseif ($v[0] == 'expr') {
                     $arr[] = '`' . $k . '`=' . $v[1];
-                } else {
+                }
+                else {
                     throw new Exception('参数错误');
                 }
-            } else {
+            }
+            else {
                 $arr[] = '`' . $k . '`=\'' . $this->parse_str(strval($v)) . '\'';
             }
         }
@@ -233,7 +242,8 @@ abstract class DB implements TableAnalysis {
             case '<>':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '`' . $value[0] . '\'' . ($this->parse_str($value[1])) . '\')';
@@ -241,7 +251,8 @@ abstract class DB implements TableAnalysis {
             case 'between':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` between \'' . ($this->parse_str($value[1])) . '\' and \'' . ($this->parse_str($value[2])) . '\')';
@@ -249,7 +260,8 @@ abstract class DB implements TableAnalysis {
             case 'have':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like \'%' . ($this->parse_like($value[1])) . '%\')';
@@ -257,7 +269,8 @@ abstract class DB implements TableAnalysis {
             case 'end':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like \'%' . ($this->parse_like($value[1])) . '\')';
@@ -265,7 +278,8 @@ abstract class DB implements TableAnalysis {
             case 'begin':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` like \'' . ($this->parse_like($value[1])) . '%\')';
@@ -273,7 +287,8 @@ abstract class DB implements TableAnalysis {
             case 'nohave':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` not like \'%' . ($this->parse_like($value[1])) . '%\')';
@@ -281,7 +296,8 @@ abstract class DB implements TableAnalysis {
             case 'in':
                 if ($first != true) {
                     $str .= ' and ';
-                } else {
+                }
+                else {
                     $first = false;
                 }
                 $str .= ' (' . ($tbname == '' ? '' : '`' . $tbname . '`.') . '`' . $key . '` in (';
@@ -310,21 +326,26 @@ abstract class DB implements TableAnalysis {
         foreach ($condition as $key => $value) {
             if ($key == 'order') {
                 $str .= ' order by ' . $value;
-            } elseif ($key == 'limit') {
+            }
+            elseif ($key == 'limit') {
                 $str .= ' limit ' . $value;
-            } else {
+            }
+            else {
                 if (is_array($value)) {
                     if (is_array($value[0])) {
                         foreach ($value as $one) {
                             $str .= $this->_parse_opt($one, $first, $key, $tbname);
                         }
-                    } else {
+                    }
+                    else {
                         $str .= $this->_parse_opt($value, $first, $key, $tbname);
                     }
-                } else {
+                }
+                else {
                     if ($first != true) {
                         $str .= ' and ';
-                    } else {
+                    }
+                    else {
                         $first = false;
                     }
                     if ($tbname != '') {
@@ -340,7 +361,7 @@ abstract class DB implements TableAnalysis {
         return $str;
     }
 
-    abstract public function query($sql, $var = array());
+    abstract public function query($sql, $var = []);
 
     abstract public function multi_query($sql);
 

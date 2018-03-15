@@ -14,7 +14,7 @@ class Loader {
     public static function register() {
         self::$len = strlen(__NAMESPACE__ . '\\');
         //设置类的加载器
-        spl_autoload_register(array(__NAMESPACE__ . '\Loader', 'class_loader'));
+        spl_autoload_register([__NAMESPACE__ . '\Loader', 'class_loader']);
     }
 
     /**

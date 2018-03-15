@@ -2,7 +2,7 @@
 <ruleset name="Minifw">
     <description>Minifw simple standard</description>
     <config name="installed_paths" value="vendor/wimg/php-compatibility" />
-    <config name="testVersion" value="5.3-"/>
+    <config name="testVersion" value="5.5-"/>
     <file>src</file>
     <file>tests</file>
     <file>sample</file>

@@ -12,27 +12,27 @@ class System {
      */
     protected static $_instance = null;
 
-    public static function get($args = array()) {
+    public static function get($args = []) {
         if (self::$_instance === null) {
             self::$_instance = new static($args);
         }
         return self::$_instance;
     }
 
-    public static function get_new($args = array()) {
+    public static function get_new($args = []) {
         if (self::$_instance !== null) {
             self::$_instance = null;
         }
         return self::get($args);
     }
 
-    protected $_calls = array();
+    protected $_calls = [];
 
     /**
      * @var Org\Snje\Minifw\Config
      */
     protected $config;
-    protected $errors = array();
+    protected $errors = [];
     protected $use_buffer = false;
     protected $log_error = false;
 
@@ -65,11 +65,11 @@ class System {
         $this->log_error = $this->config->get_config('debug', 'log_error', 0);
 
         //设置错误处理函数
-        set_error_handler(array($this, 'captureNormal'));
+        set_error_handler([$this, 'captureNormal']);
         //设置异常处理函数
-        set_exception_handler(array($this, 'captureException'));
+        set_exception_handler([$this, 'captureException']);
         //设置停机处理函数
-        register_shutdown_function(array($this, 'captureShutdown'));
+        register_shutdown_function([$this, 'captureShutdown']);
         header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
     }
 
@@ -77,7 +77,7 @@ class System {
         $path = $this->config->get_config('main', 'uri', '/');
         try {
             foreach ($this->_calls as $v) {
-                $matches = array();
+                $matches = [];
                 if (preg_match($v['reg'], $path, $matches) === 1) {
                     if (!isset($v['option']['session']) || $v['option']['session']) {
                         $this->_set_seesion();
@@ -131,12 +131,12 @@ class System {
         }
     }
 
-    public function reg_call($reg, $callback, $option = array()) {
-        $this->_calls[] = array(
+    public function reg_call($reg, $callback, $option = []) {
+        $this->_calls[] = [
             'reg' => $reg,
             'callback' => $callback,
             'option' => $option,
-        );
+        ];
     }
 
     protected function _set_seesion() {
@@ -177,7 +177,7 @@ class System {
 
     public function captureNormal($number, $message, $file, $line) {
         if (DEBUG === 1) {
-            $this->errors[] = array('type' => $number, 'message' => $message, 'file' => $file, 'line' => $line);
+            $this->errors[] = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
         }
         if ($this->log_error) {
             error_log('[' . $number . '] ' . $file . '[' . $line . ']:' . $message);

@@ -19,14 +19,14 @@ class Client {
      * @param bool $encode 是否对post数据编码
      * @return array
      */
-    public function post($url, $data = array(), $encode = false) {
+    public function post($url, $data = [], $encode = false) {
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
 
-        if(!empty($data)){
-            if(is_array($data) && $encode === true){
+        if (!empty($data)) {
+            if (is_array($data) && $encode === true) {
                 $data = http_build_query($data);
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -50,14 +50,15 @@ class Client {
      * @param mixed $data 要发送的数据
      * @return array
      */
-    public function get($url, $data = array()) {
+    public function get($url, $data = []) {
         if (!empty($data)) {
             if (is_array($data)) {
                 $data = http_build_query($data);
             }
             if (strpos($url, '?') !== false) {
                 $url .= '&' . $data;
-            } else {
+            }
+            else {
                 $url .= '?' . $data;
             }
         }
@@ -94,22 +95,24 @@ class Client {
         if ($this->user_agent !== null) {
             curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
         }
-        if($this->header !== null){
+        if ($this->header !== null) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->header);
         }
     }
 
     protected function _parse_result($content) {
-        $result = array();
+        $result = [];
         if (preg_match('/Location:(.*)\r\n/iU', $content, $matches)) {
             $result['location'] = trim($matches[1]);
-        } else {
+        }
+        else {
             $result['location'] = '';
         }
 
         if (preg_match_all('/Set-Cookie:(.*);/iU', $content, $matches)) {
             $result['cookie'] = substr(implode(';', $matches[1]), 1);
-        } else {
+        }
+        else {
             $result['cookie'] = '';
         }
 
@@ -117,7 +120,8 @@ class Client {
         if ($pos !== false) {
             $result['header'] = substr($content, 0, $pos);
             $result['content'] = substr($content, $pos + 4);
-        } else {
+        }
+        else {
             $result['header'] = '';
             $result['content'] = $content;
         }
@@ -125,7 +129,8 @@ class Client {
         if ($this->handle_cookie && $result['cookie'] != '') {
             if ($this->cookie === null || $this->cookie === '') {
                 $this->cookie = $result['cookie'];
-            } else {
+            }
+            else {
                 $this->cookie = $this->cookie . ';' . $result['cookie'];
             }
         }

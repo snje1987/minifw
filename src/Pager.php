@@ -58,7 +58,7 @@ class Pager {
         }
     }
 
-    public function get_page($instance, $condition = array(), $field = array()) {
+    public function get_page($instance, $condition = [], $field = []) {
         $this->item_count = $instance->count($condition);
         $this->cal();
         if (is_array($condition)) {
@@ -72,7 +72,7 @@ class Pager {
         }
     }
 
-    public function get_page_direct($db, $condition, $field, $order = '', $var = array(), $group = false) {
+    public function get_page_direct($db, $condition, $field, $order = '', $var = [], $group = false) {
         $sql = '';
         if ($group) {
             $sql = 'select count(*) as "count" from ((select count(*) from ' . $condition . ') `a`)';

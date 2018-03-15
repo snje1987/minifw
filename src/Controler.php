@@ -94,11 +94,11 @@ class Controler {
     }
 
     public static function json_call($post, $call, $mode = self::JSON_CALL_DIE) {
-        $ret = array(
+        $ret = [
             'error' => self::JSON_ERROR_UNKNOWN,
             'returl' => '',
             'msg' => '',
-        );
+        ];
         try {
             $value = false;
             if (is_callable($call)) {

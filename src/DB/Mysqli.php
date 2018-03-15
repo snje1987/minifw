@@ -23,7 +23,7 @@ class Mysqli extends FW\DB {
     const DEFAULT_ENGINE = 'InnoDB';
     const DEFAULT_CHARSET = 'utf8';
 
-    public static $explain_type = array(
+    public static $explain_type = [
         'system' => 2,
         'const' => 2,
         'eq_ref' => 2,
@@ -36,9 +36,9 @@ class Mysqli extends FW\DB {
         'index_merge' => 0,
         'index' => 0,
         'ALL' => 0,
-    );
+    ];
 
-    protected function __construct($args = array()) {
+    protected function __construct($args = []) {
         parent::__construct();
         $config = FW\Config::get();
         $ini = $config->get_config('mysql');
@@ -74,7 +74,7 @@ class Mysqli extends FW\DB {
         return $this->_mysqli->error;
     }
 
-    public function query($sql, $var = array()) {
+    public function query($sql, $var = []) {
         if (!$this->_mysqli->ping()) {
             @$this->_mysqli->close();
             $this->_mysqli = new mysqli($this->_host, $this->_username, $this->_password, $this->_dbname);
@@ -139,7 +139,7 @@ class Mysqli extends FW\DB {
             $data = $res->fetch_all(MYSQLI_ASSOC);
         }
         else {
-            for ($data = array(); $tmp = $res->fetch_array(MYSQLI_ASSOC);) {
+            for ($data = []; $tmp = $res->fetch_array(MYSQLI_ASSOC);) {
                 $data[] = $tmp;
             }
         }
@@ -204,16 +204,16 @@ class Mysqli extends FW\DB {
         if ($data === false) {
             throw new Exception('数据表不存在:' . $tbname);
         }
-        $fields = array();
+        $fields = [];
         foreach ($data as $k => $v) {
-            $fields[$v['Field']] = array(
+            $fields[$v['Field']] = [
                 'no' => $k,
                 'type' => $v['Type'],
                 'null' => $v['Null'],
                 'extra' => $v['Extra'],
                 'default' => $v['Default'],
                 'comment' => $v['Comment'],
-            );
+            ];
         }
         return $fields;
     }
@@ -224,15 +224,15 @@ class Mysqli extends FW\DB {
         if ($data === false) {
             throw new Exception('数据表不存在:' . $tbname);
         }
-        $index = array();
+        $index = [];
         foreach ($data as $v) {
             $name = $v['Key_name'];
             if (!isset($index[$name])) {
-                $index[$name] = array(
-                    'fields' => array(
+                $index[$name] = [
+                    'fields' => [
                         $v['Column_name']
-                    )
-                );
+                    ]
+                ];
                 if (isset($v['Index_comment'])) {
                     $index[$name]['comment'] = $v['Index_comment'];
                 }
@@ -259,13 +259,13 @@ class Mysqli extends FW\DB {
             throw new Exception('数据表不存在:' . $tbname);
         }
         $create_sql = $data[0]['Create Table'];
-        $matches = array();
+        $matches = [];
         if (preg_match('/ENGINE=(\w+)( AUTO_INCREMENT=\d+)? DEFAULT CHARSET=(\w+)( COMMENT=\'([^\']*)\')?$/', $create_sql, $matches)) {
-            $ret = array(
+            $ret = [
                 'engine' => $matches[1],
                 'charset' => $matches[3],
                 'comment' => '',
-            );
+            ];
             if (isset($matches[5]) && $matches[5] != '') {
                 $ret['comment'] = $matches[5];
             }
@@ -274,7 +274,7 @@ class Mysqli extends FW\DB {
         throw new Exception('返回信息处理失败');
     }
 
-    public function compile_sql($sql, $var = array()) {
+    public function compile_sql($sql, $var = []) {
         foreach ($var as $k => $v) {
             if (is_array($v)) {
                 switch ($v[0]) {
@@ -312,7 +312,7 @@ class Mysqli extends FW\DB {
         }
 
         $sql = 'CREATE TABLE IF NOT EXISTS `' . $tbname . '` (' . $dim;
-        $lines = array();
+        $lines = [];
         foreach ($field as $k => $v) {
             $sql_info = self::field_to_sql($k, $v);
             $lines[] = $sql_info['sql'];
@@ -339,8 +339,8 @@ class Mysqli extends FW\DB {
     }
 
     public static function get_field_diff($tbname, $from, $to) {
-        $diff = array();
-        $last = array();
+        $diff = [];
+        $last = [];
         $tail = ' first';
         $i = 0;
 
@@ -349,20 +349,20 @@ class Mysqli extends FW\DB {
             $to_sql = self::field_to_sql($k, $v);
             if (!isset($from[$k])) {
                 if (isset($to_sql['sql_first'])) {
-                    $diff[] = array(
+                    $diff[] = [
                         'diff' => '+[' . $i . '] ' . $to_sql['sql_first'],
                         'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql['sql_first'] . $tail . ';',
-                    );
-                    $last[] = array(
+                    ];
+                    $last[] = [
                         'diff' => '-[' . $i . '] ' . $to_sql['sql_first'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
                         'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
-                    );
+                    ];
                 }
                 else {
-                    $diff[] = array(
+                    $diff[] = [
                         'diff' => '+[' . $i . '] ' . $to_sql['sql'],
                         'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql['sql'] . $tail . ';',
-                    );
+                    ];
                 }
                 self::move_field_no($from, $i);
             }
@@ -372,17 +372,17 @@ class Mysqli extends FW\DB {
 
         //计算删除的列
         $i = 0;
-        $removed = array();
+        $removed = [];
         foreach ($from as $k => $v) {
             $i ++;
             if (array_key_exists($k, $to)) {
                 continue;
             }
             $from_sql = self::field_to_sql($k, $v);
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '- ' . $from_sql['sql'],
                 'trans' => 'ALTER TABLE `' . $tbname . '` DROP `' . $k . '`;',
-            );
+            ];
             self::move_field_no($from, $i - 1, -1, -1);
             $removed[] = $k;
         }
@@ -397,20 +397,20 @@ class Mysqli extends FW\DB {
                 if ($from_sql['sql'] != $to_sql['sql'] || $i != $from[$k]['no']) {
                     //如果原定义不包含自增而新定义包含
                     if (isset($to_sql['sql_first']) && !isset($from_sql['sql_first'])) {
-                        $diff[] = array(
+                        $diff[] = [
                             'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql['sql'] . "\n" . '+[' . $i . '] ' . $to_sql['sql_first'],
                             'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql_first'] . $tail . ';',
-                        );
-                        $last[] = array(
+                        ];
+                        $last[] = [
                             'diff' => '-[' . $from[$k]['no'] . '] ' . $to_sql['sql_first'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
                             'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
-                        );
+                        ];
                     }
                     else {
-                        $diff[] = array(
+                        $diff[] = [
                             'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql['sql'] . "\n" . '+[' . $i . '] ' . $to_sql['sql'],
                             'trans' => 'ALTER TABLE `' . $tbname . '` CHANGE `' . $k . '` ' . $to_sql['sql'] . $tail . ';',
-                        );
+                        ];
                     }
                 }
                 self::move_field_no($from, $i, $from[$k]['no']);
@@ -419,18 +419,18 @@ class Mysqli extends FW\DB {
             $i ++;
         }
 
-        return array($diff, $removed, $last);
+        return [$diff, $removed, $last];
     }
 
     public static function get_index_diff($tbname, $from, $to, $removed) {
-        $diff = array();
+        $diff = [];
         foreach ($to as $k => $v) {
             $to_sql = self::index_to_sql($k, $v, false);
             if (!isset($from[$k])) {
-                $diff[] = array(
+                $diff[] = [
                     'diff' => '+ ' . $to_sql,
                     'trans' => 'ALTER TABLE `' . $tbname . '` ADD ' . $to_sql . ';',
-                );
+                ];
                 continue;
             }
             $from_sql = self::index_to_sql($k, $from[$k], false);
@@ -443,10 +443,10 @@ class Mysqli extends FW\DB {
                     $trans .= ' INDEX `' . $k . '`';
                 }
                 $trans .= ', ADD ' . $to_sql . ';';
-                $diff[] = array(
+                $diff[] = [
                     'diff' => '- ' . $from_sql . "\n" . '+ ' . $to_sql,
                     'trans' => $trans,
-                );
+                ];
                 continue;
             }
         }
@@ -473,42 +473,42 @@ class Mysqli extends FW\DB {
                 $trans = null;
             }
 
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '- ' . $from_sql,
                 'trans' => $trans,
-            );
+            ];
         }
 
         return $diff;
     }
 
     public static function get_status_diff($tbname, $from, $to) {
-        $diff = array();
+        $diff = [];
         if ($from['engine'] != $to['engine']) {
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '- Engine=' . $from['engine'] . "\n" . '+ Engine=' . $to['engine'],
                 'trans' => 'ALTER TABLE `' . $tbname . '` ENGINE=' . $to['engine'] . ';',
-            );
+            ];
         }
         if ($from['comment'] != $to['comment']) {
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '- Comment=\'' . $from['comment'] . "'\n" . '+ Comment=\'' . $to['comment'] . '\'',
                 'trans' => 'ALTER TABLE `' . $tbname . '` COMMENT=\'' . $to['comment'] . '\';',
-            );
+            ];
         }
         if ($from['charset'] != $to['charset']) {
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '- Charset=\'' . $from['charset'] . "'\n" . '+ Charset=\'' . $to['charset'] . '\'',
                 'trans' => 'ALTER TABLE `' . $tbname . '` DEFAULT CHARSET=\'' . $to['charset'] . '\';',
-            );
+            ];
         }
         return $diff;
     }
 
     protected static function field_to_sql($name, $attr) {
-        $info = array(
+        $info = [
             'sql' => '',
-        );
+        ];
         if (isset($attr['extra']) && $attr['extra'] === 'auto_increment') {
             $info['sql_first'] = '';
         }

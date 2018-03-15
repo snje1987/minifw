@@ -12,15 +12,15 @@ class TableWithOne extends FW\Table {
 
     }
 
-    public static $status = array(
+    public static $status = [
         'engine' => 'InnoDB',
         'charset' => 'utf8',
         'comment' => 'Table To Create',
-    );
-    public static $field = array(
-        'intfield' => array('type' => 'int(11)', 'comment' => 'A int field'),
-    );
-    public static $index = array(
-    );
+    ];
+    public static $field = [
+        'intfield' => ['type' => 'int(11)', 'comment' => 'A int field'],
+    ];
+    public static $index = [
+    ];
 
 }

@@ -1,19 +1,19 @@
 <?php
 
-$value = array();
-$value[] = array(
+$value = [];
+$value[] = [
     'method' => 'js',
     'type' => 'dir',
     'tail' => '.js',
-    'map' => array(
+    'map' => [
         '/www/theme/default/script/' => '/theme/default/script/',
-    ),
-);
-$value[] = array(
+    ],
+];
+$value[] = [
     'method' => 'css',
     'type' => 'file',
-    'map' => array(
+    'map' => [
         '/www/theme/default/style/common.css' => '/theme/default/style/common.css',
-    ),
-);
+    ],
+];
 return $value;

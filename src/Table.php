@@ -7,20 +7,19 @@ use Org\Snje\Minifw as FW;
 abstract class Table {
 
     public static $tbname = '';
-    public static $status = array();
-    public static $field = array();
-    public static $index = array();
-
-    protected static $_instance = array();
+    public static $status = [];
+    public static $field = [];
+    public static $index = [];
+    protected static $_instance = [];
 
     /**
      * 获取实例
      * @return static 实例
      */
-    public static function get($args = array(), $id = '') {
+    public static function get($args = [], $id = '') {
         $class = get_called_class();
         if (!isset(static::$_instance[$class])) {
-            static::$_instance[$class] = array();
+            static::$_instance[$class] = [];
         }
         if (!isset(static::$_instance[$class][$id])) {
             static::$_instance[$class][$id] = new static($args);
@@ -37,7 +36,7 @@ abstract class Table {
         return $this->db;
     }
 
-    public function count($condition = array()) {
+    public function count($condition = []) {
         return $this->db->count(static::$tbname, $condition);
     }
 
@@ -48,15 +47,15 @@ abstract class Table {
 
     public function edit($post) {
         $data = $this->_prase($post, 2);
-        $condition = array();
+        $condition = [];
         $condition['id'] = intval($post['id']);
         return $this->db->update(static::$tbname, $data, $condition);
     }
 
     public function set_field($id, $field, $value) {
-        $condition = array();
+        $condition = [];
         $condition['id'] = intval($id);
-        $data = array();
+        $data = [];
         $data[strval($field)] = $value;
         return $this->db->update(static::$tbname, $data, $condition);
     }
@@ -70,7 +69,8 @@ abstract class Table {
         $id = 0;
         if (is_array($args)) {
             $id = intval($args[0]);
-        } else {
+        }
+        else {
             $id = intval($args);
         }
 
@@ -78,26 +78,26 @@ abstract class Table {
             return false;
         }
 
-        $condition = array(
+        $condition = [
             'id' => $id
-        );
+        ];
         return $this->db->delete(static::$tbname, $condition);
     }
 
-    public function get_by_id($id, $field = array(), $lock = false) {
-        $condition = array();
+    public function get_by_id($id, $field = [], $lock = false) {
+        $condition = [];
         $condition['id'] = intval($id);
         return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
-    public function get_one($condition, $field = array(), $lock = false) {
+    public function get_one($condition, $field = [], $lock = false) {
         return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
-    public function get_by_field($name, $value, $field = array(), $lock = false) {
+    public function get_by_field($name, $value, $field = [], $lock = false) {
         $name = strval($name);
         $value = strval($value);
-        $condition = array();
+        $condition = [];
         $condition[$name] = $value;
         return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
@@ -105,12 +105,12 @@ abstract class Table {
     public function gets_by_field($field, $value) {
         $field = strval($field);
         $value = strval($value);
-        $condition = array();
+        $condition = [];
         $condition[$field] = $value;
         return $this->db->limit_query(static::$tbname, $condition);
     }
 
-    public function gets_by_condition($condition = array(), $field = array()) {
+    public function gets_by_condition($condition = [], $field = []) {
         return $this->db->limit_query(static::$tbname, $condition, $field);
     }
 
@@ -150,7 +150,7 @@ abstract class Table {
     }
 
     public function table_diff() {
-        $diff = array();
+        $diff = [];
         $status = null;
         $field = null;
         $index = null;
@@ -158,7 +158,8 @@ abstract class Table {
             $status = $this->db->get_table_status(static::$tbname);
             $field = $this->db->get_table_field(static::$tbname);
             $index = $this->db->get_table_index(static::$tbname);
-        } catch (Exception $ex) {
+        }
+        catch (Exception $ex) {
             $sql_display = $this->db->create_table_sql(
                     static::$tbname
                     , static::$status
@@ -171,16 +172,16 @@ abstract class Table {
                     , static::$field
                     , static::$index
                     , "\n");
-            $diff[] = array(
+            $diff[] = [
                 'diff' => '+' . $sql_display,
                 'trans' => $sql_exec . ';',
-            );
+            ];
             $init_sql = $this->init_table_sql();
             if ($init_sql !== '') {
-                $diff[] = array(
+                $diff[] = [
                     'diff' => '+' . $init_sql,
                     'trans' => $init_sql . ';',
-                );
+                ];
             }
             return $diff;
         }
@@ -201,7 +202,7 @@ abstract class Table {
 
     ///////////////////////////////////////////////////
 
-    protected function __construct($args = array()) {
+    protected function __construct($args = []) {
         $this->db = DB::get_default($args);
     }
 

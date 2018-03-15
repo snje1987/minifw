@@ -79,44 +79,44 @@ class FileTest extends Ts\TestCommon {
     }
 
     public function test_format_path() {
-        $cases = array(
-            array(
-                'in' => array('/'),
+        $cases = [
+            [
+                'in' => ['/'],
                 'out' => '/',
-            ),
-            array(
-                'in' => array('/', '/'),
+            ],
+            [
+                'in' => ['/', '/'],
                 'out' => '/',
-            ),
-            array(
-                'in' => array('/12321/ddd/', '/', 'config.php'),
+            ],
+            [
+                'in' => ['/12321/ddd/', '/', 'config.php'],
                 'out' => '/config.php',
-            ),
-            array(
-                'in' => array('/', 'aaa', 'config.php'),
+            ],
+            [
+                'in' => ['/', 'aaa', 'config.php'],
                 'out' => '/aaa/config.php',
-            ),
-            array(
-                'in' => array('aaa', 'bbb', 'config.php'),
+            ],
+            [
+                'in' => ['aaa', 'bbb', 'config.php'],
                 'out' => 'aaa/bbb/config.php',
-            ),
-            array(
-                'in' => array('aaa/', './bbb/', 'config.php'),
+            ],
+            [
+                'in' => ['aaa/', './bbb/', 'config.php'],
                 'out' => 'aaa/bbb/config.php',
-            ),
-            array(
-                'in' => array('aaa/', '', '../bbb/', 'config.php'),
+            ],
+            [
+                'in' => ['aaa/', '', '../bbb/', 'config.php'],
                 'out' => 'bbb/config.php',
-            ),
-            array(
-                'in' => array('a/b/c/', '../../v', 'config.php'),
+            ],
+            [
+                'in' => ['a/b/c/', '../../v', 'config.php'],
                 'out' => 'a/v/config.php',
-            ),
-            array(
-                'in' => array('a/b/c/', '../../../../v', 'config.php'),
+            ],
+            [
+                'in' => ['a/b/c/', '../../../../v', 'config.php'],
                 'out' => '',
-            ),
-        );
+            ],
+        ];
         foreach ($cases as $case) {
             $out = call_user_func_array('Org\Snje\Minifw\File::format_path', $case['in']);
             $this->assertEquals($case['out'], $out);

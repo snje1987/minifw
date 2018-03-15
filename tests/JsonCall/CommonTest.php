@@ -23,21 +23,21 @@ class CommonTest extends Ts\TestCommon {
                 'test msg'
                 , $class . '::static_except'
                 , FW\Controler::JSON_CALL_RETURN);
-        $this->assertEquals(array(
+        $this->assertEquals([
             'error' => -1,
             'returl' => '',
             'msg' => '[' . __DIR__ . '/Functions.php:16]test msg',
-                ), $ret);
+                ], $ret);
 
         $ret = $controler->json_call(
                 'test msg'
                 , $class . '::static_noexist'
                 , FW\Controler::JSON_CALL_RETURN);
-        $this->assertEquals(array(
+        $this->assertEquals([
             'error' => -1,
             'returl' => '',
             'msg' => '操作失败',
-                ), $ret);
+                ], $ret);
     }
 
     public function test_json_call_func() {
@@ -47,101 +47,101 @@ class CommonTest extends Ts\TestCommon {
         for ($i = 0; $i < $count; $i++) {
             $ret = $controler->json_call(
                     self::$input[$i]
-                    , array($obj, 'func')
+                    , [$obj, 'func']
                     , FW\Controler::JSON_CALL_RETURN);
             $this->assertEquals(self::$expect[$i], $ret);
         }
 
         $ret = $controler->json_call(
                 'test msg'
-                , array($obj, 'func_except')
+                , [$obj, 'func_except']
                 , FW\Controler::JSON_CALL_RETURN);
-        $this->assertEquals(array(
+        $this->assertEquals([
             'error' => -1,
             'returl' => '',
             'msg' => '[' . __DIR__ . '/Functions.php:24]test msg',
-                ), $ret);
+                ], $ret);
 
         $ret = $controler->json_call(
                 'test msg'
-                , array($obj, 'func_noexist')
+                , [$obj, 'func_noexist']
                 , FW\Controler::JSON_CALL_RETURN);
-        $this->assertEquals(array(
+        $this->assertEquals([
             'error' => -1,
             'returl' => '',
             'msg' => '操作失败',
-                ), $ret);
+                ], $ret);
     }
 
-    public static $input = array(
+    public static $input = [
         false,
         true,
-        array(),
-        array(
+        [],
+        [
             'returl' => 'testurl',
-        ),
-        array(
+        ],
+        [
             'msg' => 'testmsg',
-        ),
-        array(
+        ],
+        [
             'msg' => 'testmsg',
             'returl' => 'testurl',
-        ),
-        array(
+        ],
+        [
             'msg' => 'testmsg',
             'returl' => 'testurl',
             'msg1' => 'testmsg1',
-        ),
-        array(
+        ],
+        [
             'error' => 1,
             'msg' => 'testmsg',
             'returl' => 'testurl',
             'msg1' => 'testmsg1',
-        ),
-    );
-    public static $expect = array(
-        array(
+        ],
+    ];
+    public static $expect = [
+        [
             'error' => -1,
             'msg' => '操作失败',
             'returl' => '',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => '',
             'msg' => '',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => '',
             'msg' => '',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => 'testurl',
             'msg' => '',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => '',
             'msg' => 'testmsg',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => 'testurl',
             'msg' => 'testmsg',
-        ),
-        array(
+        ],
+        [
             'error' => 0,
             'returl' => 'testurl',
             'msg' => 'testmsg',
             'msg1' => 'testmsg1',
-        ),
-        array(
+        ],
+        [
             'error' => 1,
             'returl' => 'testurl',
             'msg' => 'testmsg',
             'msg1' => 'testmsg1',
-        ),
-    );
+        ],
+    ];
 
 }

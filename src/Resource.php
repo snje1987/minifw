@@ -13,7 +13,8 @@ class Resource {
     public function __construct($map_path = null) {
         if ($map_path === null) {
             $this->map_path = WEB_ROOT . Config::get()->get_config('main', 'resource_map');
-        } else {
+        }
+        else {
             $this->map_path = $map_path;
         }
         $this->load_map();
@@ -33,7 +34,8 @@ class Resource {
                         return false;
                     }
                 }
-            } elseif ($cfg['type'] === 'dir') {
+            }
+            elseif ($cfg['type'] === 'dir') {
                 foreach ($cfg['map'] as $to => $from) {
                     if (is_array($from)) {
                         $from = $from[0];
@@ -42,7 +44,8 @@ class Resource {
                         return false;
                     }
                 }
-            } else {
+            }
+            else {
                 return false;
             }
         }
@@ -56,7 +59,8 @@ class Resource {
                 if (!$this->compile_dir($src . '/' . $file['name'], $dest . '/' . $file['name'])) {
                     return false;
                 }
-            } else {
+            }
+            else {
                 if (!$this->compile($dest . '/' . $file['name'])) {
                     return false;
                 }
@@ -87,7 +91,8 @@ class Resource {
                 if ($ret !== null) {
                     return $ret;
                 }
-            } elseif ($cfg['type'] === 'dir') {
+            }
+            elseif ($cfg['type'] === 'dir') {
                 $ret = $this->match_dir($dest, $cfg);
                 if ($ret !== null) {
                     return $ret;
@@ -100,13 +105,13 @@ class Resource {
     protected function match_file($dest, $cfg) {
         if (isset($cfg['map'][$dest])) {
             if (!is_array($cfg['map'][$dest])) {
-                $cfg['map'][$dest] = array(
+                $cfg['map'][$dest] = [
                     $cfg['map'][$dest]
-                );
+                ];
             }
-            $cfg['map'] = array(
+            $cfg['map'] = [
                 $dest => $cfg['map'][$dest],
-            );
+            ];
             return $cfg;
         }
         return null;
@@ -115,9 +120,9 @@ class Resource {
     protected function match_dir($dest, $cfg) {
         if (isset($cfg['tail'])) {
             if (!is_array($cfg['tail'])) {
-                $cfg['tail'] = array(
+                $cfg['tail'] = [
                     $cfg['tail'],
-                );
+                ];
             }
             $match = false;
             foreach ($cfg['tail'] as $v) {
@@ -139,11 +144,11 @@ class Resource {
             if (is_array($from)) {
                 $from = $from[0];
             }
-            $cfg['map'] = array(
-                $dest => array(
+            $cfg['map'] = [
+                $dest => [
                     $from . substr($dest, $len)
-                ),
-            );
+                ],
+            ];
             return $cfg;
         }
         return null;

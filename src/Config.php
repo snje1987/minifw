@@ -14,14 +14,14 @@ class Config {
      * @param array $args
      * @return Config
      */
-    public static function get($args = array()) {
+    public static function get($args = []) {
         if (self::$_instance === null) {
             self::$_instance = new static($args);
         }
         return self::$_instance;
     }
 
-    public static function get_new($args = array()) {
+    public static function get_new($args = []) {
         if (self::$_instance !== null) {
             self::$_instance = null;
         }
@@ -64,7 +64,7 @@ class Config {
      * Load config data
      */
     public function load_config() {
-        $cfg = array();
+        $cfg = [];
         require __DIR__ . '/defaults.php';
         if (file_exists($this->config_path)) {
             require $this->config_path;
