@@ -119,42 +119,53 @@ class Tpl {
         }
     }
 
+    public static function trans_isset($matches) {
+        $str = $matches[1];
+        if ($str == '') {
+            return '';
+        }
+        else {
+            $array = explode('|', $str);
+            $ret = '';
+            $tail = '';
+            $last = count($array) - 1;
+            foreach ($array as $k => $item) {
+                if ($k == 0 || $k < $last) {
+                    $ret .= '(isset(' . $item . ')?(' . $item . '):';
+                    $tail .= ')';
+                }
+                else {
+                    $ret .= '(' . $item . ')';
+                }
+            }
+            if ($last == 0) {
+                $ret .= '\'\'';
+            }
+            return '<?=' . $ret . $tail . ';?>';
+        }
+    }
+
     protected static function _compile_string($input, $theme) {
-        $input = preg_replace(
-                '/\<{inc \/?(\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',array(),\'' . $theme . '\');?>', $input);
+        $input = preg_replace('/\<{inc \$(\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\$$1,[],\'' . $theme . '\');?>', $input);
 
-        $input = preg_replace(
-                '/\<{inc \/?(\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
+        $input = preg_replace('/\<{inc \$(\S*?) (\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\$$1,$2,\'' . $theme . '\');?>', $input);
 
-        $input = preg_replace(
-                '/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/', '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
+        $input = preg_replace('/\<{inc \$(\S*?) (\S*?) (\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\$$1,$2,\'$3\');?>', $input);
 
-        $input = preg_replace_callback('/\<{\|(.*?)}\>/', function($matches) {
-            $str = $matches[1];
-            if ($str == '') {
-                return '';
-            }
-            else {
-                $array = explode('|', $str);
-                $ret = '';
-                $tail = '';
-                $last = count($array) - 1;
-                foreach ($array as $k => $item) {
-                    if ($k == 0 || $k < $last) {
-                        $ret .= '(isset(' . $item . ')?(' . $item . '):';
-                        $tail .= ')';
-                    }
-                    else {
-                        $ret .= '(' . $item . ')';
-                    }
-                }
-                if ($last == 0) {
-                    $ret .= '\'\'';
-                }
-                return '<?php echo ' . $ret . $tail . ';?>';
-            }
-        }, $input);
-        $input = preg_replace('/\<{=(.*?)}\>/', '<?php echo ($1);?>', $input);
+        $input = preg_replace('/\<{inc \/?(\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',[],\'' . $theme . '\');?>', $input);
+
+        $input = preg_replace('/\<{inc \/?(\S*?) (\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'' . $theme . '\');?>', $input);
+
+        $input = preg_replace('/\<{inc \/?(\S*?) (\S*?) (\S*?)\s*}\>/'
+                , '<?php ' . __NAMESPACE__ . '\Tpl::_inc(\'/$1\',$2,\'$3\');?>', $input);
+
+        $input = preg_replace_callback('/\<{\|(.*?)}\>/', __NAMESPACE__ . '\Tpl::trans_isset', $input);
+        $input = preg_replace('/\<{=(.*?)}\>/', '<?=($1);?>', $input);
         $input = preg_replace('/\<{if (.*?)}\>/', '<?php if($1){?>', $input);
         $input = preg_replace('/\<{elseif (.*?)}\>/', '<?php }elseif($1){?>', $input);
         $input = preg_replace('/\<{else}\>/', '<?php }else{?>', $input);
@@ -176,16 +187,19 @@ class Tpl {
         $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
+        $input = preg_replace('/url\(\/([^\']*)\)/i', 'url(\'' . self::$res_path . self::$theme_path . '/' . $theme . '/$1\')', $input);
 
         //path relate to resource root："|xxx/yyy"
         $input = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . '/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . '/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . '/$2"$3 />', $input);
+        $input = preg_replace('/url\(\|([^\']*)\)/i', 'url(\'' . self::$res_path . '/$1\')', $input);
 
         //path keep original："\xxx/yyy"
         $input = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1href="/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1src="/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1src="/$2"$3 />', $input);
+        $input = preg_replace('/url\(\\\([^\']*)\)/i', 'url(\'/$1\')', $input);
 
         //remove empty character
         //$input = preg_replace('/^\s*(.*?)\s*$/im', '$1', $input);
