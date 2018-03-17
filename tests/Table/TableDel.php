@@ -8,7 +8,7 @@ class TableDel extends FW\Table {
 
     const TBNAME = 'table_with_all';
 
-    protected function _prase($post, $type) {
+    protected function _prase($post, $odata = []) {
 
     }
 

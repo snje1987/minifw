@@ -8,7 +8,7 @@ class TableWithOne extends FW\Table {
 
     const TBNAME = 'table_with_one';
 
-    protected function _prase($post, $type) {
+    protected function _prase($post, $odata = []) {
 
     }
 

@@ -45,10 +45,12 @@ class File {
                 if (count($parsed) < 1) {
                     $parsed = [];
                     break;
-                } else {
+                }
+                else {
                     unset($parsed[count($parsed) - 1]);
                 }
-            } else {
+            }
+            else {
                 $parsed[] = $v;
             }
         }
@@ -99,7 +101,8 @@ class File {
         self::mkdir(dirname($dest));
         if (file_put_contents($dest, $data) !== false) {
             return $base_dir . '/' . $name;
-        } else {
+        }
+        else {
             throw new Exception('文件写入出错');
         }
     }
@@ -166,7 +169,8 @@ class File {
         self::mkdir(dirname($dest));
         if (move_uploaded_file($file['tmp_name'], $dest)) {
             return $base_dir . '/' . $name;
-        } else {
+        }
+        else {
             throw new Exception('文件移动出错');
         }
     }
@@ -244,7 +248,8 @@ class File {
     public static function init_file_direct($filename, $filesize, $path, $is_full = false, $fsencoding = '') {
         if ($is_full) {
             $dest = $path;
-        } else {
+        }
+        else {
             $dest = WEB_ROOT . $path;
         }
 
@@ -298,7 +303,8 @@ class File {
         $dh = fopen($dest, 'r+');
         if ($chunk == $chunks - 1) {
             fseek($dh, -1 * $size, SEEK_END);
-        } else {
+        }
+        else {
             fseek($dh, $size * $chunk, SEEK_SET);
         }
         fwrite($dh, $content, $size);
@@ -414,7 +420,8 @@ class File {
                 $to = $dest . $file;
                 if (is_dir($from)) {
                     self::copy_dir($from, $to, $hidden);
-                } else {
+                }
+                else {
                     self::copy($from, $to);
                 }
             }
@@ -471,7 +478,8 @@ class File {
         if (file_exists($path)) {
             if (is_dir($path)) {
                 rmdir($path);
-            } else {
+            }
+            else {
                 @unlink($path);
             }
             if (self::dir_empty($parent)) {
@@ -511,7 +519,8 @@ class File {
                 if (is_dir($full)) {
                     self::clear_dir($full, true);
                     rmdir($full);
-                } else {
+                }
+                else {
                     @unlink($full);
                 }
             }
@@ -539,7 +548,7 @@ class File {
         $pinfo = pathinfo($path);
         $dir = $pinfo['dirname'] . '/';
         $name = $pinfo['filename'];
-        $files = array();
+        $files = [];
 
         if ($dh = opendir($dir)) {
             while (($file = readdir($dh)) !== false) {
@@ -572,14 +581,16 @@ class File {
             while (false !== ($file = readdir($dir))) {
                 if ($file == '.' || $file == '..') {
                     continue;
-                } else {
+                }
+                else {
                     closedir($dir);
                     return false;
                 }
             }
             closedir($dir);
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -660,7 +671,8 @@ class File {
             $mime_type = 'application/octet-stream';
             if (array_key_exists($ext, self::MIME_HASH)) {
                 $mime_type = self::MIME_HASH[$ext];
-            } else {
+            }
+            else {
                 $fi = new \finfo(FILEINFO_MIME_TYPE);
                 $mime_type = $fi->file($full);
             }
@@ -752,7 +764,8 @@ class File {
         $pos = false;
         if ($last) {
             $pos = strrpos($file, '.');
-        } else {
+        }
+        else {
             $pos = strpos($file, '.');
         }
         if ($pos === false) {

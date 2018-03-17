@@ -17,7 +17,7 @@ abstract class Table {
      * 获取实例
      * @return static 实例
      */
-    public static function get($args = array(), $id = '') {
+    public static function get($args = [], $id = '') {
         if (!isset(static::$_instance[static::class])) {
             static::$_instance[static::class] = [];
         }
@@ -41,14 +41,19 @@ abstract class Table {
     }
 
     public function add($post) {
-        $data = $this->_prase($post, 1);
+        $data = $this->_prase($post, []);
         return $this->db->insert(static::TBNAME, $data);
     }
 
     public function edit($post) {
-        $data = $this->_prase($post, 2);
+        $id = isset($post['id']) ? intval($post['id']) : 0;
+        $odata = $this->get_by_id($id);
+        if (empty($odata)) {
+            throw new Exception('数据不存在');
+        }
+        $data = $this->_prase($post, $odata);
         $condition = [];
-        $condition['id'] = intval($post['id']);
+        $condition['id'] = $id;
         return $this->db->update(static::TBNAME, $data, $condition);
     }
 
@@ -69,7 +74,8 @@ abstract class Table {
         $id = 0;
         if (is_array($args)) {
             $id = intval($args[0]);
-        } else {
+        }
+        else {
             $id = intval($args);
         }
 
@@ -157,7 +163,8 @@ abstract class Table {
             $status = $this->db->get_table_status(static::TBNAME);
             $field = $this->db->get_table_field(static::TBNAME);
             $index = $this->db->get_table_index(static::TBNAME);
-        } catch (Exception $ex) {
+        }
+        catch (Exception $ex) {
             $sql_display = $this->db->create_table_sql(
                     static::TBNAME
                     , static::STATUS
@@ -204,5 +211,5 @@ abstract class Table {
         $this->db = DB::get_default($args);
     }
 
-    abstract protected function _prase($post, $type);
+    abstract protected function _prase($post, $odata = []);
 }

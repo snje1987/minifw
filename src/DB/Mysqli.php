@@ -372,7 +372,7 @@ class Mysqli extends FW\DB {
 
         //计算删除的列
         $i = 0;
-        $removed = array();
+        $removed = [];
         foreach ($from as $k => $v) {
             $i ++;
             if (array_key_exists($k, $to)) {
@@ -387,7 +387,7 @@ class Mysqli extends FW\DB {
             $removed[] = $k;
         }
 
-        //计算变化的列
+//计算变化的列
         $i = 0;
         $tail = ' first';
         foreach ($to as $k => $v) {
@@ -395,7 +395,7 @@ class Mysqli extends FW\DB {
                 $to_sql = self::field_to_sql($k, $v);
                 $from_sql = self::field_to_sql($k, $from[$k]);
                 if ($from_sql['sql'] != $to_sql['sql'] || $i != $from[$k]['no']) {
-                    //如果原定义不包含自增而新定义包含
+//如果原定义不包含自增而新定义包含
                     if (isset($to_sql['sql_first']) && !isset($from_sql['sql_first'])) {
                         $diff[] = [
                             'diff' => '-[' . $from[$k]['no'] . '] ' . $from_sql['sql'] . "\n" . '+[' . $i . '] ' . $to_sql['sql_first'],
@@ -469,7 +469,7 @@ class Mysqli extends FW\DB {
             }
 
             if ($has_removed) {
-                //如果索引中所有的列已经被删除，索引会被自动删除，不必生成删除语句
+//如果索引中所有的列已经被删除，索引会被自动删除，不必生成删除语句
                 $trans = null;
             }
 
