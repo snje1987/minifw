@@ -15,7 +15,7 @@ class Table extends FW\Table {
         throw new \Org\Snje\Minifw\Exception($args);
     }
 
-    protected function _prase($post, $type) {
+    protected function _prase($post, $odata = []) {
 
     }
 

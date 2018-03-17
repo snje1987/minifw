@@ -8,7 +8,7 @@ class TableChange extends FW\Table {
 
     public static $tbname = 'table_with_all';
 
-    protected function _prase($post, $type) {
+    protected function _prase($post, $odata = []) {
 
     }
 

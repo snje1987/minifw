@@ -14,14 +14,13 @@ abstract class DB implements TableAnalysis {
      * @return static 实例
      */
     public static function get($args = [], $id = '') {
-        $class = get_called_class();
-        if (!isset(static::$_instance[$class])) {
-            static::$_instance[$class] = [];
+        if (!isset(static::$_instance[static::class])) {
+            static::$_instance[static::class] = [];
         }
-        if (!isset(static::$_instance[$class][$id])) {
-            static::$_instance[$class][$id] = new static($args);
+        if (!isset(static::$_instance[static::class][$id])) {
+            static::$_instance[static::class][$id] = new static($args);
         }
-        return static::$_instance[$class][$id];
+        return static::$_instance[static::class][$id];
     }
 
     private $_transaction_lv = 0;

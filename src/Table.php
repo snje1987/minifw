@@ -17,14 +17,13 @@ abstract class Table {
      * @return static 实例
      */
     public static function get($args = [], $id = '') {
-        $class = get_called_class();
-        if (!isset(static::$_instance[$class])) {
-            static::$_instance[$class] = [];
+        if (!isset(static::$_instance[static::class])) {
+            static::$_instance[static::class] = [];
         }
-        if (!isset(static::$_instance[$class][$id])) {
-            static::$_instance[$class][$id] = new static($args);
+        if (!isset(static::$_instance[static::class][$id])) {
+            static::$_instance[static::class][$id] = new static($args);
         }
-        return static::$_instance[$class][$id];
+        return static::$_instance[static::class][$id];
     }
 
     /**
@@ -41,14 +40,19 @@ abstract class Table {
     }
 
     public function add($post) {
-        $data = $this->_prase($post, 1);
+        $data = $this->_prase($post, []);
         return $this->db->insert(static::$tbname, $data);
     }
 
     public function edit($post) {
-        $data = $this->_prase($post, 2);
+        $id = isset($post['id']) ? intval($post['id']) : 0;
+        $odata = $this->get_by_id($id);
+        if (empty($odata)) {
+            throw new Exception('数据不存在');
+        }
+        $data = $this->_prase($post, $odata);
         $condition = [];
-        $condition['id'] = intval($post['id']);
+        $condition['id'] = $id;
         return $this->db->update(static::$tbname, $data, $condition);
     }
 
@@ -206,5 +210,5 @@ abstract class Table {
         $this->db = DB::get_default($args);
     }
 
-    abstract protected function _prase($post, $type);
+    abstract protected function _prase($post, $odata = []);
 }

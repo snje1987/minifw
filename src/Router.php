@@ -47,14 +47,7 @@ class Router {
         if ($classname == '') {
             throw new Exception('未指定Controler.');
         }
-        $classname_array = explode('\\', $classname);
-        $classname = $namespace;
-        foreach ($classname_array as $v) {
-            if ($v === '') {
-                continue;
-            }
-            $classname .= '\\' . ucwords($v);
-        }
+        $classname = $namespace . ucwords($classname, '\\');
         if (!class_exists($classname)) {
             throw new Exception('Controler ' . $classname . '不存在.');
         }
@@ -100,14 +93,7 @@ class Router {
         if ($classname == '') {
             throw new Exception('未指定Controler.');
         }
-        $classname_array = explode('\\', $classname);
-        $classname = $namespace;
-        foreach ($classname_array as $v) {
-            if ($v === '') {
-                continue;
-            }
-            $classname .= '\\' . ucwords($v);
-        }
+        $classname = $namespace . ucwords($classname, '\\');
         if (!class_exists($classname)) {
             throw new Exception('Controler ' . $classname . '不存在.');
         }

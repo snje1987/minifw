@@ -162,7 +162,7 @@ class Controler {
         }
         elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
-            die(\json_encode($ret));
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
             // @codeCoverageIgnoreEnd
         }
         else {
@@ -199,7 +199,7 @@ class Controler {
         }
         elseif ($mode == self::JSON_CALL_DIE) {
             // @codeCoverageIgnoreStart
-            die(\json_encode($ret));
+            die(\json_encode($ret, JSON_UNESCAPED_UNICODE));
             // @codeCoverageIgnoreEnd
         }
         else {

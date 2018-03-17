@@ -52,12 +52,12 @@ $cfg['save'] = [
 ];
 
 $cfg['upload'] = [
-//    'attach' => array(
+//    'attach' => [
 //        'path' => '/attach',
-//        'allow' => array('jpg', 'svg', 'gif', 'png', 'tif'),
-//    ),
-//    'upload' => array(
+//        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
+//    ],
+//    'upload' => [
 //        'path' => '/www/upload',
-//        'allow' => array('jpg', 'svg', 'gif', 'png', 'tif'),
+//        'allow' => ['jpg', 'svg', 'gif', 'png', 'tif'],
 //    ],
 ];

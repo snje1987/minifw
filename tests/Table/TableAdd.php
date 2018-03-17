@@ -8,7 +8,7 @@ class TableAdd extends FW\Table {
 
     public static $tbname = 'table_with_one';
 
-    protected function _prase($post, $type) {
+    protected function _prase($post, $odata = []) {
 
     }
 
