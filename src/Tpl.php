@@ -187,19 +187,19 @@ class Tpl {
         $input = preg_replace('/\<link (.*?)href="\/([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\/([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\/([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . self::$theme_path . '/' . $theme . '/$2"$3 />', $input);
-        $input = preg_replace('/url\(\/([^\']*)\)/i', 'url(\'' . self::$res_path . self::$theme_path . '/' . $theme . '/$1\')', $input);
+        $input = preg_replace('/url\(\/([^)]*)\)/i', 'url(\'' . self::$res_path . self::$theme_path . '/' . $theme . '/$1\')', $input);
 
         //path relate to resource root："|xxx/yyy"
         $input = preg_replace('/\<link (.*?)href="\|([^"]*)"(.*?) \/\>/i', '<link $1href="' . self::$res_path . '/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\|([^"]*)"(.*?)\>/i', '<script $1src="' . self::$res_path . '/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\|([^"]*)"(.*?) \/\>/i', '<img $1src="' . self::$res_path . '/$2"$3 />', $input);
-        $input = preg_replace('/url\(\|([^\']*)\)/i', 'url(\'' . self::$res_path . '/$1\')', $input);
+        $input = preg_replace('/url\(\|([^)]*)\)/i', 'url(\'' . self::$res_path . '/$1\')', $input);
 
         //path keep original："\xxx/yyy"
         $input = preg_replace('/\<link (.*?)href="\\\([^"]*)"(.*?) \/\>/i', '<link $1href="/$2"$3 />', $input);
         $input = preg_replace('/\<script (.*?)src="\\\([^"]*)"(.*?)\>/i', '<script $1src="/$2"$3>', $input);
         $input = preg_replace('/\<img (.*?)src="\\\([^"]*)"(.*?) \/\>/i', '<img $1src="/$2"$3 />', $input);
-        $input = preg_replace('/url\(\\\([^\']*)\)/i', 'url(\'/$1\')', $input);
+        $input = preg_replace('/url\(\\\([^)]*)\)/i', 'url(\'/$1\')', $input);
 
         //remove empty character
         //$input = preg_replace('/^\s*(.*?)\s*$/im', '$1', $input);
