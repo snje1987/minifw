@@ -47,6 +47,10 @@ class SQLite extends FW\DB {
         return $data;
     }
 
+    public function fetch_hash($res) {
+        throw new Exception('方法未实现');
+    }
+
     public function fetch($res) {
         return $res->fetchArray(MYSQLI_ASSOC);
     }

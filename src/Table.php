@@ -106,16 +106,16 @@ abstract class Table {
         return $this->db->one_query(static::$tbname, $condition, $field, $lock);
     }
 
-    public function gets_by_field($field, $value) {
+    public function gets_by_field($field, $value, $lock = false) {
         $field = strval($field);
         $value = strval($value);
         $condition = [];
         $condition[$field] = $value;
-        return $this->db->limit_query(static::$tbname, $condition);
+        return $this->db->limit_query(static::$tbname, $condition, $lock);
     }
 
-    public function gets_by_condition($condition = [], $field = []) {
-        return $this->db->limit_query(static::$tbname, $condition, $field);
+    public function gets_by_condition($condition = [], $field = [], $lock = false) {
+        return $this->db->limit_query(static::$tbname, $condition, $field, $lock);
     }
 
     public function drop() {

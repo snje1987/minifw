@@ -146,6 +146,27 @@ class Mysqli extends FW\DB {
         return $data;
     }
 
+    /**
+     * @param \mysqli_result $res
+     * @return array
+     */
+    public function fetch_hash($res) {
+        $cols = $res->fetch_fields();
+        $count = count($cols);
+        if ($count <= 1) {
+            return [];
+        }
+        for ($data = []; $tmp = $res->fetch_array(MYSQLI_NUM);) {
+            if ($count == 2) {
+                $data[$tmp[0]] = $tmp[1];
+            }
+            else {
+                $data[$tmp[0]] = $tmp;
+            }
+        }
+        return $data;
+    }
+
     public function fetch($res) {
         return $res->fetch_array(MYSQLI_ASSOC);
     }

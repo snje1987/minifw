@@ -43,20 +43,15 @@ abstract class DB implements TableAnalysis {
         return $class_name::get($args, $id);
     }
 
-    public function limit_query($tbname, $condition = [], $field = []) {
+    public function limit_query($tbname, $condition = [], $field = [], $lock = false) {
         $fieldstr = $this->_parse_field($field);
         $conditionstr = $this->_parse_condition($condition, $tbname);
-        if (is_array($tbname) && $tbname[0] == 'expr') {
-            if ($tbname[0] == 'expr') {
-                $sql = 'select ' . $fieldstr . ' from ' . $tbname[1] . $conditionstr;
-            }
-            else {
-                $sql = 'select ' . $fieldstr . ' from `' . $tbname[1] . '`' . $conditionstr;
-            }
+
+        $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
+        if ($lock === true && $this->_transaction_lv > 0) {
+            $sql .= ' for update';
         }
-        else {
-            $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
-        }
+
         $res = $this->query($sql);
         if ($res === false) {
             return false;
@@ -88,6 +83,24 @@ abstract class DB implements TableAnalysis {
             return false;
         }
         $data = $this->fetch($res);
+        $this->free($res);
+        return $data;
+    }
+
+    public function hash_query($tbname, $condition = [], $field = [], $lock = false) {
+        $fieldstr = $this->_parse_field($field);
+        $conditionstr = $this->_parse_condition($condition, $tbname);
+
+        $sql = 'select ' . $fieldstr . ' from `' . $tbname . '`' . $conditionstr;
+        if ($lock === true && $this->_transaction_lv > 0) {
+            $sql .= ' for update';
+        }
+
+        $res = $this->query($sql);
+        if ($res === false) {
+            return false;
+        }
+        $data = $this->fetch_hash($res);
         $this->free($res);
         return $data;
     }
@@ -365,6 +378,11 @@ abstract class DB implements TableAnalysis {
     abstract public function multi_query($sql);
 
     abstract public function fetch_all($res);
+
+    /**
+     * 将结果集转化成哈希表返回,第一个字段作为键,如果总字段等于2,则用第二个字段作为值,否则用整行作为值
+     */
+    abstract public function fetch_hash($res);
 
     abstract public function fetch($res);
 
