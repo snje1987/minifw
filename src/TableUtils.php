@@ -41,8 +41,9 @@ class TableUtils {
 
     public static function display_all_diff($ns = '', $path = '') {
         $diff = self::get_all_diff($ns, $path);
-
-        header("Content-Type:text/plain;charset=utf-8");
+        if (!headers_sent()) {
+            header("Content-Type:text/plain;charset=utf-8");
+        }
         $otable = '';
         $trans = [];
         foreach ($diff as $class => $info) {

@@ -7,6 +7,8 @@ use Org\Snje\Minifw\Exception;
 
 class System {
 
+    const MAX_ERROR = 100;
+
     /**
      * @var static the instance
      */
@@ -35,8 +37,13 @@ class System {
     protected $errors = [];
     protected $use_buffer = false;
     protected $log_error = false;
+    protected $is_cli = false;
 
     protected function __construct($cfg_path) {
+
+        if (PHP_SAPI === 'cli') {
+            $this->is_cli = true;
+        }
 
         $_GET = self::magic_gpc($_GET);
         $_POST = self::magic_gpc($_POST);
@@ -70,7 +77,9 @@ class System {
         set_exception_handler([$this, 'captureException']);
         //设置停机处理函数
         register_shutdown_function([$this, 'captureShutdown']);
-        header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
+        if (!headers_sent()) {
+            header('Content-type:text/html;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
+        }
     }
 
     public function run() {
@@ -177,7 +186,12 @@ class System {
 
     public function captureNormal($number, $message, $file, $line) {
         if (DEBUG === 1) {
-            $this->errors[] = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
+            if (!$this->is_cli && count($this->errors) < self::MAX_ERROR) {
+                $this->errors[] = ['type' => $number, 'message' => $message, 'file' => $file, 'line' => $line];
+            }
+            else {
+                echo '[' . $number . '] ' . $file . '[' . $line . ']:' . $message . "\n";
+            }
         }
         if ($this->log_error) {
             error_log('[' . $number . '] ' . $file . '[' . $line . ']:' . $message);
@@ -210,7 +224,9 @@ class System {
                 @ob_end_clean();
             }
             if (DEBUG === 1) {
-                header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
+                if (!headers_sent()) {
+                    header('Content-type:text/plain;charset=' . $this->config->get_config('main', 'encoding', 'utf-8'));
+                }
                 print_r($error);
             }
             else {
