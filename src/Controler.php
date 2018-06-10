@@ -26,7 +26,7 @@ class Controler {
     public static function send_download_header($filename) {
         header("Accept-Ranges: bytes");
         $ua = isset($_SERVER["HTTP_USER_AGENT"]) ? strval($_SERVER["HTTP_USER_AGENT"]) : '';
-        if (strpos($ua, "MSIE") || (strpos($ua, 'rv:11.0') && strpos($ua, 'Trident'))) {
+        if (strpos($ua, "Edge") || strpos($ua, "MSIE") || (strpos($ua, 'rv:11.0') && strpos($ua, 'Trident'))) {
             $encoded_filename = urlencode($filename);
             $encoded_filename = str_replace("+", "%20", $encoded_filename);
             header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
